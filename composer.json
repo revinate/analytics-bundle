@@ -1,0 +1,29 @@
+{
+    "name": "revinate/analytics-bundle",
+    "description": "Revinate Analytics Bundle",
+    "keywords": ["symfony2", "elasticsearch", "analytics"],
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "authors": [{
+        "name" : "Vinay Kumar"
+    }],
+    "require": {
+        "php"                         : ">=5.3.0",
+        "symfony/yaml"                : ">=2.4.8",
+        "symfony/dependency-injection": ">=2.4.8",
+        "symfony/config"              : ">=2.4.8"
+    },
+    "require-dev": {
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        }
+    },
+    "autoload": {
+        "psr-0": {
+            "Revinate\\AnalyticsBundle\\": ""
+        }
+    },
+    "target-dir" : "Revinate/AnalyticsBundle"
+}

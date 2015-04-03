@@ -1,0 +1,5 @@
+services:
+    revinate_analytics.routing_loader:
+        class: Revinate\AnalyticsBundle\Routing\RoutingLoader
+        tags:
+            - { name: routing.loader }
