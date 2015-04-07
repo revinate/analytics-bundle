@@ -3,10 +3,10 @@
 namespace Revinate\AnalyticsBundle\Controller;
 
 use Revinate\AnalyticsBundle\AnalyticsInterface;
-use Revinate\AnalyticsBundle\Filter\AbstractFilter;
+
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
+
 use Symfony\Component\HttpFoundation\Response;
 
 class ConfigController extends Controller {
@@ -57,7 +57,7 @@ class ConfigController extends Controller {
     protected function getLinks(AnalyticsInterface $analytics, $source) {
         $router = $this->container->get('router');
         $filterLinks = array();
-        foreach ($analytics->getFilters() as $filter) {
+        foreach ($analytics->getFilterSources() as $filter) {
             $filterLinks[$filter->getField()] = array(
                 'uri' => $router->generate('revinate_analytics_filter_query', array('source' => $source, 'filter' => $filter->getName(), 'query' => 'query', 'page' => '1', 'pageSize' => '20'), true),
                 'method' => 'get'

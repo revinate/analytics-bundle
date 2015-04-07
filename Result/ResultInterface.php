@@ -8,9 +8,9 @@ interface ResultInterface {
 
     /**
      * @param \Revinate\AnalyticsBundle\Query\QueryBuilder $queryBuilder
-     * @param $data
+     * @param \Elastica\ResultSet $elasticaResultSet
      */
-    public function __construct(QueryBuilder $queryBuilder, $data);
+    public function __construct(QueryBuilder $queryBuilder, \Elastica\ResultSet $elasticaResultSet);
 
     /**
      * @return mixed

@@ -7,9 +7,9 @@ use Revinate\AnalyticsBundle\Dimension\AllDimension;
 use Revinate\AnalyticsBundle\Dimension\DateHistogramDimension;
 use Revinate\AnalyticsBundle\Dimension\Dimension;
 use Revinate\AnalyticsBundle\Elastica\FilterHelper;
-use Revinate\AnalyticsBundle\Example\Filter\AppFilter;
+use Revinate\AnalyticsBundle\Example\FilterSource\AppFilterSource;
 use Revinate\AnalyticsBundle\Metric\Metric;
-use Revinate\AnalyticsBundle\Metric\ProcessedMetric;
+
 use Revinate\AnalyticsBundle\Metric\Result;
 
 class AppRequestAnalytics extends Analytics {
@@ -29,11 +29,11 @@ class AppRequestAnalytics extends Analytics {
     }
 
     /**
-     * @return array|\Revinate\AnalyticsBundle\Filter\FilterInterface[]
+     * @return array|\Revinate\AnalyticsBundle\FilterSource\FilterSourceInterface[]
      */
-    public function getFilters() {
+    public function getFilterSources() {
         return array(
-            AppFilter::create($this->container, "appId"),
+            AppFilterSource::create($this->container, "appId"),
         );
     }
 

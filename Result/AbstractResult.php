@@ -14,16 +14,20 @@ abstract class AbstractResult implements ResultInterface {
     /** @var array */
     protected $nested;
 
+    /** @var  \Elastica\ResultSet */
+    protected $elasticaResultSet;
+
     /**
      * @param QueryBuilder $queryBuilder
-     * @param $data
+     * @param \Elastica\ResultSet $elasticaResultSet
      */
-    public function __construct(QueryBuilder $queryBuilder, $data) {
+    public function __construct(QueryBuilder $queryBuilder, \Elastica\ResultSet $elasticaResultSet) {
         $this->queryBuilder = $queryBuilder;
         $this->analytics = $this->queryBuilder->getAnalytics();
-        $this->raw = $data;
+        $this->elasticaResultSet = $elasticaResultSet;
+        $this->raw = $elasticaResultSet->getAggregations();
         // Nested Data is required for building all other views
-        $this->nested = $this->calculateProcessedMetrics($this->buildNestedResult($data));
+        $this->nested = $this->calculateProcessedMetrics($this->buildNestedResult($this->raw));
     }
 
     /**
@@ -52,6 +56,13 @@ abstract class AbstractResult implements ResultInterface {
      */
     public function getRaw() {
         return $this->raw;
+    }
+
+    /**
+     * @return \Elastica\ResultSet
+     */
+    public function getElasticaResultSet() {
+        return $this->elasticaResultSet;
     }
 
     /**

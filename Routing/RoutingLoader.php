@@ -2,7 +2,7 @@
 
 namespace Revinate\AnalyticsBundle\Routing;
 
-use Revinate\AnalyticsBundle\Filter\AbstractFilter;
+use Revinate\AnalyticsBundle\FilterSource\AbstractFilterSource;
 use Symfony\Component\Config\Loader\Loader;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
@@ -38,7 +38,7 @@ class RoutingLoader extends Loader {
 
         // Route for Filters
         $route = new Route('/api-new/revinate/analytics/{source}/filter/{filter}/{query}/{page}/{pageSize}',
-            array('_controller' => 'RevinateAnalyticsBundle:Filter:query', "query" => AbstractFilter::ALL, "page" => 1, "pageSize" => 10));
+            array('_controller' => 'RevinateAnalyticsBundle:Filter:query', "query" => AbstractFilterSource::ALL, "page" => 1, "pageSize" => 10));
         $routes->add("revinate_analytics_filter_query", $route);
 
         return $routes;

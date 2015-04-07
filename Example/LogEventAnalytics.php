@@ -7,12 +7,12 @@ use Revinate\AnalyticsBundle\Dimension\AllDimension;
 use Revinate\AnalyticsBundle\Dimension\DateHistogramDimension;
 use Revinate\AnalyticsBundle\Dimension\Dimension;
 use Revinate\AnalyticsBundle\Elastica\FilterHelper;
-use Revinate\AnalyticsBundle\Example\Filter\AppFilter;
-use Revinate\AnalyticsBundle\Example\Filter\PropertyFilter;
+use Revinate\AnalyticsBundle\Example\FilterSource\AppFilterSource;
+use Revinate\AnalyticsBundle\Example\FilterSource\PropertyFilterSource;
 use Revinate\AnalyticsBundle\Metric\Metric;
 use Revinate\AnalyticsBundle\Metric\ProcessedMetric;
 use Revinate\AnalyticsBundle\Metric\Result;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+
 
 class LogEventAnalytics extends Analytics {
 
@@ -31,12 +31,12 @@ class LogEventAnalytics extends Analytics {
     }
 
     /**
-     * @return array|\Revinate\AnalyticsBundle\Filter\FilterInterface[]
+     * @return array|\Revinate\AnalyticsBundle\FilterSource\FilterSourceInterface[]
      */
-    public function getFilters() {
+    public function getFilterSources() {
         return array(
-            AppFilter::create($this->container, "appId"),
-            PropertyFilter::create($this->container, "propertyId"),
+            AppFilterSource::create($this->container, "appId"),
+            PropertyFilterSource::create($this->container, "propertyId"),
         );
     }
 
@@ -61,7 +61,7 @@ class LogEventAnalytics extends Analytics {
     }
 
     public function getIndex() {
-        return 'log_event_2015_03';
+        return 'log_event_*';
     }
 
     public function getType() {

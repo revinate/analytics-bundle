@@ -30,7 +30,7 @@ app.controller('DemoController', ['$scope', '$http', function($scope, $http) {
         $http.get(configUrl).then(function(response) {
             $scope.configs = response.data;
             $scope.config = _.findWhere($scope.configs, {name: 'log_event'});
-            angular.forEach($scope.configs, function(config, key) {
+            angular.forEach($scope.configs, function(config) {
                 $http.get(config._link.uri).then(function(response) {
                     $scope.configs[config.name]['config'] = response.data;
                 });

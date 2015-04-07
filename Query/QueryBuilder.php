@@ -33,6 +33,10 @@ class QueryBuilder {
     protected $filter;
     /** @var  bool */
     protected $isNestedDimensions = false;
+    /** @var int */
+    protected $offset = 0;
+    /** @var int */
+    protected $size = 10;
 
     /**
      * @param \Elastica\Client $elasticaClient
@@ -127,10 +131,17 @@ class QueryBuilder {
     }
 
     /**
-     * @return \Elastica\Filter\AbstractFilter
+     * @param int $size
      */
-    public function getFilter() {
-        return $this->filter;
+    public function setSize($size) {
+        $this->size = $size;
+    }
+
+    /**
+     * @param int $offset
+     */
+    public function setOffset($offset) {
+        $this->offset = $offset;
     }
 
     /**
@@ -172,6 +183,7 @@ class QueryBuilder {
                 $dimensionAgg = new \Elastica\Aggregation\Terms($dimension->getName());
                 $dimensionAgg->setField($dimension->getField());
                 $dimensionAgg->setSize($dimension->getSize());
+                //$dimensionAgg->setOrder()
             }
 
             $dimensionAggregations[] = $dimensionAgg;
@@ -261,7 +273,8 @@ class QueryBuilder {
      */
     public function getQuery() {
         $query = new \Elastica\Query();
-        $query->setSize(0);
+        $query->setSize($this->size);
+        $query->setFrom($this->offset);
 
         // Create Dimensions and Metric Aggregations
         $dimensionAggregations = $this->createDimensionAggregations();
@@ -286,6 +299,7 @@ class QueryBuilder {
                 $previousDimensionAggregation = $dimensionAggregation;
             }
             $query->addAggregation($firstDimensionAggregation);
+
         } else if (count($dimensionAggregations) >= 1) {
             // Top Level Aggregations
             foreach ($dimensionAggregations as $dimensionAggregation) {
@@ -304,9 +318,9 @@ class QueryBuilder {
         }
 
         // Add Filter
-        if (!is_null($this->getFilter())) {
+        if (!is_null($this->filter)) {
             $filteredQuery = new \Elastica\Query\Filtered();
-            $filteredQuery->setFilter($this->getFilter());
+            $filteredQuery->setFilter($this->filter);
             $query->setQuery($filteredQuery);
         }
         return $query;
@@ -323,9 +337,7 @@ class QueryBuilder {
         $search->addType($this->analytics->getType());
         $search->setQuery($query);
 
-        //print_r($search->getQuery()->toArray());
-
-        $aggregations = $search->search()->getAggregations();
-        return new ResultSet($this, $aggregations);
+        $elasticaResultSet = $search->search();
+        return new ResultSet($this, $elasticaResultSet);
     }
 }

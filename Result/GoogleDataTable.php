@@ -21,7 +21,7 @@ class GoogleDataTable extends AbstractResult {
      * @return mixed
      */
     protected function buildResult() {
-        $tabular = new Tabular($this->getQueryBuilder(), $this->getRaw());
+        $tabular = new Tabular($this->getQueryBuilder(), $this->getElasticaResultSet());
         $analytics = $this->getQueryBuilder()->getAnalytics();
         $this->service->addColumn('Label', GoogleDataTableService::TYPE_STRING);
         foreach ($this->getQueryBuilder()->getMetrics() as $metricName) {

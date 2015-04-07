@@ -2,7 +2,7 @@
 
 namespace Revinate\AnalyticsBundle\Result;
 
-use Revinate\AnalyticsBundle\Service\GoogleDataTableService;
+
 
 class ChartJs extends AbstractResult {
 
@@ -17,7 +17,7 @@ class ChartJs extends AbstractResult {
      * @return mixed
      */
     protected function buildResult() {
-        $tabular = new Tabular($this->getQueryBuilder(), $this->getRaw());
+        $tabular = new Tabular($this->getQueryBuilder(), $this->getElasticaResultSet());
         $analytics = $this->getQueryBuilder()->getAnalytics();
 
         $labels = array();

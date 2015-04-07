@@ -2,13 +2,12 @@
 
 namespace Revinate\AnalyticsBundle;
 
-use Revinate\AnalyticsBundle\Dimension\DateHistogramDimension;
-use Revinate\AnalyticsBundle\Dimension\Dimension;
+
 use Revinate\AnalyticsBundle\Dimension\DimensionInterface;
-use Revinate\AnalyticsBundle\Filter\FilterInterface;
-use Revinate\AnalyticsBundle\Metric\Metric;
+use Revinate\AnalyticsBundle\FilterSource\FilterSourceInterface;
+
 use Revinate\AnalyticsBundle\Metric\MetricInterface;
-use Revinate\AnalyticsBundle\Metric\ProcessedMetric;
+
 
 interface AnalyticsInterface {
 
@@ -23,9 +22,9 @@ interface AnalyticsInterface {
     public function getMetrics();
 
     /**
-     * @return FilterInterface[]
+     * @return FilterSourceInterface[]
      */
-    public function getFilters();
+    public function getFilterSources();
 
     /**
      * @return string

@@ -16,6 +16,8 @@ class Metric implements MetricInterface {
     protected $result = 'sum';
     /** @var  string */
     protected $nestedPath;
+
+    protected $children;
     /** @var \Elastica\Filter\AbstractFilter */
     protected $filter;
     /** @var string */
@@ -107,7 +109,7 @@ class Metric implements MetricInterface {
     }
 
     /**
-     * @return array
+     * @return \Elastica\Filter\AbstractFilter
      */
     public function getFilter() {
         return $this->filter;

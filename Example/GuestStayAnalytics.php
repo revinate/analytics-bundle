@@ -3,18 +3,21 @@
 namespace Revinate\AnalyticsBundle\Example;
 
 use Revinate\AnalyticsBundle\Analytics;
+use Revinate\AnalyticsBundle\Filter\AnalyticsCustomFiltersInterface;
 use Revinate\AnalyticsBundle\Dimension\AllDimension;
 use Revinate\AnalyticsBundle\Dimension\DateHistogramDimension;
 use Revinate\AnalyticsBundle\Dimension\DateRangeDimension;
 use Revinate\AnalyticsBundle\Dimension\Dimension;
 use Revinate\AnalyticsBundle\Dimension\HistogramDimension;
 use Revinate\AnalyticsBundle\Dimension\RangeDimension;
-use Revinate\AnalyticsBundle\Example\Filter\AppFilter;
-use Revinate\AnalyticsBundle\Example\Filter\PropertyFilter;
+
+use Revinate\AnalyticsBundle\Example\FilterSource\PropertyFilterSource;
+use Revinate\AnalyticsBundle\Example\Filter\ValidGuestStayFilter;
+use Revinate\AnalyticsBundle\Filter\CustomFilterInterface;
 use Revinate\AnalyticsBundle\Metric\Metric;
 use Revinate\AnalyticsBundle\Metric\Result;
 
-class GuestStayAnalytics extends Analytics {
+class GuestStayAnalytics extends Analytics implements AnalyticsCustomFiltersInterface {
 
     public function getDimensions() {
         return array(
@@ -39,11 +42,11 @@ class GuestStayAnalytics extends Analytics {
     }
 
     /**
-     * @return array|\Revinate\AnalyticsBundle\Filter\FilterInterface[]
+     * @return array|\Revinate\AnalyticsBundle\FilterSource\FilterSourceInterface[]
      */
-    public function getFilters() {
+    public function getFilterSources() {
         return array(
-            PropertyFilter::create($this->container, "propertyId"),
+            PropertyFilterSource::create($this->container, "propertyId"),
         );
     }
 
@@ -61,5 +64,14 @@ class GuestStayAnalytics extends Analytics {
 
     public function getType() {
         return 'guest_stay';
+    }
+
+    /**
+     * @return CustomFilterInterface[]
+     */
+    public function getCustomFilters() {
+        return array(
+            new ValidGuestStayFilter()
+        );
     }
 }

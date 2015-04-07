@@ -7,6 +7,7 @@ class FilterHelper {
     const TYPE_RANGE = 'range';
     const TYPE_EXISTS = 'exists';
     const TYPE_MISSING = 'missing';
+    const TYPE_CUSTOM = 'custom';
 
     /**
      * @param string        $field

@@ -2,8 +2,7 @@
 
 namespace Revinate\AnalyticsBundle\Result;
 
-use Revinate\AnalyticsBundle\Aggregation\AllAggregation;
-use Revinate\AnalyticsBundle\Metric\ProcessedMetric;
+
 use Revinate\AnalyticsBundle\Query\QueryBuilder;
 
 class ResultSet {
@@ -14,26 +13,30 @@ class ResultSet {
     const TYPE_RAW = 'raw';
     const TYPE_GOOGLE_DATA_TABLE = 'google_data_table';
     const TYPE_CHART_JS = 'chartjs';
+    const TYPE_DOCUMENTS = 'documents';
 
     /** @var array */
     protected $data;
     /** @var \Revinate\AnalyticsBundle\Query\QueryBuilder  */
     protected $queryBuilder;
+    /** @var \Elastica\ResultSet  */
+    protected $elasticaResultSet;
 
     /**
      * @param QueryBuilder $queryBuilder
-     * @param $data
+     * @param \Elastica\ResultSet $elasticaResultSet
      */
-    public function __construct(QueryBuilder $queryBuilder, $data) {
+    public function __construct(QueryBuilder $queryBuilder, \Elastica\ResultSet $elasticaResultSet) {
         $this->queryBuilder = $queryBuilder;
-        $this->data = $data;
+        $this->elasticaResultSet = $elasticaResultSet;
+        $this->data = $elasticaResultSet->getAggregations();
     }
 
     /**
      * @return array|mixed
      */
     public function getTabular() {
-        $resultType = new Tabular($this->queryBuilder, $this->data);
+        $resultType = new Tabular($this->queryBuilder, $this->elasticaResultSet);
         return $resultType->getResult();
     }
 
@@ -41,7 +44,7 @@ class ResultSet {
      * @return array
      */
     public function getFlattened() {
-        $resultType = new Flattened($this->queryBuilder, $this->data);
+        $resultType = new Flattened($this->queryBuilder, $this->elasticaResultSet);
         return $resultType->getResult();
     }
 
@@ -49,7 +52,7 @@ class ResultSet {
      * @return array|mixed
      */
     public function getNested() {
-        $resultType = new Nested($this->queryBuilder, $this->data);
+        $resultType = new Nested($this->queryBuilder, $this->elasticaResultSet);
         return $resultType->getResult();
     }
 
@@ -57,7 +60,7 @@ class ResultSet {
      * @return array
      */
     public function getRaw() {
-        $resultType = new Raw($this->queryBuilder, $this->data);
+        $resultType = new Raw($this->queryBuilder, $this->elasticaResultSet);
         return $resultType->getResult();
     }
 
@@ -65,7 +68,7 @@ class ResultSet {
      * @return mixed
      */
     public function getGoogleDataTable() {
-        $resultType = new GoogleDataTable($this->queryBuilder, $this->data);
+        $resultType = new GoogleDataTable($this->queryBuilder, $this->elasticaResultSet);
         return $resultType->getResult();
     }
 
@@ -73,7 +76,15 @@ class ResultSet {
      * @return mixed
      */
     public function getChartJs() {
-        $resultType = new ChartJs($this->queryBuilder, $this->data);
+        $resultType = new ChartJs($this->queryBuilder, $this->elasticaResultSet);
+        return $resultType->getResult();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDocuments() {
+        $resultType = new Documents($this->queryBuilder, $this->elasticaResultSet);
         return $resultType->getResult();
     }
 
@@ -85,22 +96,18 @@ class ResultSet {
         switch ($format) {
             case self::TYPE_NESTED:
                 return $this->getNested();
-                break;
             case self::TYPE_FLATTENED:
                 return $this->getFlattened();
-                break;
             case self::TYPE_TABULAR:
                 return $this->getTabular();
-                break;
             case self::TYPE_RAW:
                 return $this->getRaw();
-                break;
             case self::TYPE_GOOGLE_DATA_TABLE:
                 return $this->getGoogleDataTable();
-                break;
             case self::TYPE_CHART_JS:
                 return $this->getChartJs();
-                break;
+            case self::TYPE_DOCUMENTS:
+                return $this->getDocuments();
             default:
                 return $this->getNested();
         }

@@ -3,13 +3,11 @@
 namespace Revinate\AnalyticsBundle;
 
 use Revinate\AnalyticsBundle\Dimension\Dimension;
-use Revinate\AnalyticsBundle\Dimension\DimensionInterface;
-use Revinate\AnalyticsBundle\Filter\AbstractFilter;
-use Revinate\AnalyticsBundle\Filter\FilterInterface;
+use Revinate\AnalyticsBundle\Filter\CustomFilterInterface;
+use Revinate\AnalyticsBundle\Filter\AnalyticsCustomFiltersInterface;
+use Revinate\AnalyticsBundle\FilterSource\AbstractFilterSource;
 use Revinate\AnalyticsBundle\Metric\Metric;
-use Revinate\AnalyticsBundle\Metric\MetricInterface;
 use Revinate\AnalyticsBundle\Metric\ProcessedMetric;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 abstract class Analytics implements AnalyticsInterface {
@@ -55,16 +53,34 @@ abstract class Analytics implements AnalyticsInterface {
     /**
      * @param $name
      * @throws \Exception
-     * @return AbstractFilter
+     * @return AbstractFilterSource
      */
-    public function getFilter($name) {
-        foreach ($this->getFilters() as $filter) {
-            if ($filter->getName() == $name) {
-                return $filter;
+    public function getFilterSource($name) {
+        foreach ($this->getFilterSources() as $filterSource) {
+            if ($filterSource->getName() == $name) {
+                return $filterSource;
             }
         }
         throw new \Exception(__METHOD__ . " Invalid Filter: " . $name);
     }
+
+    /**
+     * @param $name
+     * @throws \Exception
+     * @return CustomFilterInterface
+     */
+    public function getCustomFilter($name) {
+        if (! $this instanceof AnalyticsCustomFiltersInterface) {
+            return null;
+        }
+        foreach ($this->getCustomFilters() as $customFilter) {
+            if ($customFilter->getName() == $name) {
+                return $customFilter;
+            }
+        }
+        throw new \Exception(__METHOD__ . " Invalid Custom Filter: " . $name);
+    }
+
 
     /**
      * @return string[]
@@ -92,11 +108,11 @@ abstract class Analytics implements AnalyticsInterface {
      * @return array
      */
     public function getConfig() {
-        $router = $this->container->get('router');
         $config = array(
             'dimensions' => array(),
             'metrics' => array(),
-            'filters' => array(),
+            'filterSources' => array(),
+            'customFilters' => array(),
         );
         foreach ($this->getDimensions() as $dimension) {
             $config['dimensions'][] = $dimension->toArray();
@@ -104,8 +120,13 @@ abstract class Analytics implements AnalyticsInterface {
         foreach ($this->getMetrics() as $metric) {
             $config['metrics'][] = $metric->toArray();
         }
-        foreach ($this->getFilters() as $filter) {
-            $config['filters'][] = $filter->toArray();
+        foreach ($this->getFilterSources() as $filter) {
+            $config['filterSources'][] = $filter->toArray();
+        }
+        if ($this instanceof AnalyticsCustomFiltersInterface) {
+            foreach ($this->getCustomFilters() as $customFilter) {
+                $config['customFilters'][] = $customFilter->toArray();
+            }
         }
         return $config;
     }

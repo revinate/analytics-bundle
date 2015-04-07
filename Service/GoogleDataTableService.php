@@ -4,12 +4,11 @@ namespace Revinate\AnalyticsBundle\Service;
 
 use AMNL\Google\Chart\Table;
 use AMNL\Google\Chart\Row;
-use AMNL\Google\Chart\Column;
-use AMNL\Google\Chart\Type\String;
-use AMNL\Google\Chart\Type\Number;
+
+
 use AMNL\Google\Chart\Type\Date;
 use AMNL\Google\Chart\Type\DateTime;
-use AMNL\Google\Chart\Type\Boolean;
+
 use AMNL\Google\Chart\Type\TimeOfDay;
 
 /**
@@ -154,6 +153,7 @@ class GoogleDataTableService {
     /**
      * Get the generated datatable in json
      *
+     * @param bool $flushData
      * @return string
      */
     public function getDataTableJson($flushData = true) {
@@ -168,6 +168,7 @@ class GoogleDataTableService {
     /**
      * Get the generated datatable as an object
      *
+     * @param bool $flushData
      * @return object
      */
     public function getDataTableObject($flushData = true) {
@@ -182,6 +183,7 @@ class GoogleDataTableService {
     /**
      * get the generated datatable as an array
      *
+     * @param bool $flushData
      * @return Array
      */
     public function getDataTableArray($flushData = true) {

@@ -3,11 +3,11 @@
 namespace Revinate\AnalyticsBundle\Controller;
 
 use Revinate\AnalyticsBundle\AnalyticsInterface;
-use Revinate\AnalyticsBundle\Filter\FilterInterface;
-use Revinate\AnalyticsBundle\Query\QueryBuilder;
+
+
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
+
 use Symfony\Component\HttpFoundation\Response;
 
 class FilterController extends Controller {
@@ -26,7 +26,7 @@ class FilterController extends Controller {
         /** @var AnalyticsInterface $analytics */
         $analytics = new $sourceConfig['class']($this->get('service_container'));
         $analyticsFilter = null;
-        foreach ($analytics->getFilters() as $filterInstance) {
+        foreach ($analytics->getFilterSources() as $filterInstance) {
             if ($filterInstance->getName() == $filter) {
                 $analyticsFilter = $filterInstance;
                 break;

@@ -3,11 +3,13 @@
 namespace Revinate\AnalyticsBundle\Controller;
 
 use Revinate\AnalyticsBundle\AnalyticsInterface;
+use Revinate\AnalyticsBundle\Filter\AnalyticsCustomFiltersInterface;
 use Revinate\AnalyticsBundle\Elastica\FilterHelper;
 use Revinate\AnalyticsBundle\Query\QueryBuilder;
+use Revinate\AnalyticsBundle\Result\ResultSet;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
+
 use Symfony\Component\HttpFoundation\Response;
 
 class StatsController extends Controller {
@@ -40,23 +42,26 @@ class StatsController extends Controller {
             ->addMetrics($post['metrics'])
         ;
         if (! empty($post['filters'])) {
-            $queryBuilder->setFilter($this->getFilters($post['filters']));
+            $queryBuilder->setFilter($this->getFilters($analytics, $post['filters']));
         }
 
         $resultSet = $queryBuilder->execute();
         $format = isset($post['format']) ? $post['format'] : 'nested';
-        return new JsonResponse($resultSet->getResult($format));
+        return new JsonResponse($this->getFormattedResult($format, $resultSet));
     }
 
     /**
+     * @param \Revinate\AnalyticsBundle\AnalyticsInterface|AnalyticsCustomFiltersInterface $analytics
      * @param $postFilters
+     * @throws \Exception
      * @return \Elastica\Filter\BoolAnd
      */
-    protected function getFilters($postFilters) {
+    protected function getFilters(AnalyticsInterface $analytics, $postFilters) {
         $andFilter = new \Elastica\Filter\BoolAnd();
-        foreach ($postFilters as $field => $filter) {
-            $type = $filter[0];
-            $value = $filter[1];
+        foreach ($postFilters as $field => $postFilter) {
+            $type = $postFilter[0];
+            $value = $postFilter[1];
+            $filter = null;
             switch ($type) {
                 case FilterHelper::TYPE_VALUE:
                     $filter = FilterHelper::getValueFilter($field, $value);
@@ -70,10 +75,33 @@ class StatsController extends Controller {
                 case FilterHelper::TYPE_MISSING:
                     $filter = FilterHelper::getMissingFilter($field);
                     break;
+                case FilterHelper::TYPE_CUSTOM:
+                    if (! $analytics instanceof AnalyticsCustomFiltersInterface) {
+                        throw new \Exception(__METHOD__  . " Given analytics source does not implement AnalyticsCustomFiltersInterface");
+                    }
+                    $filter = $analytics->getCustomFilter($value)->getFilter();
+                    break;
+                default:
+                    throw new \Exception(__METHOD__  . "Invalid filter passed");
             }
             $andFilter->addFilter($filter);
         }
         return $andFilter;
+    }
+
+    /**
+     * @param $format
+     * @param ResultSet $resultSet
+     * @return array
+     */
+    protected function getFormattedResult($format, ResultSet $resultSet) {
+        $isArray = is_array($format);
+        $formats = $isArray ? $format : array($format);
+        $results = array();
+        foreach ($formats as $format) {
+            $results[$format] = $resultSet->getResult($format);
+        }
+        return $isArray ? $results : $results[$format];
     }
 
     /**

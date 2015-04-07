@@ -1,11 +1,11 @@
 Features TODO:
+- Order of buckets ?
+
+Future TODO:
+- Script Dimension
 - Reverse Nested Aggregations
 - Children Aggregations
-- Order of buckets
-
-Minor TODO
-- Composer.json Include google datatable dependencies
-
+- Composer
 
 Done:
 - Metric filters
@@ -23,3 +23,5 @@ Done:
 - Filter field names?
 - Add auto include metrics
 - Datatable
+- Return docs?
+- Custom Filter Classes (Parent/Child Filters)
