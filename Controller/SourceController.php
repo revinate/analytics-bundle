@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 use Symfony\Component\HttpFoundation\Response;
 
-class ConfigController extends Controller {
+class SourceController extends Controller {
 
     /**
      * Config List Controller
@@ -23,7 +23,7 @@ class ConfigController extends Controller {
             $data[$key] = array(
                 'name' => $key,
                 '_link' => array(
-                    'uri' => $router->generate('revinate_analytics_config_get', array('source' => $key), true),
+                    'uri' => $router->generate('revinate_analytics_source_get', array('source' => $key), true),
                     'method' => 'GET'
                 )
             );
@@ -58,8 +58,8 @@ class ConfigController extends Controller {
         $router = $this->container->get('router');
         $filterLinks = array();
         foreach ($analytics->getFilterSources() as $filter) {
-            $filterLinks[$filter->getField()] = array(
-                'uri' => $router->generate('revinate_analytics_filter_query', array('source' => $source, 'filter' => $filter->getName(), 'query' => 'query', 'page' => '1', 'pageSize' => '20'), true),
+            $filterLinks[$filter->getName()] = array(
+                'uri' => $router->generate('revinate_analytics_filter_query', array('source' => $source, 'filter' => $filter->getReadableName(), 'query' => 'query', 'page' => '1', 'pageSize' => '20'), true),
                 'method' => 'get'
             );
         }
@@ -68,7 +68,7 @@ class ConfigController extends Controller {
                 'uri' => $router->generate('revinate_analytics_stats_search', array('source' => $source), true),
                 'method' => 'post'
             ),
-            'filters' => $filterLinks
+            'filterSources' => $filterLinks
         );
     }
 }

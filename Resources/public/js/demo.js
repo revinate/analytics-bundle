@@ -48,7 +48,7 @@ app.controller('DemoController', ['$scope', '$http', function($scope, $http) {
             },
             "format": $scope.format
         };
-        return $http.post('/api-new/revinate/analytics/'+$scope.config.name+'/stats', search).then(function(response) {
+        return $http.post('/api-new/revinate/analytics/source/'+$scope.config.name+'/stats', search).then(function(response) {
             $scope.stats = response.data;
             $scope.prettyStats = $scope.syntaxHighlight(JSON.stringify($scope.stats, null, 2));
         });
@@ -61,7 +61,7 @@ app.controller('DemoController', ['$scope', '$http', function($scope, $http) {
             $scope.propertyFilter = {};
             return;
         }
-        var filterConfig = $scope.config.config._links.filters[type];
+        var filterConfig = $scope.config.config._links.filterSources[type];
         var url = filterConfig.uri.replace('query', query);
         $http.get(url).then(function(response) {
             $scope.propertyFilter = response.data[0];

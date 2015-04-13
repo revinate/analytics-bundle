@@ -8,16 +8,16 @@ abstract class AbstractFilterSource implements FilterSourceInterface {
     const ALL = '_all';
 
     /** @var  string */
-    protected $field;
+    protected $name;
 
     /** @var  ContainerInterface */
     protected $container;
     /**
      *
      */
-    public function __construct(ContainerInterface $container, $field) {
+    public function __construct(ContainerInterface $container, $name) {
         $this->container = $container;
-        $this->field = $field;
+        $this->name = $name;
         return $this;
     }
 
@@ -31,8 +31,8 @@ abstract class AbstractFilterSource implements FilterSourceInterface {
     /**
      * @return string
      */
-    public function getField() {
-        return $this->field;
+    public function getName() {
+        return $this->name;
     }
 
     /**
@@ -40,8 +40,8 @@ abstract class AbstractFilterSource implements FilterSourceInterface {
      */
     public function toArray() {
         return array(
-            'name' => $this->getName(),
-            "field" => $this->getField()
+            'name' => $this->getReadableName(),
+            "field" => $this->getName()
         );
     }
 }

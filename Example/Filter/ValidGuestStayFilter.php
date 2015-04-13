@@ -16,9 +16,10 @@ class ValidGuestStayFilter extends AbstractCustomFilter {
     }
 
     /**
+     * @param null $value
      * @return \Elastica\Filter\AbstractFilter
      */
-    public function getFilter() {
+    public function getFilter($value = null) {
         $boolAnd = new \Elastica\Filter\BoolAnd();
         $validGuestStayFilter = new \Elastica\Filter\Terms(GuestStay::ATTRIBUTE_NAME_CONFIRMATION_STATUS, GuestListImportTranslationInternalTypeRepository::getValidTypes());
         $boolAnd->addFilter($validGuestStayFilter);

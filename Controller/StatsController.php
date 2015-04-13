@@ -58,28 +58,28 @@ class StatsController extends Controller {
      */
     protected function getFilters(AnalyticsInterface $analytics, $postFilters) {
         $andFilter = new \Elastica\Filter\BoolAnd();
-        foreach ($postFilters as $field => $postFilter) {
+        foreach ($postFilters as $name => $postFilter) {
             $type = $postFilter[0];
             $value = $postFilter[1];
             $filter = null;
             switch ($type) {
                 case FilterHelper::TYPE_VALUE:
-                    $filter = FilterHelper::getValueFilter($field, $value);
+                    $filter = FilterHelper::getValueFilter($name, $value);
                     break;
                 case FilterHelper::TYPE_RANGE:
-                    $filter = FilterHelper::getRangeFilter($field, $value);
+                    $filter = FilterHelper::getRangeFilter($name, $value);
                     break;
                 case FilterHelper::TYPE_EXISTS:
-                    $filter = FilterHelper::getExistsFilter($field);
+                    $filter = FilterHelper::getExistsFilter($name);
                     break;
                 case FilterHelper::TYPE_MISSING:
-                    $filter = FilterHelper::getMissingFilter($field);
+                    $filter = FilterHelper::getMissingFilter($name);
                     break;
                 case FilterHelper::TYPE_CUSTOM:
                     if (! $analytics instanceof AnalyticsCustomFiltersInterface) {
                         throw new \Exception(__METHOD__  . " Given analytics source does not implement AnalyticsCustomFiltersInterface");
                     }
-                    $filter = $analytics->getCustomFilter($value)->getFilter();
+                    $filter = $analytics->getCustomFilter($name)->getFilter($value);
                     break;
                 default:
                     throw new \Exception(__METHOD__  . "Invalid filter passed");

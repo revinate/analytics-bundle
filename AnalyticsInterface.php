@@ -4,6 +4,7 @@ namespace Revinate\AnalyticsBundle;
 
 
 use Revinate\AnalyticsBundle\Dimension\DimensionInterface;
+use Revinate\AnalyticsBundle\FilterSource\AbstractFilterSource;
 use Revinate\AnalyticsBundle\FilterSource\FilterSourceInterface;
 
 use Revinate\AnalyticsBundle\Metric\MetricInterface;
@@ -22,7 +23,7 @@ interface AnalyticsInterface {
     public function getMetrics();
 
     /**
-     * @return FilterSourceInterface[]
+     * @return AbstractFilterSource[]
      */
     public function getFilterSources();
 

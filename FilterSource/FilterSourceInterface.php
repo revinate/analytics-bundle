@@ -13,22 +13,16 @@ interface FilterSourceInterface {
 
     /**
      * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
-     * @param $field
+     * @param $name
      * @return self
      */
-    public static function create(ContainerInterface $container, $field);
+    public static function create(ContainerInterface $container, $name);
 
     /**
      * Filter Name
      * @return string
      */
-    public function getField();
-
-    /**
-     * Filter Name
-     * @return string
-     */
-    public function getName();
+    public function getReadableName();
 
     /**
      * @param string|int $id
@@ -45,11 +39,6 @@ interface FilterSourceInterface {
     public function getByQuery($query, $page, $pageSize);
 
     /**
-     * @return string
-     */
-    public function getModel();
-
-    /**
      * @param object $entity
      * @return string
      */
@@ -61,8 +50,4 @@ interface FilterSourceInterface {
      */
     public function getEntityId($entity);
 
-    /**
-     * @return mixed
-     */
-    public function toArray();
 }

@@ -10,9 +10,10 @@ interface CustomFilterInterface {
     public function getName();
 
     /**
+     * @param mixed $value Optional value
      * @return \Elastica\Filter\AbstractFilter
      */
-    public function getFilter();
+    public function getFilter($value = null);
 
     /**
      * @return mixed

@@ -27,7 +27,7 @@ class FilterController extends Controller {
         $analytics = new $sourceConfig['class']($this->get('service_container'));
         $analyticsFilter = null;
         foreach ($analytics->getFilterSources() as $filterInstance) {
-            if ($filterInstance->getName() == $filter) {
+            if ($filterInstance->getReadableName() == $filter) {
                 $analyticsFilter = $filterInstance;
                 break;
             }

@@ -5,7 +5,6 @@ Future TODO:
 - Script Dimension
 - Reverse Nested Aggregations
 - Children Aggregations
-- Composer
 
 Done:
 - Metric filters

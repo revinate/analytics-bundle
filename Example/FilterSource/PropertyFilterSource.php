@@ -16,11 +16,11 @@ class PropertyFilterSource extends AbstractMySQLFilterSource {
 
     /**
      * @param ContainerInterface $container
-     * @param $field
+     * @param $name
      * @return FilterSourceInterface
      */
-    public static function create(ContainerInterface $container, $field) {
-        return new self($container, $field);
+    public static function create(ContainerInterface $container, $name) {
+        return new self($container, $name);
     }
 
     /**
@@ -33,7 +33,7 @@ class PropertyFilterSource extends AbstractMySQLFilterSource {
     /**
      * @return string
      */
-    public function getName() {
+    public function getReadableName() {
         return 'Property Filter';
     }
 

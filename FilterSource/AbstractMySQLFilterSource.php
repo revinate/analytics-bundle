@@ -51,6 +51,11 @@ abstract class AbstractMySQLFilterSource extends AbstractFilterSource implements
     }
 
     /**
+     * @return string
+     */
+    abstract public function getModel();
+
+    /**
      * @return \Doctrine\ORM\EntityRepository
      */
     protected function getRepository() {
