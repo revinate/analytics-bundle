@@ -1,3 +1,3 @@
 # analytics-bundle
 
-Read [Overview](https://github.com/revinate/analytics-bundle/wiki/Overview) to get started.
+Read [Wiki](https://github.com/revinate/analytics-bundle/wiki) to get started.
