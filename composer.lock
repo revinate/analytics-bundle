@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "4d12661487b8a9c42a1972b233192ea9",
+    "hash": "49a9f2f8328b85ae0e5bdeb36a2836c1",
     "packages": [
         {
             "name": "amnl/gc-datatable",
@@ -64,17 +64,11 @@
         },
         {
             "name": "ruflin/elastica",
-            "version": "v1.2.1.0",
+            "version": "1.2.1.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/ruflin/Elastica.git",
-                "reference": "3c3ee39f90d942b1f25fdfb9d39669067375fa79"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/ruflin/Elastica/zipball/3c3ee39f90d942b1f25fdfb9d39669067375fa79",
-                "reference": "3c3ee39f90d942b1f25fdfb9d39669067375fa79",
-                "shasum": ""
+                "url": "https://github.com/revinate/Elastica",
+                "reference": "27f7aa5e1120b1c0128127f3ef3500382554768b"
             },
             "require": {
                 "php": ">=5.3.3"
@@ -98,7 +92,6 @@
                     "Elastica\\Test": "test/lib/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "Apache 2.0"
             ],
@@ -114,7 +107,7 @@
                 "client",
                 "search"
             ],
-            "time": "2014-06-14 08:44:53"
+            "time": "2015-05-19 23:13:15"
         },
         {
             "name": "symfony/config",
@@ -230,17 +223,17 @@
         },
         {
             "name": "symfony/filesystem",
-            "version": "v2.6.6",
+            "version": "v2.6.7",
             "target-dir": "Symfony/Component/Filesystem",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Filesystem.git",
-                "reference": "4983964b3693e4f13449cb3800c64a9112c301b4"
+                "reference": "f73904bd2dae525c42ea1f0340c7c98480ecacde"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Filesystem/zipball/4983964b3693e4f13449cb3800c64a9112c301b4",
-                "reference": "4983964b3693e4f13449cb3800c64a9112c301b4",
+                "url": "https://api.github.com/repos/symfony/Filesystem/zipball/f73904bd2dae525c42ea1f0340c7c98480ecacde",
+                "reference": "f73904bd2dae525c42ea1f0340c7c98480ecacde",
                 "shasum": ""
             },
             "require": {
@@ -266,17 +259,17 @@
             ],
             "authors": [
                 {
-                    "name": "Symfony Community",
-                    "homepage": "http://symfony.com/contributors"
-                },
-                {
                     "name": "Fabien Potencier",
                     "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
                 }
             ],
             "description": "Symfony Filesystem Component",
-            "homepage": "http://symfony.com",
-            "time": "2015-03-22 16:55:57"
+            "homepage": "https://symfony.com",
+            "time": "2015-05-08 00:09:07"
         },
         {
             "name": "symfony/yaml",

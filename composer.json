@@ -18,6 +18,11 @@
                     "type": "zip"
                 }
             }
+        },
+        {
+            "name": "ruflin/elastica",
+            "type": "git",
+            "url": "https://github.com/revinate/Elastica"
         }
     ],
     "require": {
@@ -25,7 +30,7 @@
         "symfony/yaml"                : ">=2.4.8",
         "symfony/dependency-injection": ">=2.4.8",
         "symfony/config"              : ">=2.4.8",
-        "ruflin/elastica"             : "1.2.1.0",
+        "ruflin/elastica"             : "1.2.1.1",
         "amnl/gc-datatable": "dev-master"
     },
     "require-dev": {
