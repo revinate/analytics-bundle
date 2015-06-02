@@ -16,8 +16,6 @@ class Metric implements MetricInterface {
     protected $result = 'sum';
     /** @var  string */
     protected $nestedPath;
-
-    protected $children;
     /** @var \Elastica\Filter\AbstractFilter */
     protected $filter;
     /** @var string */
@@ -86,13 +84,6 @@ class Metric implements MetricInterface {
     }
 
     /**
-     * @return $this
-     */
-    public function setChildren() {
-        return $this;
-    }
-
-    /**
      * @param $result
      * @return $this
      */
@@ -140,9 +131,11 @@ class Metric implements MetricInterface {
 
     /**
      * @param int $precision
+     * @return $this
      */
     public function setPrecision($precision) {
         $this->precision = $precision;
+        return $this;
     }
 
     /**
