@@ -14,6 +14,12 @@ class FilterController extends Controller {
 
     /**
      * Filter Controller
+     * @param $source
+     * @param $filter
+     * @param $query
+     * @param int $page
+     * @param int $pageSize
+     * @return JsonResponse
      */
     public function queryAction($source, $filter, $query, $page = 1, $pageSize = 10) {
         $container = $this->get('service_container');

@@ -11,7 +11,6 @@ class RangeDimension extends Dimension {
     /**
      * @param $name
      * @param null $field
-     * @internal param $type
      * @return self
      */
     public static function create($name, $field = null) {

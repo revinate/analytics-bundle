@@ -33,6 +33,8 @@ class SourceController extends Controller {
 
     /**
      * Config Controller
+     * @param $source
+     * @return JsonResponse
      */
     public function getAction($source) {
         $config = $this->get('service_container')->getParameter('revinate_analytics.config');

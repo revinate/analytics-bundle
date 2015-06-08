@@ -12,8 +12,10 @@ abstract class AbstractFilterSource implements FilterSourceInterface {
 
     /** @var  ContainerInterface */
     protected $container;
+
     /**
-     *
+     * @param ContainerInterface $container
+     * @param $name
      */
     public function __construct(ContainerInterface $container, $name) {
         $this->container = $container;

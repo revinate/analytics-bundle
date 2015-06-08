@@ -5,8 +5,6 @@ namespace Revinate\AnalyticsBundle;
 
 use Revinate\AnalyticsBundle\Dimension\DimensionInterface;
 use Revinate\AnalyticsBundle\FilterSource\AbstractFilterSource;
-use Revinate\AnalyticsBundle\FilterSource\FilterSourceInterface;
-
 use Revinate\AnalyticsBundle\Metric\MetricInterface;
 
 

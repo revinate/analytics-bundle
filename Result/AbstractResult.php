@@ -101,9 +101,8 @@ abstract class AbstractResult implements ResultInterface {
             } else {
                 $metric = $this->analytics->getMetric($dimension);
                 $dimensionData = $this->unsetKeys($dimensionData);
-                if (array_key_exists($metric->getResult(), $dimensionData)) {
-                    $metricValue = isset($dimensionData[$metric->getResult()]) ? $dimensionData[$metric->getResult()] : $metric->getDefault();
-                    $metricValue = round($metricValue, $metric->getPrecision());
+                if (array_key_exists($metric->getResultKey(), $dimensionData)) {
+                    $metricValue = $metric->getValue($dimensionData);
                     if ($isTopLevel) {
                         // If metric at top level, it must be for All Dimension
                         $result[AllAggregation::NAME][$dimension] = $metricValue;
@@ -111,7 +110,7 @@ abstract class AbstractResult implements ResultInterface {
                         $result[$dimension] = $metricValue;
                     }
                 } else {
-                    throw new \Exception("Invalid result " . $metric->getResult() . " specified for metric " . $dimension);
+                    throw new \Exception("Invalid result " . $metric->getResultKey() . " specified for metric " . $dimension);
                 }
             }
         }

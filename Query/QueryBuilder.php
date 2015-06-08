@@ -200,18 +200,18 @@ class QueryBuilder {
             $metric = $this->analytics->getMetric($metricName);
 
             // Leaf level aggregation for the metric itself
-            if (Result::COUNT == $metric->getResult()) {
+            if ($metric->isResultOfType(Result::COUNT)) {
                 $metricAgg = new \Elastica\Aggregation\ValueCount($metric->getName(), $metric->getField());
 
-            } else if (Result::SUM == $metric->getResult()) {
+            } else if ($metric->isResultOfType(Result::SUM)) {
                 $metricAgg = new \Elastica\Aggregation\Sum($metric->getName());
                 $metricAgg->setField($metric->getField());
 
-            } else if (Result::AVG == $metric->getResult()) {
+            } else if ($metric->isResultOfType(Result::AVG)) {
                 $metricAgg = new \Elastica\Aggregation\Avg($metric->getName());
                 $metricAgg->setField($metric->getField());
 
-            } else if (in_array($metric->getResult(), array(Result::MIN, Result::MAX))) {
+            } else if ($metric->isResultOfType(Result::MIN) || $metric->isResultOfType(Result::MAX)) {
                 $metricAgg = new \Elastica\Aggregation\Stats($metric->getName());
                 $metricAgg->setField($metric->getField());
 

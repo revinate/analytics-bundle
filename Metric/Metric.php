@@ -100,6 +100,31 @@ class Metric implements MetricInterface {
     }
 
     /**
+     * @param $data
+     * @return float
+     */
+    public function getValue($data) {
+        $value = isset($data[$this->getResultKey()]) ? $data[$this->getResultKey()] : $this->getDefault();
+        return round($value, $this->getPrecision());
+    }
+
+    /**
+     * @param $type
+     * @return bool
+     */
+    public function isResultOfType($type) {
+        return $this->getResult() == $type;
+    }
+
+    /**
+     * @return string
+     * @throws \Exception
+     */
+    public function getResultKey() {
+        return Result::getResultKey($this->getResult());
+    }
+
+    /**
      * @return \Elastica\Filter\AbstractFilter
      */
     public function getFilter() {

@@ -16,6 +16,9 @@ class StatsController extends Controller {
 
     /**
      * Stats Controller
+     * @param $source
+     * @return JsonResponse
+     * @throws \Exception
      */
     public function searchStatsAction($source) {
         $container = $this->get('service_container');
