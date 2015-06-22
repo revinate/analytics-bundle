@@ -34,6 +34,13 @@ class RevinateAnalyticsExtension extends Extension
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
 
+        // Set Default Host and Port
+        if (! isset($this->config['connection']['host'])) {
+            $this->config['connection']['host'] = '127.0.0.1';
+        }
+        if (! isset($this->config['connection']['port'])) {
+            $this->config['connection']['port'] = 9200;
+        }
         $this->container->setParameter("revinate_analytics.config", $this->config);
     }
 

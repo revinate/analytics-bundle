@@ -1,0 +1,10 @@
+security:
+    providers:
+        in_memory:
+            memory: ~
+    firewalls:
+        test:
+            pattern: ^/(api)/
+            security: false
+        default:
+            anonymous: ~

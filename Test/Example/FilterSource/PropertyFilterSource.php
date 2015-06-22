@@ -1,17 +1,18 @@
 <?php
 
-namespace Revinate\AnalyticsBundle\Example\FilterSource;
+namespace Revinate\AnalyticsBundle\Test\Example\FilterSource;
+
 
 use Revinate\AnalyticsBundle\FilterSource\AbstractMySQLFilterSource;
 use Revinate\AnalyticsBundle\FilterSource\FilterSourceInterface;
-use Revinate\SharedBundle\Entity\App;
+use Revinate\SharedBundle\Entity\Property;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class PropertyFilterSource
- * @package Revinate\AnalyticsBundle\Example\Filter
+ * @package Revinate\AnalyticsBundle\Test\Example\Filter
  */
-class AppFilterSource extends AbstractMySQLFilterSource {
+class PropertyFilterSource extends AbstractMySQLFilterSource {
 
     /**
      * @param ContainerInterface $container
@@ -26,18 +27,18 @@ class AppFilterSource extends AbstractMySQLFilterSource {
      * @return string
      */
     public function getModel() {
-        return "RevinateSharedBundle:App";
+        return "RevinateSharedBundle:Property";
     }
 
     /**
      * @return string
      */
     public function getReadableName() {
-        return 'App Filter';
+        return 'Property Filter';
     }
 
     /**
-     * @param App $entity
+     * @param Property $entity
      * @return string
      */
     public function getEntityName($entity) {
@@ -45,11 +46,10 @@ class AppFilterSource extends AbstractMySQLFilterSource {
     }
 
     /**
-     * @param App $entity
+     * @param Property $entity
      * @return string
      */
     public function getEntityId($entity) {
         return $entity->getId();
     }
-
 }

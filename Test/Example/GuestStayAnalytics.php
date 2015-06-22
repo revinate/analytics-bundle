@@ -1,6 +1,6 @@
 <?php
 
-namespace Revinate\AnalyticsBundle\Example;
+namespace Revinate\AnalyticsBundle\Test\Example;
 
 use Revinate\AnalyticsBundle\Analytics;
 use Revinate\AnalyticsBundle\Filter\AnalyticsCustomFiltersInterface;
@@ -11,8 +11,8 @@ use Revinate\AnalyticsBundle\Dimension\Dimension;
 use Revinate\AnalyticsBundle\Dimension\HistogramDimension;
 use Revinate\AnalyticsBundle\Dimension\RangeDimension;
 
-use Revinate\AnalyticsBundle\Example\FilterSource\PropertyFilterSource;
-use Revinate\AnalyticsBundle\Example\Filter\ValidGuestStayFilter;
+use Revinate\AnalyticsBundle\Test\Example\FilterSource\PropertyFilterSource;
+use Revinate\AnalyticsBundle\Test\Example\Filter\ValidGuestStayFilter;
 use Revinate\AnalyticsBundle\Filter\CustomFilterInterface;
 use Revinate\AnalyticsBundle\Metric\Metric;
 use Revinate\AnalyticsBundle\Metric\Result;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Revinate\AnalyticsBundle\Elastica;
+namespace Revinate\AnalyticsBundle\Test\Elastica;
 
 class FilterHelper {
     const TYPE_VALUE = 'value';

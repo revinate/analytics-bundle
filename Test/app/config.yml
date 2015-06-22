@@ -1,0 +1,14 @@
+imports:
+    - { resource: parameters.yml }
+
+framework:
+    secret: "AnalyticsBundle Test"
+    test: ~
+    router:
+        resource: "%kernel.root_dir%/config/routing.yml"
+        strict_requirements: ~
+
+revinate_analytics:
+    connection: { host: '127.0.0.1', port: 9200 }
+    sources:
+          view:   { class:  Revinate\AnalyticsBundle\Test\Entity\ViewAnalytics }

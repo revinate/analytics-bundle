@@ -2,6 +2,7 @@ Features TODO:
 - Order of buckets ?
 
 Future TODO:
+- Remove Container from Analytics
 - Script Dimension
 - Reverse Nested Aggregations
 - Children Aggregations
@@ -17,10 +18,10 @@ Done:
 - Nested Aggregations
 - Implement Filter Sources
 - Api for metrics, dimensions and filters
-- Size for Term Stats?
-- API Path?
-- Filter field names?
+- Size for Term Stats
+- API Path
+- Filter field names
 - Add auto include metrics
 - Datatable
-- Return docs?
+- Return docs
 - Custom Filter Classes (Parent/Child Filters)

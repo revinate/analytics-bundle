@@ -21,6 +21,12 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->root('revinate_analytics');
         $rootNode
             ->children()
+                ->arrayNode('connection')
+                    ->children()
+                        ->scalarNode('host')->end()
+                        ->scalarNode('port')->end()
+                    ->end()
+                ->end()
                 ->arrayNode('sources')
                     ->useAttributeAsKey('key')
                     ->canBeUnset()

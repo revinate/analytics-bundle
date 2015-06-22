@@ -1,0 +1,3 @@
+revinate_analytics:
+    resource: .
+    type: revinate_analytics

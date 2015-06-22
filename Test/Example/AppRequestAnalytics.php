@@ -1,13 +1,13 @@
 <?php
 
-namespace Revinate\AnalyticsBundle\Example;
+namespace Revinate\AnalyticsBundle\Test\Example;
 
 use Revinate\AnalyticsBundle\Analytics;
 use Revinate\AnalyticsBundle\Dimension\AllDimension;
 use Revinate\AnalyticsBundle\Dimension\DateHistogramDimension;
 use Revinate\AnalyticsBundle\Dimension\Dimension;
-use Revinate\AnalyticsBundle\Elastica\FilterHelper;
-use Revinate\AnalyticsBundle\Example\FilterSource\AppFilterSource;
+use Revinate\AnalyticsBundle\Test\Elastica\FilterHelper;
+use Revinate\AnalyticsBundle\Test\Example\FilterSource\AppFilterSource;
 use Revinate\AnalyticsBundle\Metric\Metric;
 
 use Revinate\AnalyticsBundle\Metric\Result;

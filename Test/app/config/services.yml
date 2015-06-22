@@ -1,0 +1,9 @@
+elastica.client:
+    class: Elastica\Client
+    arguments:
+        config:
+            connections:
+                main:
+                    host: '%elasticsearch.host%'
+                    port: '%elasticsearch.port%'
+                    persistent: true

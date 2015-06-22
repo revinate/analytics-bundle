@@ -7,6 +7,7 @@ use Revinate\AnalyticsBundle\Filter\AnalyticsCustomFiltersInterface;
 use Revinate\AnalyticsBundle\Elastica\FilterHelper;
 use Revinate\AnalyticsBundle\Query\QueryBuilder;
 use Revinate\AnalyticsBundle\Result\ResultSet;
+use Revinate\AnalyticsBundle\Service\ElasticaService;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -34,12 +35,11 @@ class StatsController extends Controller {
         $sourceConfig = $config['sources'][$source];
         /** @var AnalyticsInterface $analytics */
         $analytics = new $sourceConfig['class']($container);
-
         $isNestedDimensions = isset($post['flags']['nestedDimensions']) ? $post['flags']['nestedDimensions'] : false;
-        $elastica = $container->get('revinate.elastica.client');
-        $queryBuilder = new QueryBuilder($elastica, $analytics);
+        /** @var ElasticaService $elasticaService */
+        $elasticaService = $container->get('revinate_analytics.elastica');
+        $queryBuilder = new QueryBuilder($elasticaService->getInstance(), $analytics);
         $queryBuilder
-            //->setFilter(new \Elastica\Filter\Terms("propertyId", array(2, 362)))
             ->setIsNestedDimensions($isNestedDimensions)
             ->addDimensions($post['dimensions'])
             ->addMetrics($post['metrics'])

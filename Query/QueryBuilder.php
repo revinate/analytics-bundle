@@ -49,7 +49,7 @@ class QueryBuilder {
     }
 
     /**
-     * @param $dimension
+     * @param string $dimension
      * @return $this
      */
     public function addDimension($dimension) {

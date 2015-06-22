@@ -1,6 +1,6 @@
 <?php
 
-namespace Revinate\AnalyticsBundle\Example\Filter;
+namespace Revinate\AnalyticsBundle\Test\Example\Filter;
 
 use Revinate\AnalyticsBundle\Filter\AbstractCustomFilter;
 use Revinate\SharedBundle\Elasticsearch\Entity\GRM\GuestStay;

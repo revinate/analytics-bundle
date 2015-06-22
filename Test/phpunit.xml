@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.4/phpunit.xsd"
+         bootstrap="./app/autoload.php"
+         backupGlobals="false"
+         verbose="true"
+         stopOnFailure="false"
+        >
+
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">src</directory>
+            <exclude>
+                <file>../../vendor</file>
+            </exclude>
+        </whitelist>
+    </filter>
+    <testsuites>
+        <testsuite name="default">
+            <directory>./TestCase/</directory>
+        </testsuite>
+    </testsuites>
+
+    <php>
+        <const name="PHPUNIT_TESTSUITE" value="true"/>
+        <server name="KERNEL_DIR" value="./app/" />
+    </php>
+</phpunit>
+
