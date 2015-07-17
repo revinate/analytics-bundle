@@ -31,13 +31,6 @@ abstract class AbstractResult implements ResultInterface {
     }
 
     /**
-     * @return \Revinate\AnalyticsBundle\Analytics|\Revinate\AnalyticsBundle\AnalyticsInterface
-     */
-    public function getAnalytics() {
-        return $this->analytics;
-    }
-
-    /**
      * @return \Revinate\AnalyticsBundle\Query\QueryBuilder
      */
     public function getQueryBuilder() {
@@ -75,10 +68,11 @@ abstract class AbstractResult implements ResultInterface {
     protected function buildNestedResult($data, $result = array(), $depth = 1) {
         $isTopLevel = $depth == 1;
         foreach ($data as $dimension => $dimensionData) {
-            // If Nested
-            if ($this->isNested($dimension)) {
-                $dimension = str_replace('__Nested', '', $dimension);
-                // If Filter inside Nested
+            // If Nested or ReverseNested, go one level down
+            if ($this->isNested($dimension) || $this->isReverseNested($dimension)) {
+                $type = substr($dimension, strpos($dimension, "__"));
+                $dimension = str_replace($type, '', $dimension);
+                // Sometimes you have a filter, so look for it for presence
                 $dimension = isset($dimensionData[$dimension."__Filter"]) ? $dimension."__Filter" : $dimension;
                 $dimensionData = $dimensionData[$dimension];
             }
@@ -89,6 +83,7 @@ abstract class AbstractResult implements ResultInterface {
                 $dimensionData = $dimensionData[$dimension];
             }
 
+            // If a bucket
             if (isset($dimensionData['buckets'])) {
                 foreach ($dimensionData['buckets'] as $subDimensionData) {
                     $key = isset($subDimensionData['key_as_string']) ? $subDimensionData['key_as_string']: $subDimensionData['key'];
@@ -98,7 +93,7 @@ abstract class AbstractResult implements ResultInterface {
                     }
                     $result[$dimension][$key] = $this->buildNestedResult($subDimensionData, $result[$dimension][$key], $depth + 1);
                 }
-            } else {
+            } else { // If a metric
                 $metric = $this->analytics->getMetric($dimension);
                 $dimensionData = $this->unsetKeys($dimensionData);
                 if (array_key_exists($metric->getResultKey(), $dimensionData)) {
@@ -133,7 +128,7 @@ abstract class AbstractResult implements ResultInterface {
                     /** @var ProcessedMetric $metric */
                     $metric = $this->analytics->getMetric($metricName);
                     $metricValue = call_user_func_array($metric->getPostProcessCallback(), $this->pickKeyValues($values, $metric->getCalculatedFromMetrics()));
-                    $result[$key][$metric->getName()] = round($metricValue, $metric->getPrecision());
+                    $result[$key][$metric->getName()] = sprintf("%s%." . $metric->getPrecision() .  "f%s", $metric->getPrefix(), $metricValue, $metric->getPostfix());
                 }
             }
         }
@@ -191,6 +186,14 @@ abstract class AbstractResult implements ResultInterface {
      */
     protected function isNested($string) {
         return strpos($string, '__Nested') !== false;
+    }
+
+    /**
+     * @param $string
+     * @return bool
+     */
+    protected function isReverseNested($string) {
+        return strpos($string, '__ReverseNested') !== false;
     }
 
     /**

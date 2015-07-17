@@ -3,6 +3,7 @@
 namespace Revinate\AnalyticsBundle\Result;
 
 
+use Revinate\AnalyticsBundle\Exception\InvalidResultFormatTypeException;
 use Revinate\AnalyticsBundle\Query\QueryBuilder;
 
 class ResultSet {
@@ -91,6 +92,7 @@ class ResultSet {
     /**
      * @param $format
      * @return array|mixed
+     * @throws InvalidResultFormatTypeException
      */
     public function getResult($format) {
         switch ($format) {
@@ -109,7 +111,7 @@ class ResultSet {
             case self::TYPE_DOCUMENTS:
                 return $this->getDocuments();
             default:
-                return $this->getNested();
+                throw new InvalidResultFormatTypeException("Invalid Result Format: $format");
         }
     }
 }

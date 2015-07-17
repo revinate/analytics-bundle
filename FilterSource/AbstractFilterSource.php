@@ -46,4 +46,6 @@ abstract class AbstractFilterSource implements FilterSourceInterface {
             "field" => $this->getName()
         );
     }
+
+    protected abstract function getNameColumn();
 }

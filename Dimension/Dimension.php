@@ -13,12 +13,16 @@ class Dimension implements DimensionInterface {
 
     /** @var string */
     protected $name;
+    /** @var  string */
+    protected $readableName;
     /** @var string */
     protected $field;
     /** @var  int */
     protected $size = 0;
     /** @var  string */
     protected $type = self::TYPE_STRING;
+    /** @var  string */
+    protected $path;
 
     /**
      * @param $name
@@ -37,13 +41,6 @@ class Dimension implements DimensionInterface {
         $this->name = $name;
         $this->field = $field ?: $name;
         return $this;
-    }
-
-    /**
-     * @param string $name
-     */
-    public function setName($name) {
-        $this->name = $name;
     }
 
     /**
@@ -77,11 +74,53 @@ class Dimension implements DimensionInterface {
     }
 
     /**
-     * @param $field
+     * @param string $type
      * @return $this
      */
-    public function setField($field) {
-        $this->field = $field;
+    public function setType($type) {
+        $this->type = $type;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getType() {
+        return $this->type;
+    }
+
+    /**
+     * @param string $readableName
+     * @return $this
+     */
+    public function setReadableName($readableName)
+    {
+        $this->readableName = $readableName;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getReadableName() {
+        return $this->readableName ?: ucwords(preg_replace('/([A-Z]+)/', ' $1', $this->getName()));
+    }
+
+    /**
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * @param string $path
+     * @return $this
+     */
+    public function setPath($path)
+    {
+        $this->path = $path;
         return $this;
     }
 
@@ -91,20 +130,7 @@ class Dimension implements DimensionInterface {
     public function toArray() {
         return array(
             'name' => $this->getName(),
+            'readableName' => $this->getReadableName(),
         );
-    }
-
-    /**
-     * @param string $type
-     */
-    public function setType($type) {
-        $this->type = $type;
-    }
-
-    /**
-     * @return string
-     */
-    public function getType() {
-        return $this->type;
     }
 }

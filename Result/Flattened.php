@@ -21,7 +21,7 @@ class Flattened extends AbstractResult {
         foreach ($data as $key => $values) {
             if ($this->isArrayOfArray($values)) {
                 $flattened = array_merge($flattened, $this->buildResult($values, $flattened, $this->getJoinedKey(array($prefixKey, $key))));
-            } else if (is_array($values)) {
+            } elseif (is_array($values)) {
                 foreach ($values as $subKey => $value) {
                     $flattened[$this->getJoinedKey(array($prefixKey, $key, $subKey))] = $value;
                 }

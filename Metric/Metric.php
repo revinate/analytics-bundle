@@ -10,6 +10,8 @@ class Metric implements MetricInterface {
 
     /** @var string */
     protected $name;
+    /** @var  string */
+    protected $readableName;
     /** @var string  */
     protected $field;
     /** @var string */
@@ -21,7 +23,11 @@ class Metric implements MetricInterface {
     /** @var string */
     protected $default = 0;
     /** @var int  */
-    protected $precision = 2;
+    protected $precision = 1;
+    /** @var string */
+    protected $prefix = "";
+    /** @var string  */
+    protected $postfix = "";
 
     /**
      * @param $name
@@ -54,15 +60,6 @@ class Metric implements MetricInterface {
      */
     public function getName() {
         return $this->name;
-    }
-
-    /**
-     * @param $field
-     * @return $this
-     */
-    public function setField($field) {
-        $this->field = $field;
-        return $this;
     }
 
     /**
@@ -105,7 +102,7 @@ class Metric implements MetricInterface {
      */
     public function getValue($data) {
         $value = isset($data[$this->getResultKey()]) ? $data[$this->getResultKey()] : $this->getDefault();
-        return round($value, $this->getPrecision());
+        return sprintf("%s%." . $this->getPrecision() . "f%s", $this->getPrefix(), $value, $this->getPostfix());
     }
 
     /**
@@ -171,11 +168,68 @@ class Metric implements MetricInterface {
     }
 
     /**
+     * @return string
+     */
+    public function getPrefix()
+    {
+        // Return sprintf compatible prefix
+        return $this->prefix;
+    }
+
+    /**
+     * @param string $prefix
+     * @return $this
+     */
+    public function setPrefix($prefix)
+    {
+        $this->prefix = $prefix;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPostfix()
+    {
+        return $this->postfix;
+    }
+
+    /**
+     * @param string $postfix
+     * @return $this
+     */
+    public function setPostfix($postfix)
+    {
+        $this->postfix = $postfix;
+        return $this;
+    }
+
+    /**
+     * @param string $readableName
+     * @return $this
+     */
+    public function setReadableName($readableName)
+    {
+        $this->readableName = $readableName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getReadableName() {
+        return $this->readableName ?: ucwords(preg_replace('/([A-Z]+)/', ' $1', $this->getName()));
+    }
+
+    /**
      * @return array|mixed
      */
     public function toArray() {
         return array(
             'name' => $this->getName(),
+            'readableName' => $this->getReadableName(),
+            'prefix' => $this->getPrefix(),
+            'postfix' => $this->getPostfix(),
+            'precision' => $this->getPrecision()
         );
     }
 }

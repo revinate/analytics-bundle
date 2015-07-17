@@ -45,22 +45,6 @@ class ProcessedMetric extends Metric {
     }
 
     /**
-     * @return bool
-     */
-    public function isCalculatedFromMetrics() {
-        return count($this->calculatedFromMetrics) > 0;
-    }
-
-    /**
-     * @param callable $postProcessCallback
-     * @return $this
-     */
-    public function setPostProcessCallback($postProcessCallback) {
-        $this->postProcessCallback = $postProcessCallback;
-        return $this;
-    }
-
-    /**
      * @return callable
      */
     public function getPostProcessCallback() {

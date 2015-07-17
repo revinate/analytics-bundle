@@ -27,7 +27,7 @@ abstract class AbstractMySQLFilterSource extends AbstractFilterSource implements
         $qb = $repository->createQueryBuilder("entity");
         $qb->select('entity');
         if ($query !== AbstractFilterSource::ALL) {
-            $qb->where($qb->expr()->like("entity.name", ":query"))
+            $qb->where($qb->expr()->like("entity." . $this->getNameColumn(), ":query"))
                 ->setParameter('query', '%'.$query.'%')
             ;
         }

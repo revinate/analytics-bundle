@@ -4,14 +4,19 @@ namespace Revinate\AnalyticsBundle\Query;
 
 
 use Elastica\Aggregation\AbstractAggregation;
+use Elastica\Filter\AbstractFilter;
 use Revinate\AnalyticsBundle\Aggregation\AllAggregation;
+use Revinate\AnalyticsBundle\Aggregation\Nested;
 use Revinate\AnalyticsBundle\Analytics;
 use Revinate\AnalyticsBundle\AnalyticsInterface;
 use Revinate\AnalyticsBundle\Dimension\AllDimension;
 use Revinate\AnalyticsBundle\Dimension\DateHistogramDimension;
 use Revinate\AnalyticsBundle\Dimension\DateRangeDimension;
+use Revinate\AnalyticsBundle\Dimension\Dimension;
 use Revinate\AnalyticsBundle\Dimension\HistogramDimension;
 use Revinate\AnalyticsBundle\Dimension\RangeDimension;
+use Revinate\AnalyticsBundle\Goal\Goal;
+use Revinate\AnalyticsBundle\Goal\GoalSet;
 use Revinate\AnalyticsBundle\Metric\ProcessedMetric;
 use Revinate\AnalyticsBundle\Metric\Result;
 use Revinate\AnalyticsBundle\Result\ResultSet;
@@ -35,8 +40,18 @@ class QueryBuilder {
     protected $isNestedDimensions = false;
     /** @var int */
     protected $offset = 0;
-    /** @var int */
+    /** @var int Number of documents to return */
     protected $size = 10;
+    /** @var string */
+    protected $orderBy;
+    /** @var  string */
+    protected $orderDir;
+    /** @var  Goal[] */
+    protected $goals;
+    /** @var  \Elastica\ResultSet */
+    protected $elasticaResultSet;
+    /** @var  ResultSet */
+    protected $resultSet;
 
     /**
      * @param \Elastica\Client $elasticaClient
@@ -122,26 +137,106 @@ class QueryBuilder {
     }
 
     /**
-     * @param \Elastica\Filter\AbstractFilter $filter
+     * @param AbstractFilter $filter
      * @return $this
      */
-    public function setFilter($filter) {
+    public function setFilter(AbstractFilter $filter) {
         $this->filter = $filter;
         return $this;
     }
 
     /**
      * @param int $size
+     * @return $this
      */
     public function setSize($size) {
         $this->size = $size;
+        return $this;
     }
 
     /**
      * @param int $offset
+     * @return $this
      */
     public function setOffset($offset) {
         $this->offset = $offset;
+        return $this;
+    }
+
+    /**
+     * @return AbstractFilter
+     */
+    public function getFilter()
+    {
+        return $this->filter;
+    }
+
+    /**
+     * @return int
+     */
+    public function getOffset()
+    {
+        return $this->offset;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSize()
+    {
+        return $this->size;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOrderBy()
+    {
+        return $this->orderBy;
+    }
+
+    /**
+     * @param string $orderBy
+     * @return $this
+     */
+    public function setOrderBy($orderBy)
+    {
+        $this->orderBy = $orderBy;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOrderDir()
+    {
+        return $this->orderDir;
+    }
+
+    /**
+     * @param string $orderDir
+     * @return $this
+     */
+    public function setOrderDir($orderDir)
+    {
+        $this->orderDir = $orderDir;
+        return $this;
+    }
+
+    /**
+     * @return Goal[]
+     */
+    public function getGoals() {
+        return $this->goals;
+    }
+
+    /**
+     * @param Goal[] $goals
+     * @return $this
+     */
+    public function setGoals($goals) {
+        $this->goals = $goals;
+        return $this;
     }
 
     /**
@@ -151,44 +246,61 @@ class QueryBuilder {
         $dimensionAggregations = array();
         foreach ($this->dimensions as $dimensionName) {
             $dimension = $this->analytics->getDimension($dimensionName);
-
-            if ($dimension instanceof AllDimension) {
-                $dimensionAgg = new AllAggregation($dimension->getName());
-
-            } else if ($dimension instanceof DateHistogramDimension) {
-                $dimensionAgg = new \Elastica\Aggregation\DateHistogram($dimension->getName(), $dimension->getField(), $dimension->getInterval());
-                $dimensionAgg->setFormat($dimension->getFormat());
-                $dimensionAgg->setMinimumDocumentCount(0);
-
-            } else if ($dimension instanceof HistogramDimension) {
-                $dimensionAgg = new \Elastica\Aggregation\Histogram($dimension->getName(), $dimension->getField(), $dimension->getInterval());
-                $dimensionAgg->setMinimumDocumentCount(0);
-
-            } else if ($dimension instanceof DateRangeDimension) {
-                $dimensionAgg = new \Elastica\Aggregation\DateRange($dimension->getName());
-                $dimensionAgg->setField($dimension->getField());
-                $dimensionAgg->setFormat($dimension->getFormat());
-                foreach ($dimension->getRanges() as $range) {
-                    $dimensionAgg->addRange($range["from"], $range["to"]);
-                }
-
-            } else if ($dimension instanceof RangeDimension) {
-                $dimensionAgg = new \Elastica\Aggregation\Range($dimension->getName());
-                $dimensionAgg->setField($dimension->getField());
-                foreach ($dimension->getRanges() as $range) {
-                    $dimensionAgg->addRange($range["from"], $range["to"]);
-                }
-
-            } else { // $dimension instanceof Dimension
-                $dimensionAgg = new \Elastica\Aggregation\Terms($dimension->getName());
-                $dimensionAgg->setField($dimension->getField());
-                $dimensionAgg->setSize($dimension->getSize());
-                //$dimensionAgg->setOrder()
-            }
-
-            $dimensionAggregations[] = $dimensionAgg;
+            $dimensionAggregations[] = $this->getAggregationFromDimension($dimension);
         }
         return $dimensionAggregations;
+    }
+
+    /**
+     * @param Dimension $dimension
+     * @return \Elastica\Aggregation\DateHistogram|\Elastica\Aggregation\DateRange|\Elastica\Aggregation\Histogram|\Elastica\Aggregation\Range|\Elastica\Aggregation\Terms|AllAggregation
+     */
+    protected function getAggregationFromDimension(Dimension $dimension) {
+        if ($dimension instanceof AllDimension) {
+            $dimensionAgg = new AllAggregation($dimension->getName());
+
+        } elseif ($dimension instanceof DateHistogramDimension) {
+            $dimensionAgg = new \Elastica\Aggregation\DateHistogram($dimension->getName(), $dimension->getField(), $dimension->getInterval());
+            $dimensionAgg->setFormat($dimension->getFormat());
+            $dimensionAgg->setMinimumDocumentCount(0);
+
+        } elseif ($dimension instanceof HistogramDimension) {
+            $dimensionAgg = new \Elastica\Aggregation\Histogram($dimension->getName(), $dimension->getField(), $dimension->getInterval());
+            $dimensionAgg->setMinimumDocumentCount(0);
+
+
+        } elseif ($dimension instanceof DateRangeDimension) {
+            $dimensionAgg = new \Elastica\Aggregation\DateRange($dimension->getName());
+            $dimensionAgg->setField($dimension->getField());
+            $dimensionAgg->setFormat($dimension->getFormat());
+            foreach ($dimension->getRanges() as $range) {
+                $dimensionAgg->addRange($range["from"], $range["to"]);
+            }
+
+        } elseif ($dimension instanceof RangeDimension) {
+            $dimensionAgg = new \Elastica\Aggregation\Range($dimension->getName());
+            $dimensionAgg->setField($dimension->getField());
+            foreach ($dimension->getRanges() as $range) {
+                $dimensionAgg->addRange($range["from"], $range["to"]);
+            }
+
+        } elseif ($dimension->getPath()) { // Nested Dimension
+            // If any dimension is nested, wrap it in a "Nested Aggregation".
+            $dimensionAgg = new Nested($dimension->getName().'__Nested', $dimension->getPath());
+            $subDimension =  clone($dimension);
+            $subDimension->setPath(null);
+            $dimensionAgg->addSubAggregation($this->getAggregationFromDimension($subDimension));
+
+        } else { // $dimension instanceof Dimension
+            $dimensionAgg = new \Elastica\Aggregation\Terms($dimension->getName());
+            $dimensionAgg->setField($dimension->getField());
+            $dimensionAgg->setSize($dimension->getSize());
+            // @TODO: Implement Ordering.
+//                if ($this->getOrderBy() && $this->getOrderDir()) {
+//                    $dimensionAgg->setOrder($this->getOrderBy(), $this->getOrderDir());
+//                }
+        }
+        return $dimensionAgg;
     }
 
     /**
@@ -203,15 +315,15 @@ class QueryBuilder {
             if ($metric->isResultOfType(Result::COUNT)) {
                 $metricAgg = new \Elastica\Aggregation\ValueCount($metric->getName(), $metric->getField());
 
-            } else if ($metric->isResultOfType(Result::SUM)) {
+            } elseif ($metric->isResultOfType(Result::SUM)) {
                 $metricAgg = new \Elastica\Aggregation\Sum($metric->getName());
                 $metricAgg->setField($metric->getField());
 
-            } else if ($metric->isResultOfType(Result::AVG)) {
+            } elseif ($metric->isResultOfType(Result::AVG)) {
                 $metricAgg = new \Elastica\Aggregation\Avg($metric->getName());
                 $metricAgg->setField($metric->getField());
 
-            } else if ($metric->isResultOfType(Result::MIN) || $metric->isResultOfType(Result::MAX)) {
+            } elseif ($metric->isResultOfType(Result::MIN) || $metric->isResultOfType(Result::MAX)) {
                 $metricAgg = new \Elastica\Aggregation\Stats($metric->getName());
                 $metricAgg->setField($metric->getField());
 
@@ -231,8 +343,8 @@ class QueryBuilder {
 
             // Nested Metrics if any
             if (!is_null($metric->getNestedPath())) {
-                $metricNestedAgg = new \Elastica\Aggregation\Nested($metric->getName() . "__Nested", $metric->getNestedPath());
-                $metricNestedAgg->addAggregation($metricFilterAgg);
+                $metricNestedAgg = new Nested($metric->getName() . "__Nested", $metric->getNestedPath());
+                $metricNestedAgg->addSubAggregation($metricFilterAgg);
             } else {
                 $metricNestedAgg = $metricFilterAgg;
             }
@@ -300,7 +412,7 @@ class QueryBuilder {
             }
             $query->addAggregation($firstDimensionAggregation);
 
-        } else if (count($dimensionAggregations) >= 1) {
+        } elseif (count($dimensionAggregations) > 0) {
             // Top Level Aggregations
             foreach ($dimensionAggregations as $dimensionAggregation) {
                 if ($dimensionAggregation instanceof AllAggregation) {
@@ -310,7 +422,17 @@ class QueryBuilder {
                     }
                 } else {
                     foreach ($metricAggregations as $metricAggregation) {
-                        $dimensionAggregation->addAggregation($metricAggregation);
+                        if ($dimensionAggregation instanceof Nested &&  $metricAggregation instanceof Nested) {
+                            // If both Dimension & Metric is Nested, attach then so that they are in parent-child order
+                            $dimensionAggregation->getSubAggregation()->addAggregation($metricAggregation->getSubAggregation());
+                        } elseif ($dimensionAggregation instanceof Nested &&  ! $metricAggregation instanceof Nested) {
+                            // If dimension is on nested document and we are getting metrics on parent doc, wrap metric in "Reverse Nested Aggregation"
+                            $reverseNestedAggregation = new \Elastica\Aggregation\ReverseNested($metricAggregation->getName()."__ReverseNested");
+                            $reverseNestedAggregation->addAggregation($metricAggregation);
+                            $dimensionAggregation->getSubAggregation()->addAggregation($reverseNestedAggregation);
+                        } else {
+                            $dimensionAggregation->addAggregation($metricAggregation);
+                        }
                     }
                     $query->addAggregation($dimensionAggregation);
                 }
@@ -337,7 +459,24 @@ class QueryBuilder {
         $search->addType($this->analytics->getType());
         $search->setQuery($query);
 
-        $elasticaResultSet = $search->search();
-        return new ResultSet($this, $elasticaResultSet);
+        $this->resultSet = new ResultSet($this, $search->search());
+        return $this->resultSet;
+    }
+
+    /**
+     * @return ResultSet
+     */
+    public function getResultSet() {
+        return $this->resultSet;
+    }
+
+    /**
+     *
+     */
+    public function getGoalsSet() {
+        if (! $this->resultSet) {
+            $this->execute();
+        }
+        return new GoalSet($this->getGoals(), $this->getResultSet());
     }
 }

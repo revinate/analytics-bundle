@@ -1,11 +1,10 @@
-Features TODO:
+TODO:
 - Order of buckets ?
-
-Future TODO:
-- Remove Container from Analytics
-- Script Dimension
-- Reverse Nested Aggregations
 - Children Aggregations
+- Script Dimension
+
+May be:
+- Remove Container from Analytics. If we do, we can't create dynamic metrics. May be give EntityManager only?
 
 Done:
 - Metric filters
@@ -25,3 +24,5 @@ Done:
 - Datatable
 - Return docs
 - Custom Filter Classes (Parent/Child Filters)
+- Add Type of metrics (percentage, value, etc)
+- Reverse Nested Aggregations
