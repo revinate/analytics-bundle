@@ -3,3 +3,5 @@
 # Gradle Build Dir
 /build
 /.gradle
+/Test/app/cache/*
+/Test/app/logs/*

@@ -53,10 +53,12 @@ class BaseTestCase extends WebTestCase {
         $this->index = new \Elastica\Index($this->elasticaClient, ViewAnalytics::INDEX_NAME);
         if (! $this->index->exists()) {
             $this->index->create(array("index.number_of_replicas" => "0", "index.number_of_shards" => "1"));
-            $this->type = new \Elastica\Type($this->index, "views");
-            $this->type->setMapping(json_decode(file_get_contents(__DIR__."/../data/es/mapping.json"), true));
+            $this->type = new \Elastica\Type($this->index, ViewAnalytics::INDEX_TYPE);
+            $mappingJson = json_decode(file_get_contents(__DIR__."/../data/es/mapping.json"), true);
+            $mapping = new \Elastica\Type\Mapping($this->type, $mappingJson['properties']);
+            $this->type->setMapping($mapping);
         } else {
-            $this->type = new \Elastica\Type($this->index, "views");
+            $this->type = new \Elastica\Type($this->index, ViewAnalytics::INDEX_TYPE);
         }
     }
 

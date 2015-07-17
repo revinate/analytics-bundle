@@ -52,4 +52,7 @@ class AppFilterSource extends AbstractMySQLFilterSource {
         return $entity->getId();
     }
 
+    protected function getNameColumn() {
+        return "name";
+    }
 }

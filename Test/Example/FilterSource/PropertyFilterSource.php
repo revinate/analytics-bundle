@@ -52,4 +52,8 @@ class PropertyFilterSource extends AbstractMySQLFilterSource {
     public function getEntityId($entity) {
         return $entity->getId();
     }
+
+    protected function getNameColumn() {
+        return "name";
+    }
 }

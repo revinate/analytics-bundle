@@ -2,6 +2,7 @@
 
 namespace Revinate\AnalyticsBundle\Test\Elastica;
 
+use Revinate\AnalyticsBundle\Test\Entity\Tag;
 use Revinate\AnalyticsBundle\Test\Entity\View;
 
 class DocumentHelper {
@@ -29,7 +30,11 @@ class DocumentHelper {
         $view->setDevice($device);
         $view->setViews($views);
         $view->setDate($date);
-        $response = $this->type->addDocument(new \Elastica\Document("",$view->toArray()));
+        $tags = array();
+        $tags[] = new Tag("vip", 4.0);
+        $tags[] = new Tag("new", 3.0);
+        $view->setTags($tags);
+        $this->type->addDocument(new \Elastica\Document("", $view->toArray()));
         return $this;
     }
 

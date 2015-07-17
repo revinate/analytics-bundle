@@ -3,11 +3,14 @@
 namespace Revinate\AnalyticsBundle\Controller;
 
 use Revinate\AnalyticsBundle\AnalyticsInterface;
+use Revinate\AnalyticsBundle\Exception\InvalidResultFormatTypeException;
 use Revinate\AnalyticsBundle\Filter\AnalyticsCustomFiltersInterface;
-use Revinate\AnalyticsBundle\Elastica\FilterHelper;
+use Revinate\AnalyticsBundle\Metric\Result;
+use Revinate\AnalyticsBundle\Query\BulkQueryBuilder;
 use Revinate\AnalyticsBundle\Query\QueryBuilder;
 use Revinate\AnalyticsBundle\Result\ResultSet;
 use Revinate\AnalyticsBundle\Service\ElasticaService;
+use Revinate\AnalyticsBundle\Test\Elastica\FilterHelper;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -25,6 +28,7 @@ class StatsController extends Controller {
         $container = $this->get('service_container');
         $config = $container->getParameter('revinate_analytics.config');
         $post = json_decode($this->get('request_stack')->getMasterRequest()->getContent(), true);
+        $format = isset($post['format']) ? $post['format'] : ResultSet::TYPE_NESTED;
         if (!isset($config['sources'][$source])) {
             return new JsonResponse(array('ok' => false), Response::HTTP_NOT_FOUND);
         }
@@ -43,15 +47,86 @@ class StatsController extends Controller {
             ->setIsNestedDimensions($isNestedDimensions)
             ->addDimensions($post['dimensions'])
             ->addMetrics($post['metrics'])
+            ->setGoals(isset($post['goals']) ? $post['goals'] : null)
         ;
         if (! empty($post['filters'])) {
             $queryBuilder->setFilter($this->getFilters($analytics, $post['filters']));
         }
 
-        $resultSet = $queryBuilder->execute();
-        $format = isset($post['format']) ? $post['format'] : 'nested';
-        return new JsonResponse($this->getFormattedResult($format, $resultSet));
+        $response = array();
+        $status = Response::HTTP_OK;
+        try {
+            $response = $queryBuilder->execute()->getResult($format);
+        } catch (InvalidResultFormatTypeException $e) {
+            $response = array('ok' => false, '_help' => $this->getHelp());
+            $status = Response::HTTP_BAD_REQUEST;
+        } catch (\Exception $e) {
+            $status = Response::HTTP_INTERNAL_SERVER_ERROR;
+        }
+        return new JsonResponse($response, $status);
     }
+
+    /**
+     * Bulk Stats Controller
+     * @param $source
+     * @return JsonResponse
+     * @throws \Exception
+     */
+    public function bulkSearchStatsAction($source)
+    {
+        $container = $this->get('service_container');
+        $config = $container->getParameter('revinate_analytics.config');
+        $queriesPost = json_decode($this->get('request_stack')->getMasterRequest()->getContent(), true);
+        $format = isset($queriesPost['format']) ? $queriesPost['format'] : ResultSet::TYPE_NESTED;
+        if (!isset($config['sources'][$source])) {
+            return new JsonResponse(array('ok' => false), Response::HTTP_NOT_FOUND);
+        }
+        if (empty($queriesPost)) {
+            return new JsonResponse(array('ok' => false, '_help' => $this->getHelp()), Response::HTTP_BAD_REQUEST);
+        }
+
+        $sourceConfig = $config['sources'][$source];
+        /** @var AnalyticsInterface $analytics */
+        $analytics = new $sourceConfig['class']($container);
+        $bulkQueryBuilder = new BulkQueryBuilder();
+        $isNestedDimensions = isset($queriesPost['flags']['nestedDimensions']) ? $queriesPost['flags']['nestedDimensions'] : false;
+        foreach ($queriesPost['queries'] as $post) {
+            if (empty($post) || empty($post['dimensions']) || empty($post['metrics'])) {
+                return new JsonResponse(array('ok' => false, '_help' => $this->getHelp()), Response::HTTP_BAD_REQUEST);
+            }
+            /** @var ElasticaService $elasticaService */
+            $elasticaService = $container->get('revinate_analytics.elastica');
+            $queryBuilder = new QueryBuilder($elasticaService->getInstance(), $analytics);
+            $queryBuilder
+                ->setIsNestedDimensions($isNestedDimensions)
+                ->addDimensions($post['dimensions'])
+                ->addMetrics($post['metrics'])
+                ->setGoals(isset($post['goals']) ? $post['goals'] : null);
+            if (!empty($post['filters'])) {
+                $queryBuilder->setFilter($this->getFilters($analytics, $post['filters']));
+            }
+            $bulkQueryBuilder->addQueryBuilder($queryBuilder);
+        }
+
+        $response = array('results' => array());
+        $status = Response::HTTP_OK;
+        try {
+            $resultSets = $bulkQueryBuilder->execute();
+            foreach ($resultSets as $resultSet) {
+                $response['results'][] = $resultSet->getResult($format);
+            }
+            if (isset($queriesPost['comparator'])) {
+                $response['comparator'] = $bulkQueryBuilder->getComparatorSet($queriesPost['comparator'])->get($format);
+            }
+        } catch (InvalidResultFormatTypeException $e) {
+            $response = array('ok' => false, '_help' => $this->getHelp());
+            $status = Response::HTTP_BAD_REQUEST;
+        } catch (\Exception $e) {
+            $status = Response::HTTP_INTERNAL_SERVER_ERROR;
+        }
+        return new JsonResponse($response, $status);
+    }
+
 
     /**
      * @param \Revinate\AnalyticsBundle\AnalyticsInterface|AnalyticsCustomFiltersInterface $analytics

@@ -4,6 +4,7 @@ namespace Revinate\AnalyticsBundle\Test\TestCase\Controller;
 use Revinate\AnalyticsBundle\Test\Elastica\DocumentHelper;
 use Revinate\AnalyticsBundle\Test\TestCase\BaseTestCase;
 use Revinate\AnalyticsBundle\Test\TestCase\BaseWebTestCase;
+use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Component\BrowserKit\Tests\TestClient;
 
 class ApiControllerTest extends BaseTestCase
@@ -54,8 +55,76 @@ class ApiControllerTest extends BaseTestCase
         ));
         $this->client->request("POST", "/api/analytics/source/view/stats", array(), array(), array(), $post);
         $response = json_decode($this->client->getResponse()->getContent(), true);
-        $this->assertSame(23, $response["all"]['totalViews'], $this->debug($response));
-        $this->assertSame(4, $response["all"]['uniqueViews'], $this->debug($response));
-        $this->assertSame(5.75, $response["all"]['averageViews'], $this->debug($response));
+        $this->assertSame('23.0', $response["all"]['totalViews'], $this->debug($response));
+        $this->assertSame('4.0', $response["all"]['uniqueViews'], $this->debug($response));
+        $this->assertSame('5.8', $response["all"]['averageViews'], $this->debug($response));
+    }
+
+    public function testBulkStatsSourceApi() {
+        $this->createData();
+        $post = json_encode(
+            array(
+                'queries' => array(
+                    array(
+                        "dimensions" => array("all", "device"),
+                        "metrics" => array("totalViews", "uniqueViews", "averageViews"),
+                        "filters" => array(),
+                    ),
+                    array(
+                        "dimensions" => array("all", "device", "browser"),
+                        "metrics" => array("totalViews", "uniqueViews", "averageViews"),
+                        "filters" => array(),
+                    )
+                ),
+                "flags" => array("nestedDimensions" => false),
+                "format" => "nested"
+            )
+        );
+        $this->client->request("POST", "/api/analytics/source/view/bulkstats", array(), array(), array(), $post);
+        $response = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertSame('23.0', $response['results'][0]['all']['totalViews'], $this->debug($response));
+        $this->assertSame('13.0', $response['results'][0]['device']['ios']['totalViews'], $this->debug($response));
+        $this->assertSame('23.0', $response['results'][1]['all']['totalViews'], $this->debug($response));
+        $this->assertSame('16.0', $response['results'][1]['browser']['chrome']['totalViews'], $this->debug($response));
+    }
+
+    public function testBulkStatsSourceApiWithComparator() {
+        $this->createData();
+        $post = json_encode(
+            array(
+                'queries' => array(
+                    array(
+                        "dimensions" => array("all", "device", "browser"),
+                        "metrics" => array("totalViews", "uniqueViews", "averageViews"),
+                        "filters" => array(
+                            "browser" => array("value", "chrome")
+                        ),
+                    ),
+                    array(
+                        "dimensions" => array("all", "device", "browser"),
+                        "metrics" => array("totalViews", "uniqueViews", "averageViews"),
+                        "filters" => array(
+                            "browser" => array("value", "opera")
+                        ),
+                    ),
+                    array(
+                        "dimensions" => array("all", "device", "browser"),
+                        "metrics" => array("totalViews", "uniqueViews", "averageViews"),
+                        "filters" => array(
+                            "device" => array("value", "ios")
+                        ),
+                    )
+                ),
+                "flags" => array("nestedDimensions" => false),
+                "format" => "nested",
+                "comparator" => "change"
+            )
+        );
+        $this->client->request("POST", "/api/analytics/source/view/bulkstats", array(), array(), array(), $post);
+        $response = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertSame('-56.25%', $response['comparator'][0]['all']['totalViews'], $this->debug($response));
+        $this->assertSame('16.67%', $response['comparator'][0]['device']['ios']['totalViews'], $this->debug($response));
+        $this->assertSame('85.71%', $response['comparator'][1]['all']['totalViews'], $this->debug($response));
+        $this->assertSame('100.00%', $response['comparator'][1]['browser']['chrome']['totalViews'], $this->debug($response));
     }
 }

@@ -6,6 +6,8 @@ class View {
     protected $browser;
     protected $device;
     protected $views;
+    /** @var  Tag[] */
+    protected $tags;
 
     /**
      * @return mixed
@@ -72,14 +74,34 @@ class View {
     }
 
     /**
+     * @param Tag[] $tags
+     */
+    public function setTags($tags)
+    {
+        $this->tags = $tags;
+    }
+
+    /**
+     * @return Tag[]
+     */
+    public function getTags() {
+        return $this->tags;
+    }
+
+    /**
      * @return array
      */
     public function toArray() {
+        $tagDocuments = array();
+        foreach ($this->getTags() as $tag) {
+            $tagDocuments[] = $tag->toArray();
+        }
         return array(
             "device" => $this->getDevice(),
             "browser" => $this->getBrowser(),
             "views" => $this->getViews(),
-            "date" => $this->getDate()->format("c")
+            "date" => $this->getDate()->format("c"),
+            "tags" => $tagDocuments,
         );
     }
 }

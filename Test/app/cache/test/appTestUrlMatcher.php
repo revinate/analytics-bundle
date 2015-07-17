@@ -49,6 +49,17 @@ class appTestUrlMatcher extends Symfony\Bundle\FrameworkBundle\Routing\Redirecta
             }
             not_revinate_analytics_stats_search:
 
+            // revinate_analytics_bulk_stats_search
+            if (preg_match('#^/api/analytics/source/(?P<source>[^/]++)/bulkstats$#s', $pathinfo, $matches)) {
+                if ($this->context->getMethod() != 'POST') {
+                    $allow[] = 'POST';
+                    goto not_revinate_analytics_bulk_stats_search;
+                }
+
+                return $this->mergeDefaults(array_replace($matches, array('_route' => 'revinate_analytics_bulk_stats_search')), array (  '_controller' => 'Revinate\\AnalyticsBundle\\Controller\\StatsController::bulkSearchStatsAction',));
+            }
+            not_revinate_analytics_bulk_stats_search:
+
             // revinate_analytics_filter_query
             if (preg_match('#^/api/analytics/source/(?P<source>[^/]++)/filter/(?P<filter>[^/]++)(?:/(?P<query>[^/]++)(?:/(?P<page>[^/]++)(?:/(?P<pageSize>[^/]++))?)?)?$#s', $pathinfo, $matches)) {
                 return $this->mergeDefaults(array_replace($matches, array('_route' => 'revinate_analytics_filter_query')), array (  '_controller' => 'Revinate\\AnalyticsBundle\\Controller\\FilterController::queryAction',  'query' => '_all',  'page' => 1,  'pageSize' => 10,));
