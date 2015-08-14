@@ -9,17 +9,6 @@
     }],
     "repositories": [
         {
-            "type": "package",
-            "package": {
-                "name": "amnl/gc-datatable",
-                "version": "0.2.0",
-                "dist": {
-                    "url": "https://github.com/itavero/AMNL-GCDataTable/archive/master.zip",
-                    "type": "zip"
-                }
-            }
-        },
-        {
             "name": "ruflin/elastica",
             "type": "git",
             "url": "https://github.com/revinate/Elastica"
@@ -31,7 +20,7 @@
         "symfony/dependency-injection": ">=2.4.8",
         "symfony/config"              : ">=2.4.8",
         "ruflin/elastica"             : "2.2.0",
-        "amnl/gc-datatable": "dev-master"
+        "amnl/gc-datatable"           : "dev-master"
     },
     "require-dev": {
         "symfony/console": ">=2.4.8",
