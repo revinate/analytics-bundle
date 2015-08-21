@@ -211,6 +211,7 @@ class Metric implements MetricInterface {
     public function setReadableName($readableName)
     {
         $this->readableName = $readableName;
+        return $this;
     }
 
     /**
