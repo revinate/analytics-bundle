@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.4/phpunit.xsd"
-         bootstrap="./app/autoload.php"
+         bootstrap="./Test/app/autoload.php"
          backupGlobals="false"
          verbose="true"
          stopOnFailure="false"
@@ -9,21 +9,21 @@
 
     <filter>
         <blacklist>
-            <directory suffix=".php">../vendor</directory>
-            <directory suffix=".php">./app/cache</directory>
-            <directory suffix=".php">../Test</directory>
-            <directory suffix=".php">../Controller</directory>
+            <directory suffix=".php">./vendor</directory>
+            <directory suffix=".php">./Test/app/cache</directory>
+            <directory suffix=".php">./Test</directory>
+            <directory suffix=".php">./Controller</directory>
         </blacklist>
     </filter>
     <testsuites>
         <testsuite name="default">
-            <directory>./TestCase/</directory>
+            <directory>./Test/TestCase/</directory>
         </testsuite>
     </testsuites>
 
     <php>
         <const name="PHPUNIT_TESTSUITE" value="true"/>
-        <server name="KERNEL_DIR" value="./app/" />
+        <server name="KERNEL_DIR" value="./Test/app/" />
     </php>
 </phpunit>
 

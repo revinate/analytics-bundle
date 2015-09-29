@@ -2,6 +2,9 @@
 
 namespace Revinate\AnalyticsBundle\Metric;
 
+use Revinate\AnalyticsBundle\Analytics;
+use Revinate\AnalyticsBundle\AnalyticsInterface;
+
 class ProcessedMetric extends Metric {
 
     /** @var  \Closure */
@@ -49,5 +52,36 @@ class ProcessedMetric extends Metric {
      */
     public function getPostProcessCallback() {
         return $this->postProcessCallback;
+    }
+
+    /**
+     * @param Analytics $analytics
+     * @return bool
+     * @throws \Exception
+     */
+    public function isDependentOnProcessedMetric(Analytics $analytics) {
+        foreach ($this->calculatedFromMetrics as $metricName) {
+            $metric = $analytics->getMetric($metricName);
+            if ($metric instanceof ProcessedMetric) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param Analytics $analytics
+     * @return array
+     * @throws \Exception
+     */
+    public function getCalculatedFromProcessedMetricsOnly(Analytics $analytics) {
+        $processedMetrics = array();
+        foreach ($this->calculatedFromMetrics as $metricName) {
+            $metric = $analytics->getMetric($metricName);
+            if ($metric instanceof ProcessedMetric) {
+                $processedMetrics[] = $metricName;
+            }
+        }
+        return $processedMetrics;
     }
 }

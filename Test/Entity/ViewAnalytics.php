@@ -8,6 +8,7 @@ use Revinate\AnalyticsBundle\Dimension\DateHistogramDimension;
 use Revinate\AnalyticsBundle\Dimension\DateRangeDimension;
 use Revinate\AnalyticsBundle\Dimension\Dimension;
 use Revinate\AnalyticsBundle\Dimension\DimensionInterface;
+use Revinate\AnalyticsBundle\Dimension\FiltersDimension;
 use Revinate\AnalyticsBundle\Dimension\HistogramDimension;
 use Revinate\AnalyticsBundle\Dimension\RangeDimension;
 use Revinate\AnalyticsBundle\FilterSource\AbstractFilterSource;
@@ -39,6 +40,7 @@ class ViewAnalytics extends Analytics {
             HistogramDimension::create("viewsHistogram", "views")->setInterval(10),
             RangeDimension::create("customRangeViews", "views")->addRange(array("to" => 5))->addRange(array("from" => 10))->setType(Dimension::TYPE_NUMBER),
             Dimension::create("tagName", "tags.name")->setPath("tags"),
+            FiltersDimension::create("device_filtered")->addFilter(FilterHelper::getValueFilter("device", "ios"), "ios")->addFilter(FilterHelper::getValueFilter("device", "android"), "android"),
         );
     }
 
@@ -50,12 +52,18 @@ class ViewAnalytics extends Analytics {
         return array(
             Metric::create("totalViews", "views")->setResult(Result::SUM),
             Metric::create("uniqueViews", "views")->setResult(Result::COUNT),
-            ProcessedMetric::create("viewDollarValue", "views")->setCalculatedFromMetrics(array("totalViews"), function($totalViews) {
+            ProcessedMetric::create("viewDollarValue")->setCalculatedFromMetrics(array("totalViews"), function($totalViews) {
                 return $totalViews * 0.01;
             })->setPrefix('$')->setPrecision(2),
-            ProcessedMetric::create("chromeViewsPct", "views")->setCalculatedFromMetrics(array("totalViews", "chromeTotalViews"), function($totalViews, $chromeTotalViews) {
+            ProcessedMetric::create("chromeViewsPct")->setCalculatedFromMetrics(array("totalViews", "chromeTotalViews"), function($totalViews, $chromeTotalViews) {
                 return $chromeTotalViews / $totalViews * 100;
             })->setPostfix("%")->setPrecision(2),
+            ProcessedMetric::create("chromeAndIe6Views")->setCalculatedFromMetrics(array("chromeTotalViews", "ie6TotalViews"), function($chromeTotalViews, $ie6TotalViews) {
+                return $chromeTotalViews + $ie6TotalViews;
+            })->setPrecision(2),
+            ProcessedMetric::create("chromeAndIe6ViewDollarValue")->setCalculatedFromMetrics(array("chromeAndIe6Views"), function($chromeAndIe6Views) {
+                return $chromeAndIe6Views * 0.05;
+            })->setPrecision(2),
             Metric::create("chromeTotalViews", "views")->setFilter(FilterHelper::getValueFilter("browser", "chrome"))->setResult(Result::SUM),
             Metric::create("ie6TotalViews", "views")->setFilter(FilterHelper::getValueFilter("browser", "ie6"))->setResult(Result::SUM),
             Metric::create("averageViews", "views")->setResult(Result::AVG),

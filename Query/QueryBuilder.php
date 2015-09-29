@@ -13,6 +13,7 @@ use Revinate\AnalyticsBundle\Dimension\AllDimension;
 use Revinate\AnalyticsBundle\Dimension\DateHistogramDimension;
 use Revinate\AnalyticsBundle\Dimension\DateRangeDimension;
 use Revinate\AnalyticsBundle\Dimension\Dimension;
+use Revinate\AnalyticsBundle\Dimension\FiltersDimension;
 use Revinate\AnalyticsBundle\Dimension\HistogramDimension;
 use Revinate\AnalyticsBundle\Dimension\RangeDimension;
 use Revinate\AnalyticsBundle\Goal\Goal;
@@ -286,11 +287,16 @@ class QueryBuilder {
 
         } elseif ($dimension->getPath()) { // Nested Dimension
             // If any dimension is nested, wrap it in a "Nested Aggregation".
-            $dimensionAgg = new Nested($dimension->getName().'__Nested', $dimension->getPath());
-            $subDimension =  clone($dimension);
+            $dimensionAgg = new Nested($dimension->getName() . '__Nested', $dimension->getPath());
+            $subDimension = clone($dimension);
             $subDimension->setPath(null);
             $dimensionAgg->addSubAggregation($this->getAggregationFromDimension($subDimension));
 
+        } elseif ($dimension instanceof FiltersDimension) {
+            $dimensionAgg = new \Elastica\Aggregation\Filters($dimension->getName());
+            foreach ($dimension->getFilters() as $name => $filter) {
+                $dimensionAgg->addFilter($filter, $name);
+            }
         } else { // $dimension instanceof Dimension
             $dimensionAgg = new \Elastica\Aggregation\Terms($dimension->getName());
             $dimensionAgg->setField($dimension->getField());
@@ -372,7 +378,8 @@ class QueryBuilder {
         foreach ($metrics as $metricName) {
             $metric = $this->analytics->getMetric($metricName);
             if ($metric instanceof ProcessedMetric) {
-                $allMetrics = array_merge($allMetrics, $metric->getCalculatedFromMetrics());
+                $calulatedFromMetrics = $this->getAllMetricsRequiredForPostProcessing($metric->getCalculatedFromMetrics());
+                $allMetrics = array_merge($allMetrics, $calulatedFromMetrics);
             } else {
                 $allMetrics[] = $metricName;
             }
