@@ -61,6 +61,7 @@ class StatsController extends Controller {
             $response = array('ok' => false, '_help' => $this->getHelp());
             $status = Response::HTTP_BAD_REQUEST;
         } catch (\Exception $e) {
+            error_log(__METHOD__. " : Error getting analytics stats: " . $e->getMessage());
             $status = Response::HTTP_INTERNAL_SERVER_ERROR;
         }
         return new JsonResponse($response, $status);

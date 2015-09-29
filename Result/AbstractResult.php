@@ -85,8 +85,8 @@ abstract class AbstractResult implements ResultInterface {
 
             // If a bucket
             if (isset($dimensionData['buckets'])) {
-                foreach ($dimensionData['buckets'] as $subDimensionData) {
-                    $key = isset($subDimensionData['key_as_string']) ? $subDimensionData['key_as_string']: $subDimensionData['key'];
+                foreach ($dimensionData['buckets'] as $bucketIndex => $subDimensionData) {
+                    $key = $this->getBucketKey($subDimensionData, $bucketIndex);
                     $subDimensionData = $this->unsetKeys($subDimensionData);
                     if (!isset($result[$dimension][$key])) {
                         $result[$dimension][$key] = array();
@@ -124,10 +124,11 @@ abstract class AbstractResult implements ResultInterface {
                 $processedMetricNames = $this->analytics->getProcessedMetricNames();
                 $requestedMetricNames = $this->queryBuilder->getMetrics();
                 $requestedProcessMetrics = array_intersect($processedMetricNames, $requestedMetricNames);
-                foreach ($requestedProcessMetrics as $metricName) {
+                foreach ($this->getOrderedListOfProcessedMetrics($requestedProcessMetrics) as $metricName) {
                     /** @var ProcessedMetric $metric */
                     $metric = $this->analytics->getMetric($metricName);
-                    $metricValue = call_user_func_array($metric->getPostProcessCallback(), $this->pickKeyValues($values, $metric->getCalculatedFromMetrics()));
+                    // Note: $result doesn't have raw value but formatted value which can have prefix and postfixes.
+                    $metricValue = call_user_func_array($metric->getPostProcessCallback(), $this->pickKeyValues($result[$key], $metric->getCalculatedFromMetrics()));
                     $result[$key][$metric->getName()] = sprintf("%s%." . $metric->getPrecision() .  "f%s", $metric->getPrefix(), $metricValue, $metric->getPostfix());
                 }
             }
@@ -135,6 +136,26 @@ abstract class AbstractResult implements ResultInterface {
         return $result;
     }
 
+    /**
+     * @param ProcessedMetric[] $metricNames
+     * @return string[]
+     */
+    protected function getOrderedListOfProcessedMetrics($metricNames) {
+        $orderedMetrics = array();
+        foreach ($metricNames as $metricName) {
+            /** @var ProcessedMetric $metric */
+            $metric = $this->analytics->getMetric($metricName);
+            if ($metric->isDependentOnProcessedMetric($this->analytics)) {
+                foreach ($this->getOrderedListOfProcessedMetrics($metric->getCalculatedFromProcessedMetricsOnly($this->analytics)) as $processedMetricName) {
+                    $orderedMetrics[] = $processedMetricName;
+                }
+                $orderedMetrics[] = $metricName;
+            } else {
+                $orderedMetrics[] = $metricName;
+            }
+        }
+        return $orderedMetrics;
+    }
 
     /**
      * @param array $array
@@ -217,5 +238,20 @@ abstract class AbstractResult implements ResultInterface {
             }
         }
         return $pickedKeyValues;
+    }
+
+    /**
+     * @param array     $data
+     * @param string    $bucketIndex
+     * @return string
+     */
+    protected function getBucketKey($data, $bucketIndex) {
+        if (isset($data['key_as_string']))  {
+            return $data['key_as_string'];
+        }
+        if (isset($data['key'])) {
+            return $data['key'];
+        }
+        return $bucketIndex;
     }
 }

@@ -365,4 +365,32 @@ class QueryBuilderTestCase extends BaseTestCase {
         $this->assertSame("3.0", $results["tagName"]["new"]["averageWeightage"], $this->debug($results));
         $this->assertSame("4.0", $results["tagName"]["vip"]["averageWeightage"], $this->debug($results));
     }
+
+    public function testDimensionFiltersAndMetrics() {
+        $this->createData();
+        $viewAnalytics = new ViewAnalytics($this->getContainer());
+        $querybuilder = new QueryBuilder($this->elasticaClient, $viewAnalytics);
+        $querybuilder
+            ->addDimensions(array("device_filtered", "device"))
+            ->addMetrics(array("uniqueViews", "totalViews"))
+        ;
+        $resultSet = $querybuilder->execute();
+        $results = $resultSet->getNested();
+        $this->assertSame(json_encode($results["device_filtered"]), json_encode($results["device"]), $this->debug($results));
+    }
+
+    public  function testProcessedMetricsFromOtherProcessedMetrics() {
+        $this->createData();
+        $viewAnalytics = new ViewAnalytics($this->getContainer());
+        $querybuilder = new QueryBuilder($this->elasticaClient, $viewAnalytics);
+        $querybuilder
+            ->addDimensions(array("all", "device"))
+            ->addMetrics(array("chromeAndIe6ViewDollarValue"))
+        ;
+        $resultSet = $querybuilder->execute();
+        $results = $resultSet->getNested();
+        $this->assertSame("0.80", $results["all"]["chromeAndIe6ViewDollarValue"], $this->debug($results));
+        $this->assertSame("0.30", $results["device"]["ios"]["chromeAndIe6ViewDollarValue"], $this->debug($results));
+        $this->assertSame("0.50", $results["device"]["android"]["chromeAndIe6ViewDollarValue"], $this->debug($results));
+    }
 }
