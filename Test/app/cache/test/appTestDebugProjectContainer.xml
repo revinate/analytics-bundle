@@ -113,9 +113,19 @@
         <parameter key="host">127.0.0.1</parameter>
         <parameter key="port">9200</parameter>
       </parameter>
+      <parameter key="connections" type="collection">
+        <parameter key="local" type="collection">
+          <parameter key="host">localhost</parameter>
+          <parameter key="port">9200</parameter>
+        </parameter>
+      </parameter>
       <parameter key="sources" type="collection">
         <parameter key="view" type="collection">
           <parameter key="class">Revinate\AnalyticsBundle\Test\Entity\ViewAnalytics</parameter>
+        </parameter>
+        <parameter key="view_local" type="collection">
+          <parameter key="class">Revinate\AnalyticsBundle\Test\Entity\ViewAnalytics</parameter>
+          <parameter key="connection">local</parameter>
         </parameter>
       </parameter>
     </parameter>

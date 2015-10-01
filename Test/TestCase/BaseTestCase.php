@@ -47,9 +47,9 @@ class BaseTestCase extends WebTestCase {
 
     protected function setUp()
     {
-        /** @var ElasticaService elasticaService */
+        /** @var ElasticaService $elasticaService */
         $elasticaService = $this->getContainer()->get("revinate_analytics.elastica");
-        $this->elasticaClient = $elasticaService->getInstance();
+        $this->elasticaClient = $elasticaService->getInstance(null);
         $this->index = new \Elastica\Index($this->elasticaClient, ViewAnalytics::INDEX_NAME);
         if (! $this->index->exists()) {
             $this->index->create(array("index.number_of_replicas" => "0", "index.number_of_shards" => "1"));
