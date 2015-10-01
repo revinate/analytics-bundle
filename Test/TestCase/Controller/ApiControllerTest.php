@@ -127,4 +127,21 @@ class ApiControllerTest extends BaseTestCase
         $this->assertSame('85.71%', $response['comparator'][1]['all']['totalViews'], $this->debug($response));
         $this->assertSame('100.00%', $response['comparator'][1]['browser']['chrome']['totalViews'], $this->debug($response));
     }
+
+    public function testStatsSourceApiWithNamedConnection() {
+        $this->createData();
+        $post = json_encode(array(
+            "dimensions" => array("all", "device"),
+            "metrics" => array("totalViews", "uniqueViews", "averageViews"),
+            "filters" => array(),
+            "flags" => array("nestedDimensions" => false),
+            "format" => "nested"
+        ));
+        // view_local uses a named connection
+        $this->client->request("POST", "/api/analytics/source/view_local/stats", array(), array(), array(), $post);
+        $response = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertSame('23.0', $response["all"]['totalViews'], $this->debug($response));
+        $this->assertSame('4.0', $response["all"]['uniqueViews'], $this->debug($response));
+        $this->assertSame('5.8', $response["all"]['averageViews'], $this->debug($response));
+    }
 }

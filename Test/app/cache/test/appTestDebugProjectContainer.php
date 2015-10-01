@@ -1242,9 +1242,19 @@ class appTestDebugProjectContainer extends Container
                     'host' => '127.0.0.1',
                     'port' => 9200,
                 ),
+                'connections' => array(
+                    'local' => array(
+                        'host' => 'localhost',
+                        'port' => 9200,
+                    ),
+                ),
                 'sources' => array(
                     'view' => array(
                         'class' => 'Revinate\\AnalyticsBundle\\Test\\Entity\\ViewAnalytics',
+                    ),
+                    'view_local' => array(
+                        'class' => 'Revinate\\AnalyticsBundle\\Test\\Entity\\ViewAnalytics',
+                        'connection' => 'local',
                     ),
                 ),
             ),

@@ -10,5 +10,8 @@ framework:
 
 revinate_analytics:
     connection: { host: '127.0.0.1', port: 9200 }
+    connections:
+        local: { host: 'localhost', port: 9200 }
     sources:
           view:   { class:  Revinate\AnalyticsBundle\Test\Entity\ViewAnalytics }
+          view_local:   { class:  Revinate\AnalyticsBundle\Test\Entity\ViewAnalytics, connection: local }

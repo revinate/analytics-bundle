@@ -42,7 +42,7 @@ class StatsController extends Controller {
         $isNestedDimensions = isset($post['flags']['nestedDimensions']) ? $post['flags']['nestedDimensions'] : false;
         /** @var ElasticaService $elasticaService */
         $elasticaService = $container->get('revinate_analytics.elastica');
-        $queryBuilder = new QueryBuilder($elasticaService->getInstance(), $analytics);
+        $queryBuilder = new QueryBuilder($elasticaService->getInstance($source), $analytics);
         $queryBuilder
             ->setIsNestedDimensions($isNestedDimensions)
             ->addDimensions($post['dimensions'])
@@ -97,7 +97,7 @@ class StatsController extends Controller {
             }
             /** @var ElasticaService $elasticaService */
             $elasticaService = $container->get('revinate_analytics.elastica');
-            $queryBuilder = new QueryBuilder($elasticaService->getInstance(), $analytics);
+            $queryBuilder = new QueryBuilder($elasticaService->getInstance($source), $analytics);
             $queryBuilder
                 ->setIsNestedDimensions($isNestedDimensions)
                 ->addDimensions($post['dimensions'])
