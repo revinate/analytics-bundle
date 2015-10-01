@@ -10,7 +10,7 @@ class ProcessedMetric extends Metric {
     /** @var  \Closure */
     protected $postProcessCallback;
     /** @var  string[] */
-    protected $calculatedFromMetrics;
+    protected $calculatedFromMetrics = array();
 
     /**
      * @param string $name
