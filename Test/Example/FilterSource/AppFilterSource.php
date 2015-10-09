@@ -36,22 +36,6 @@ class AppFilterSource extends AbstractMySQLFilterSource {
         return 'App Filter';
     }
 
-    /**
-     * @param App $entity
-     * @return string
-     */
-    public function getEntityName($entity) {
-        return $entity->getName();
-    }
-
-    /**
-     * @param App $entity
-     * @return string
-     */
-    public function getEntityId($entity) {
-        return $entity->getId();
-    }
-
     protected function getNameColumn() {
         return "name";
     }

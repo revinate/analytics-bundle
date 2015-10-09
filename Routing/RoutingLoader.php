@@ -56,10 +56,20 @@ class RoutingLoader extends Loader {
             array(), array(), '', array(), array('POST'));
         $routes->add("revinate_analytics_bulk_stats_search", $route);
 
+        // Route for Documents
+        $route = new Route($basePath . '/source/{source}/documents',
+            array('_controller' => 'RevinateAnalyticsBundle:Documents:search'),
+            array(), array(), '', array(), array('POST'));
+        $routes->add("revinate_analytics_document_search", $route);
+
         // Route for Filters
-        $route = new Route($basePath . '/source/{source}/filter/{filter}/{query}/{page}/{pageSize}',
-            array('_controller' => 'RevinateAnalyticsBundle:Filter:query', "query" => AbstractFilterSource::ALL, "page" => 1, "pageSize" => 10));
+        $route = new Route($basePath . '/source/{source}/filter/{filter}/query/{page}/{pageSize}',
+            array('_controller' => 'RevinateAnalyticsBundle:Filter:query', "page" => 1, "pageSize" => 10));
         $routes->add("revinate_analytics_filter_query", $route);
+
+        $route = new Route($basePath . '/source/{source}/filter/{filter}/{id}',
+            array('_controller' => 'RevinateAnalyticsBundle:Filter:get'));
+        $routes->add("revinate_analytics_filter_get", $route);
 
         return $routes;
     }

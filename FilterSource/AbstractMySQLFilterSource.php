@@ -2,25 +2,28 @@
 
 namespace Revinate\AnalyticsBundle\FilterSource;
 
-use Revinate\AnalyticsBundle\FilterSource\Result\Result;
+use Doctrine\ORM\Query;
 
 abstract class AbstractMySQLFilterSource extends AbstractFilterSource implements FilterSourceInterface {
 
     /**
      * @param int|string $id
-     * @return Result
+     * @return array
      */
     public function get($id) {
-        $entity = $this->getRepository()->find($id);
-        $results = $this->results(array($entity));
-        return $results[0];
+        $repository = $this->getRepository();
+        $qb = $repository->createQueryBuilder("entity");
+        $qb->select('entity')->where("id = :id")->setParameter("id", $id);
+        $query = $qb->getQuery();
+        $entity = $query->getSingleResult(Query::HYDRATE_ARRAY);
+        return $entity;
     }
 
     /**
      * @param string $query
      * @param $page
      * @param $pageSize
-     * @return Result[]
+     * @return array
      */
     public function getByQuery($query, $page, $pageSize) {
         $repository = $this->getRepository();
@@ -34,21 +37,9 @@ abstract class AbstractMySQLFilterSource extends AbstractFilterSource implements
         $qb->setFirstResult(($page - 1) * $pageSize)
             ->setMaxResults($pageSize);
         $query = $qb->getQuery();
-        $entities = $query->execute();
-        return $this->results($entities);
+        return $query->execute(null, Query::HYDRATE_ARRAY);
     }
 
-    /**
-     * @param FilterSourceInterface[] $entities
-     * @return Result[]
-     */
-    protected function results($entities) {
-        $results = array();
-        foreach ($entities as $entity) {
-            $results[] = new Result($this->getEntityId($entity), $this->getEntityName($entity));
-        }
-        return $results;
-    }
 
     /**
      * @return string

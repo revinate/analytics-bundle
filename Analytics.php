@@ -14,6 +14,8 @@ abstract class Analytics implements AnalyticsInterface {
 
     /** @var  ContainerInterface */
     protected $container;
+    /** @var  array */
+    protected $context = array();
 
     /**
      * @param ContainerInterface $container
@@ -131,4 +133,27 @@ abstract class Analytics implements AnalyticsInterface {
         return $config;
     }
 
+    /**
+     * @return array
+     */
+    public function getContext()
+    {
+        return $this->context;
+    }
+
+    /**
+     * @param array $context
+     */
+    public function setContext($context)
+    {
+        $this->context = $context;
+    }
+
+    /**
+     * @param $key
+     * @return null
+     */
+    public function getContextValue($key) {
+        return isset($this->context[$key]) ? $this->context[$key] : null;
+    }
 }

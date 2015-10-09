@@ -1,8 +1,6 @@
 <?php
 
 namespace Revinate\AnalyticsBundle\FilterSource;
-use Doctrine\Entity;
-use Revinate\AnalyticsBundle\FilterSource\Result\Result;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -26,7 +24,7 @@ interface FilterSourceInterface {
 
     /**
      * @param string|int $id
-     * @return Result
+     * @return array
      */
     public function get($id);
 
@@ -34,20 +32,7 @@ interface FilterSourceInterface {
      * @param string $query
      * @param $page
      * @param $pageSize
-     * @return Result[]
+     * @return array
      */
     public function getByQuery($query, $page, $pageSize);
-
-    /**
-     * @param object $entity
-     * @return string
-     */
-    public function getEntityName($entity);
-
-    /**
-     * @param object $entity
-     * @return string
-     */
-    public function getEntityId($entity);
-
 }

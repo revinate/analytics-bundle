@@ -6,6 +6,7 @@ class View {
     protected $browser;
     protected $device;
     protected $views;
+    protected $siteId;
     /** @var  Tag[] */
     protected $tags;
 
@@ -89,6 +90,22 @@ class View {
     }
 
     /**
+     * @return mixed
+     */
+    public function getSiteId()
+    {
+        return $this->siteId;
+    }
+
+    /**
+     * @param mixed $siteId
+     */
+    public function setSiteId($siteId)
+    {
+        $this->siteId = $siteId;
+    }
+
+    /**
      * @return array
      */
     public function toArray() {
@@ -99,6 +116,7 @@ class View {
         return array(
             "device" => $this->getDevice(),
             "browser" => $this->getBrowser(),
+            "siteId" => $this->getSiteId(),
             "views" => $this->getViews(),
             "date" => $this->getDate()->format("c"),
             "tags" => $tagDocuments,

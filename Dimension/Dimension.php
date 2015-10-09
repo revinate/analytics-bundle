@@ -1,6 +1,7 @@
 <?php
 
 namespace Revinate\AnalyticsBundle\Dimension;
+use Revinate\AnalyticsBundle\FilterSource\FilterSourceInterface;
 
 /**
  * Class Dimension
@@ -23,7 +24,8 @@ class Dimension implements DimensionInterface {
     protected $type = self::TYPE_STRING;
     /** @var  string */
     protected $path;
-
+    /** @var FilterSourceInterface */
+    protected $filterSource;
     /**
      * @param $name
      * @param null $field
@@ -121,6 +123,22 @@ class Dimension implements DimensionInterface {
     public function setPath($path)
     {
         $this->path = $path;
+        return $this;
+    }
+
+    /**
+     * @return FilterSourceInterface
+     */
+    public function getFilterSource() {
+        return $this->filterSource;
+    }
+
+    /**
+     * @param FilterSourceInterface $filterSource
+     * @return $this
+     */
+    public function setFilterSource(FilterSourceInterface $filterSource) {
+        $this->filterSource = $filterSource;
         return $this;
     }
 

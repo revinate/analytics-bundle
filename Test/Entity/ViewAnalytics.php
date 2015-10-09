@@ -18,6 +18,7 @@ use Revinate\AnalyticsBundle\Metric\MetricInterface;
 use Revinate\AnalyticsBundle\Metric\ProcessedMetric;
 use Revinate\AnalyticsBundle\Metric\Result;
 use Revinate\AnalyticsBundle\Test\Elastica\FilterHelper;
+use Revinate\AnalyticsBundle\Test\Entity\FilterSource\SiteFilterSource;
 
 class ViewAnalytics extends Analytics {
 
@@ -32,6 +33,7 @@ class ViewAnalytics extends Analytics {
         return array(
             AllDimension::create()->setReadableName("All Dimension")->setSize(0)->setType(Dimension::TYPE_STRING),
             Dimension::create("browser"),
+            Dimension::create("site", "siteId")->setFilterSource($this->getFilterSource("siteId")),
             Dimension::create("device")->setReadableName("Device Type"),
             DateHistogramDimension::create("dateHistogram", "date")->setInterval("month"),
             DateHistogramDimension::create("dateHistogramWithFormat", "date")->setInterval("month")->setFormat("yyyy:MM:dd"),
@@ -49,12 +51,16 @@ class ViewAnalytics extends Analytics {
      */
     public function getMetrics()
     {
+        $dollarToRupeeConversionRate = $this->getContextValue("dollarToRupeeConversionRate");
         return array(
             Metric::create("totalViews", "views")->setResult(Result::SUM),
             Metric::create("uniqueViews", "views")->setResult(Result::COUNT),
             ProcessedMetric::create("viewDollarValue")->setCalculatedFromMetrics(array("totalViews"), function($totalViews) {
                 return $totalViews * 0.01;
             })->setPrefix('$')->setPrecision(2),
+            ProcessedMetric::create("viewRupeeValue")->setCalculatedFromMetrics(array("totalViews"), function($totalViews) use ($dollarToRupeeConversionRate) {
+                return $totalViews * 0.01 * $dollarToRupeeConversionRate;
+            })->setPrefix('Rs ')->setPrecision(2),
             ProcessedMetric::create("chromeViewsPct")->setCalculatedFromMetrics(array("totalViews", "chromeTotalViews"), function($totalViews, $chromeTotalViews) {
                 return $chromeTotalViews / $totalViews * 100;
             })->setPostfix("%")->setPrecision(2),
@@ -80,7 +86,9 @@ class ViewAnalytics extends Analytics {
      */
     public function getFilterSources()
     {
-        return array();
+        return array(
+            SiteFilterSource::create($this->container, "siteId")
+        );
     }
 
     /**
