@@ -32,7 +32,7 @@ class BaseTestCase extends WebTestCase {
         ini_set('display_errors', '1');
         ini_set('display_startup_errors', '1');
         if (! self::$initialized) {
-            self::$kernel = new AppKernel('test_local', true);
+            self::$kernel = new AppKernel('test', true);
             self::$kernel->boot();
             self::$initialized = true;
         }

@@ -19,14 +19,16 @@ class DocumentHelper {
     /**
      * @param $browser
      * @param $device
+     * @param $siteId
      * @param null $dateString
      * @param int $views
      * @return $this
      */
-    public function createView($browser, $device, $dateString = null, $views = 1) {
+    public function createView($browser, $device, $siteId, $dateString = null, $views = 1) {
         $date = $dateString ? new \DateTime($dateString) : new \DateTime('now');
         $view = new View();
         $view->setBrowser($browser);
+        $view->setSiteId($siteId);
         $view->setDevice($device);
         $view->setViews($views);
         $view->setDate($date);

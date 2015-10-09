@@ -2,6 +2,7 @@
 
 namespace Revinate\AnalyticsBundle\Controller;
 
+use Revinate\AnalyticsBundle\Analytics;
 use Revinate\AnalyticsBundle\AnalyticsInterface;
 use Revinate\AnalyticsBundle\Exception\InvalidResultFormatTypeException;
 use Revinate\AnalyticsBundle\Filter\AnalyticsCustomFiltersInterface;
@@ -37,8 +38,9 @@ class StatsController extends Controller {
         }
 
         $sourceConfig = $config['sources'][$source];
-        /** @var AnalyticsInterface $analytics */
+        /** @var Analytics $analytics */
         $analytics = new $sourceConfig['class']($container);
+        $analytics->setContext(isset($post['context']) ? $post['context'] : array());
         $isNestedDimensions = isset($post['flags']['nestedDimensions']) ? $post['flags']['nestedDimensions'] : false;
         /** @var ElasticaService $elasticaService */
         $elasticaService = $container->get('revinate_analytics.elastica');
@@ -83,12 +85,13 @@ class StatsController extends Controller {
             return new JsonResponse(array('ok' => false), Response::HTTP_NOT_FOUND);
         }
         if (empty($queriesPost)) {
-            return new JsonResponse(array('ok' => false, '_help' => $this->getHelp()), Response::HTTP_BAD_REQUEST);
+            return new JsonResponse(array('ok' => false, '_help' => self::getHelp()), Response::HTTP_BAD_REQUEST);
         }
 
         $sourceConfig = $config['sources'][$source];
-        /** @var AnalyticsInterface $analytics */
+        /** @var Analytics $analytics */
         $analytics = new $sourceConfig['class']($container);
+        $analytics->setContext(isset($post['context']) ? $post['context'] : array());
         $bulkQueryBuilder = new BulkQueryBuilder();
         $isNestedDimensions = isset($queriesPost['flags']['nestedDimensions']) ? $queriesPost['flags']['nestedDimensions'] : false;
         foreach ($queriesPost['queries'] as $post) {
@@ -104,7 +107,7 @@ class StatsController extends Controller {
                 ->addMetrics($post['metrics'])
                 ->setGoals(isset($post['goals']) ? $post['goals'] : null);
             if (!empty($post['filters'])) {
-                $queryBuilder->setFilter($this->getFilters($analytics, $post['filters']));
+                $queryBuilder->setFilter(self::getFilters($analytics, $post['filters']));
             }
             $bulkQueryBuilder->addQueryBuilder($queryBuilder);
         }
@@ -135,7 +138,7 @@ class StatsController extends Controller {
      * @throws \Exception
      * @return \Elastica\Filter\BoolAnd
      */
-    protected function getFilters(AnalyticsInterface $analytics, $postFilters) {
+    public static function getFilters(AnalyticsInterface $analytics, $postFilters) {
         $andFilter = new \Elastica\Filter\BoolAnd();
         foreach ($postFilters as $name => $postFilter) {
             $type = $postFilter[0];
@@ -186,7 +189,7 @@ class StatsController extends Controller {
     /**
      * @return array
      */
-    protected function getHelp() {
+    public static function getHelp() {
         return array(
             'post' => array(
                 'dimensions' => 'array of dimension names',

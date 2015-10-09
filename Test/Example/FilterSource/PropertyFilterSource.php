@@ -37,22 +37,6 @@ class PropertyFilterSource extends AbstractMySQLFilterSource {
         return 'Property Filter';
     }
 
-    /**
-     * @param Property $entity
-     * @return string
-     */
-    public function getEntityName($entity) {
-        return $entity->getName();
-    }
-
-    /**
-     * @param Property $entity
-     * @return string
-     */
-    public function getEntityId($entity) {
-        return $entity->getId();
-    }
-
     protected function getNameColumn() {
         return "name";
     }

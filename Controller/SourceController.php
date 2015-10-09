@@ -61,14 +61,18 @@ class SourceController extends Controller {
         $filterLinks = array();
         foreach ($analytics->getFilterSources() as $filter) {
             $filterLinks[$filter->getName()] = array(
-                'uri' => $router->generate('revinate_analytics_filter_query', array('source' => $source, 'filter' => $filter->getReadableName(), 'query' => 'query', 'page' => '1', 'pageSize' => '20'), true),
-                'method' => 'get'
+                'uri' => $router->generate('revinate_analytics_filter_query', array('source' => $source, 'filter' => $filter->getName(), 'page' => '1', 'pageSize' => '20'), true) . "?query=query",
+                'method' => 'GET'
             );
         }
         return array(
             'stats' => array(
                 'uri' => $router->generate('revinate_analytics_stats_search', array('source' => $source), true),
-                'method' => 'post'
+                'method' => 'POST'
+            ),
+            'documents' => array(
+                'uri' => $router->generate('revinate_analytics_document_search', array('source' => $source), true),
+                'method' => 'POST'
             ),
             'filterSources' => $filterLinks
         );

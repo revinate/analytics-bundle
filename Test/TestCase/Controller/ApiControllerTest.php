@@ -19,10 +19,10 @@ class ApiControllerTest extends BaseTestCase
 
     protected function createData() {
         $docHelper = new DocumentHelper($this->type);
-        $docHelper->createView("chrome", "ios", "-2 month", 6)
-            ->createView("opera", "ios", "-3 month", 5)
-            ->createView("opera", "ios", "-1 week", 2)
-            ->createView("chrome", "android", "+0 day", 10)
+        $docHelper->createView("chrome", "ios", 2, "-2 month", 6)
+            ->createView("opera", "ios", 8, "-3 month", 5)
+            ->createView("opera", "ios", 6, "-1 week", 2)
+            ->createView("chrome", "android", 2, "+0 day", 10)
         ;
         $docHelper->refresh();
     }
@@ -143,5 +143,18 @@ class ApiControllerTest extends BaseTestCase
         $this->assertSame('23.0', $response["all"]['totalViews'], $this->debug($response));
         $this->assertSame('4.0', $response["all"]['uniqueViews'], $this->debug($response));
         $this->assertSame('5.8', $response["all"]['averageViews'], $this->debug($response));
+    }
+
+    public function testDocumentsSourceApi() {
+        $this->createData();
+        $post = json_encode(array(
+            "filters" => array()
+        ));
+        $this->client->request("POST", "/api/analytics/source/view/documents", array(), array(), array(), $post);
+        $response = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertSame(count($response), 4, $this->debug($response));
+        $this->assertSame('ios', $response[0]['device'], $this->debug($response));
+        $this->assertSame('chrome', $response[0]['browser'], $this->debug($response));
+        $this->assertSame(6, $response[0]['views'], $this->debug($response));
     }
 }

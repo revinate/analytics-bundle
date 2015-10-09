@@ -20,6 +20,9 @@
     "views": {
       "type": "integer"
     },
+    "siteId": {
+      "type": "string"
+    },
     "tags": {
       "type": "nested",
       "properties": {

@@ -1,4 +1,6 @@
 TODO:
+- Pass context from client to the analytics class
+- Filter by Id and dimension by some metric value
 - Order of buckets ?
 - Children Aggregations
 - Script Dimension

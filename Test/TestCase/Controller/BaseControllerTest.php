@@ -21,7 +21,7 @@ class BaseControllerTestCase extends BaseTestCase
         $this->assertTrue(isset($routesByPath['/api/analytics/source']), $this->debug($routesByPath));
         $this->assertTrue(isset($routesByPath['/api/analytics/source/{source}']), $this->debug($routesByPath));
         $this->assertTrue(isset($routesByPath['/api/analytics/source/{source}/stats']), $this->debug($routesByPath));
-        $this->assertTrue(isset($routesByPath['/api/analytics/source/{source}/filter/{filter}/{query}/{page}/{pageSize}']), $this->debug($routesByPath));
+        $this->assertTrue(isset($routesByPath['/api/analytics/source/{source}/filter/{filter}/query/{page}/{pageSize}']), $this->debug($routesByPath));
     }
 
 

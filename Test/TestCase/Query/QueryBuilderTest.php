@@ -19,10 +19,10 @@ class QueryBuilderTestCase extends BaseTestCase {
 
     protected function createData() {
         $docHelper = new DocumentHelper($this->type);
-        $docHelper->createView("chrome", "ios", "-2 month", 6)
-            ->createView("opera", "ios", "-3 month", 5)
-            ->createView("opera", "ios", "-1 week", 2)
-            ->createView("chrome", "android", "+0 day", 10)
+        $docHelper->createView("chrome", "ios", 1, "-2 month", 6)
+            ->createView("opera", "ios", 7, "-3 month", 5)
+            ->createView("opera", "ios", 1, "-1 week", 2)
+            ->createView("chrome", "android", 4, "+0 day", 10)
         ;
         $docHelper->refresh();
     }
@@ -154,16 +154,31 @@ class QueryBuilderTestCase extends BaseTestCase {
         $this->createData();
         $viewAnalytics = new ViewAnalytics($this->getContainer());
         $querybuilder = new QueryBuilder($this->elasticaClient, $viewAnalytics);
-        $querybuilder->addDimensions(array("all"))
-            ->addMetrics(array("totalViews", "uniqueViews", "averageViews", "chromeViewsPct", "viewDollarValue", "maxViews", "minViews"))
+        $querybuilder
             ->setOffset(0)
-            ->setSize(4);
-        $resultSet = $querybuilder->execute();
-        $results = $resultSet->getDocuments();
+            ->setSize(4)
+            ;
+        $results = $querybuilder->execute()->getDocuments();
         $this->assertSame(4, count($results), $this->debug($results));
         $this->assertSame('ios', $results[0]['device'], $this->debug($results));
         $this->assertSame('chrome', $results[0]['browser'], $this->debug($results));
         $this->assertSame(6, $results[0]['views'], $this->debug($results));
+    }
+
+    public function testBasicDocumentsWithSort() {
+        $this->createData();
+        $viewAnalytics = new ViewAnalytics($this->getContainer());
+        $querybuilder = new QueryBuilder($this->elasticaClient, $viewAnalytics);
+        $querybuilder
+            ->setOffset(0)
+            ->setSize(4)
+            ->setOrderBy("views")
+            ->setOrderDir("desc");
+        $results = $querybuilder->execute()->getDocuments();
+        $this->assertSame(4, count($results), $this->debug($results));
+        $this->assertSame('android', $results[0]['device'], $this->debug($results));
+        $this->assertSame('chrome', $results[0]['browser'], $this->debug($results));
+        $this->assertSame(10, $results[0]['views'], $this->debug($results));
     }
 
     /**
@@ -382,7 +397,7 @@ class QueryBuilderTestCase extends BaseTestCase {
         $this->assertSame(json_encode($results["device_filtered"]), json_encode($results["device"]), $this->debug($results));
     }
 
-    public  function testProcessedMetricsFromOtherProcessedMetrics() {
+    public function testProcessedMetricsFromOtherProcessedMetrics() {
         $this->createData();
         $viewAnalytics = new ViewAnalytics($this->getContainer());
         $querybuilder = new QueryBuilder($this->elasticaClient, $viewAnalytics);
@@ -395,5 +410,49 @@ class QueryBuilderTestCase extends BaseTestCase {
         $this->assertSame("0.80", $results["all"]["chromeAndIe6ViewDollarValue"], $this->debug($results));
         $this->assertSame("0.30", $results["device"]["ios"]["chromeAndIe6ViewDollarValue"], $this->debug($results));
         $this->assertSame("0.50", $results["device"]["android"]["chromeAndIe6ViewDollarValue"], $this->debug($results));
+    }
+
+    public function testFilterSource() {
+        $this->createData();
+        $viewAnalytics = new ViewAnalytics($this->getContainer());
+        $filterSource = $viewAnalytics->getFilterSource("siteId");
+        $site = $filterSource->get(1);
+        $this->assertSame("google.com", $site["name"], $this->debug($site));
+
+        $sites = $filterSource->getByQuery("oo", 1, 10);
+        $this->assertSame(3, count($sites), $this->debug($sites));
+    }
+
+    public function testDimensionsKeysWithValues() {
+        $this->createData();
+        $viewAnalytics = new ViewAnalytics($this->getContainer());
+        $querybuilder = new QueryBuilder($this->elasticaClient, $viewAnalytics);
+        $querybuilder
+            ->addDimensions(array("device", "site"))
+            ->addMetrics(array("totalViews", "uniqueViews"))
+        ;
+        $resultSet = $querybuilder->execute();
+        $results = $resultSet->getNested();
+        $this->assertSame(1, $results["site"][1]["_info"]["id"], $this->debug($results));
+        $this->assertSame("google.com", $results["site"][1]["_info"]["name"], $this->debug($results));
+        $this->assertSame("google", $results["site"][1]["_info"]["slug"], $this->debug($results));
+        $this->assertSame(false, isset($results["device"]["ios"]["_info"]), $this->debug($results));
+    }
+
+    public function testContextBasedMetrics() {
+        $this->createData();
+        $viewAnalytics = new ViewAnalytics($this->getContainer());
+        $viewAnalytics->setContext(array(
+            "dollarToRupeeConversionRate" => 62
+        ));
+        $querybuilder = new QueryBuilder($this->elasticaClient, $viewAnalytics);
+        $querybuilder
+            ->addDimensions(array("all"))
+            ->addMetrics(array("viewRupeeValue", "viewDollarValue"))
+        ;
+        $resultSet = $querybuilder->execute();
+        $results = $resultSet->getNested();
+        $this->assertSame("$0.23", $results["all"]["viewDollarValue"], $this->debug($results));
+        $this->assertSame("Rs 14.26", $results["all"]["viewRupeeValue"], $this->debug($results));
     }
 }

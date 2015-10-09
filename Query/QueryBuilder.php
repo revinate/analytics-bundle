@@ -394,6 +394,10 @@ class QueryBuilder {
         $query = new \Elastica\Query();
         $query->setSize($this->size);
         $query->setFrom($this->offset);
+        // Sort for Documents
+        if ($this->getOrderBy() && $this->getOrderDir()) {
+            $query->setSort(array(array($this->getOrderBy() => $this->getOrderDir())));
+        }
 
         // Create Dimensions and Metric Aggregations
         $dimensionAggregations = $this->createDimensionAggregations();
