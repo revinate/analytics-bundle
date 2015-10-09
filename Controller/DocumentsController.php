@@ -47,11 +47,8 @@ class DocumentsController extends Controller {
         $queryBuilder = new QueryBuilder($elasticaService->getInstance($source), $analytics);
         $queryBuilder->setSize($size)
             ->setOffset($offset);
-        if (isset($post['orderBy'])) {
-            $queryBuilder->setOrderBy($post['orderBy']);
-        }
-        if (isset($post['orderDir'])) {
-            $queryBuilder->setOrderBy($post['orderDir']);
+        if (isset($post['sort'])) {
+            $queryBuilder->setSort($post['sort']);
         }
         if (! empty($post['filters'])) {
             $queryBuilder->setFilter(StatsController::getFilters($analytics, $post['filters']));

@@ -43,10 +43,8 @@ class QueryBuilder {
     protected $offset = 0;
     /** @var int Number of documents to return */
     protected $size = 10;
-    /** @var string */
-    protected $orderBy;
-    /** @var  string */
-    protected $orderDir;
+    /** @var array  */
+    protected $sort;
     /** @var  Goal[] */
     protected $goals;
     /** @var  \Elastica\ResultSet */
@@ -189,39 +187,19 @@ class QueryBuilder {
     }
 
     /**
-     * @return string
+     * @return array
      */
-    public function getOrderBy()
+    public function getSort()
     {
-        return $this->orderBy;
+        return $this->sort;
     }
 
     /**
-     * @param string $orderBy
-     * @return $this
+     * @param array $sort
      */
-    public function setOrderBy($orderBy)
+    public function setSort($sort)
     {
-        $this->orderBy = $orderBy;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getOrderDir()
-    {
-        return $this->orderDir;
-    }
-
-    /**
-     * @param string $orderDir
-     * @return $this
-     */
-    public function setOrderDir($orderDir)
-    {
-        $this->orderDir = $orderDir;
-        return $this;
+        $this->sort = $sort;
     }
 
     /**
@@ -302,8 +280,8 @@ class QueryBuilder {
             $dimensionAgg->setField($dimension->getField());
             $dimensionAgg->setSize($dimension->getSize());
             // @TODO: Implement Ordering.
-//                if ($this->getOrderBy() && $this->getOrderDir()) {
-//                    $dimensionAgg->setOrder($this->getOrderBy(), $this->getOrderDir());
+//                if ($this->getSort()) {
+//                    $dimensionAgg->setOrder($this->getSort());
 //                }
         }
         return $dimensionAgg;
@@ -394,9 +372,8 @@ class QueryBuilder {
         $query = new \Elastica\Query();
         $query->setSize($this->size);
         $query->setFrom($this->offset);
-        // Sort for Documents
-        if ($this->getOrderBy() && $this->getOrderDir()) {
-            $query->setSort(array(array($this->getOrderBy() => $this->getOrderDir())));
+        if ($this->getSort()) {
+            $query->setSort($this->getSort());
         }
 
         // Create Dimensions and Metric Aggregations
