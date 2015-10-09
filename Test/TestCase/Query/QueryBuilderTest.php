@@ -172,8 +172,7 @@ class QueryBuilderTestCase extends BaseTestCase {
         $querybuilder
             ->setOffset(0)
             ->setSize(4)
-            ->setOrderBy("views")
-            ->setOrderDir("desc");
+            ->setSort(array("views" => "desc"));
         $results = $querybuilder->execute()->getDocuments();
         $this->assertSame(4, count($results), $this->debug($results));
         $this->assertSame('android', $results[0]['device'], $this->debug($results));
