@@ -71,6 +71,10 @@ class RoutingLoader extends Loader {
             array('_controller' => 'RevinateAnalyticsBundle:Filter:get'));
         $routes->add("revinate_analytics_filter_get", $route);
 
+        $route = new Route($basePath . '/source/{source}/filter/{filter}',
+            array('_controller' => 'RevinateAnalyticsBundle:Filter:list'));
+        $routes->add("revinate_analytics_filter_list", $route);
+
         return $routes;
     }
 

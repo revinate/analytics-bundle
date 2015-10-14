@@ -41,6 +41,12 @@ class FilterController extends Controller {
         return new JsonResponse($results);
     }
 
+    /**
+     * @param $source
+     * @param $filter
+     * @param $id
+     * @return JsonResponse
+     */
     public function getAction($source, $filter, $id) {
         /** @var ContainerInterface $container */
         $container = $this->get('service_container');
@@ -53,6 +59,26 @@ class FilterController extends Controller {
             return new JsonResponse(array('ok' => false), Response::HTTP_NOT_FOUND);
         }
         $result = $analyticsFilter->get($id);
+        return new JsonResponse($result);
+    }
+
+    /**
+     * @param $source
+     * @param $filter
+     * @return JsonResponse
+     */
+    public function listAction($source, $filter) {
+        /** @var ContainerInterface $container */
+        $container = $this->get('service_container');
+        $config = $container->getParameter('revinate_analytics.config');
+        if (!isset($config['sources'][$source])) {
+            return new JsonResponse(array('ok' => false), Response::HTTP_NOT_FOUND);
+        }
+        $analyticsFilter = $this->getAnalyticsFilter($config['sources'][$source], $filter);
+        if (! $analyticsFilter) {
+            return new JsonResponse(array('ok' => false), Response::HTTP_NOT_FOUND);
+        }
+        $result = $analyticsFilter->getAll();
         return new JsonResponse($result);
     }
 
