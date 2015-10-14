@@ -35,4 +35,9 @@ interface FilterSourceInterface {
      * @return array
      */
     public function getByQuery($query, $page, $pageSize);
+
+    /**
+     * @return array
+     */
+    public function getAll();
 }

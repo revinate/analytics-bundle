@@ -76,4 +76,10 @@ class SiteFilterSource extends AbstractFilterSource {
         return $matches;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getAll() {
+        return self::$sites;
+    }
 }

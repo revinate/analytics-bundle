@@ -438,6 +438,22 @@ class QueryBuilderTestCase extends BaseTestCase {
         $this->assertSame(false, isset($results["device"]["ios"]["_info"]), $this->debug($results));
     }
 
+    public function testNullFilledDimensions() {
+        $this->createData();
+        $viewAnalytics = new ViewAnalytics($this->getContainer());
+        $querybuilder = new QueryBuilder($this->elasticaClient, $viewAnalytics);
+        $querybuilder
+            ->addDimensions(array("device", "site"))
+            ->addMetrics(array("totalViews", "uniqueViews"))
+            ->setIsNestedDimensions(true)
+        ;
+        $resultSet = $querybuilder->execute();
+        $results = $resultSet->getNested();
+        $this->assertSame(10, count($results["device"]["ios"]["site"]), $this->debug($results));
+        $this->assertSame("yahoo.com", $results["device"]["ios"]["site"][2]["_info"]["name"], $this->debug($results));
+        $this->assertFalse(isset($results["device"]["ios"]["site"][2]["totalViews"]), $this->debug($results));
+    }
+
     public function testContextBasedMetrics() {
         $this->createData();
         $viewAnalytics = new ViewAnalytics($this->getContainer());

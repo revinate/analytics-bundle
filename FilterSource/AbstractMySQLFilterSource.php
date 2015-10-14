@@ -29,17 +29,27 @@ abstract class AbstractMySQLFilterSource extends AbstractFilterSource implements
         $repository = $this->getRepository();
         $qb = $repository->createQueryBuilder("entity");
         $qb->select('entity');
-        if ($query !== AbstractFilterSource::ALL) {
-            $qb->where($qb->expr()->like("entity." . $this->getNameColumn(), ":query"))
-                ->setParameter('query', '%'.$query.'%')
-            ;
+        $qb->where($qb->expr()->like("entity." . $this->getNameColumn(), ":query"))
+            ->setParameter('query', '%'.$query.'%')
+        ;
+        $qb->setFirstResult(($page - 1) * $pageSize);
+        if ($pageSize > 0) {
+            $qb->setMaxResults($pageSize);
         }
-        $qb->setFirstResult(($page - 1) * $pageSize)
-            ->setMaxResults($pageSize);
         $query = $qb->getQuery();
         return $query->execute(null, Query::HYDRATE_ARRAY);
     }
 
+    /**
+     * @return array()
+     */
+    public function getAll() {
+        $repository = $this->getRepository();
+        $qb = $repository->createQueryBuilder("entity");
+        $qb->select('entity');
+        $query = $qb->getQuery();
+        return $query->execute(null, Query::HYDRATE_ARRAY);
+    }
 
     /**
      * @return string

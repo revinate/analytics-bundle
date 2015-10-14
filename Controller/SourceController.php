@@ -5,6 +5,7 @@ namespace Revinate\AnalyticsBundle\Controller;
 use Revinate\AnalyticsBundle\AnalyticsInterface;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 use Symfony\Component\HttpFoundation\Response;
@@ -57,12 +58,24 @@ class SourceController extends Controller {
      * @return array
      */
     protected function getLinks(AnalyticsInterface $analytics, $source) {
+        /** @var Router $router */
         $router = $this->container->get('router');
         $filterLinks = array();
         foreach ($analytics->getFilterSources() as $filter) {
             $filterLinks[$filter->getName()] = array(
-                'uri' => $router->generate('revinate_analytics_filter_query', array('source' => $source, 'filter' => $filter->getName(), 'page' => '1', 'pageSize' => '20'), true) . "?query=query",
-                'method' => 'GET'
+                "all" => array(
+                    'uri' => $router->generate('revinate_analytics_filter_list', array('source' => $source, 'filter' => $filter->getName()), true),
+                    'method' => 'GET'
+                ),
+                "get" => array(
+                    'uri' => $router->generate('revinate_analytics_filter_get', array('source' => $source, 'filter' => $filter->getName(), 'id' => '1'), true),
+                    'method' => 'GET'
+                ),
+                "query" => array(
+                    'uri' => $router->generate('revinate_analytics_filter_query', array('source' => $source, 'filter' => $filter->getName(), 'page' => '1', 'pageSize' => '20'), true) . "?query=query",
+                    'method' => 'GET'
+                ),
+
             );
         }
         return array(

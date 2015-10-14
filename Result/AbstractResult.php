@@ -3,6 +3,7 @@
 namespace Revinate\AnalyticsBundle\Result;
 
 use Revinate\AnalyticsBundle\Aggregation\AllAggregation;
+use Revinate\AnalyticsBundle\FilterSource\FilterSourceInterface;
 use Revinate\AnalyticsBundle\Metric\ProcessedMetric;
 use Revinate\AnalyticsBundle\Query\QueryBuilder;
 
@@ -86,17 +87,20 @@ abstract class AbstractResult implements ResultInterface {
             // If a bucket
             if (isset($dimensionData['buckets'])) {
                 $dimensionObject = $this->analytics->getDimension($dimension);
+                $filterSource = $dimensionObject->getFilterSource();
                 foreach ($dimensionData['buckets'] as $bucketIndex => $subDimensionData) {
                     $key = $this->getBucketKey($subDimensionData, $bucketIndex);
                     $subDimensionData = $this->unsetKeys($subDimensionData);
                     if (!isset($result[$dimension][$key])) {
                         $result[$dimension][$key] = array();
-                        if (($filterSource = $dimensionObject->getFilterSource())) {
+                        if ($filterSource) {
                             $result[$dimension][$key]["_info"] = $filterSource->get($key);
                         }
                     }
                     $result[$dimension][$key] = $this->buildNestedResult($subDimensionData, $result[$dimension][$key], $depth + 1);
                 }
+                // Null fill missing keys
+                $result[$dimension] = $this->addMissingDimensions($filterSource, $result[$dimension]);
             } else { // If a metric
                 $metric = $this->analytics->getMetric($dimension);
                 $dimensionData = $this->unsetKeys($dimensionData);
@@ -114,6 +118,28 @@ abstract class AbstractResult implements ResultInterface {
             }
         }
         return $result;
+    }
+
+    /**
+     * @param FilterSourceInterface|null $filterSource
+     * @param $data
+     * @return mixed
+     */
+    protected function addMissingDimensions(FilterSourceInterface $filterSource = null, $data) {
+        if (is_null($filterSource)) {
+            return $data;
+        }
+        // Get all possible values for this filter source
+        $all = $filterSource->getAll();
+        foreach ($all as $row) {
+            if (isset($data[$row['id']])) {
+                continue;
+            }
+            $data[$row['id']] = array(
+                "_info" => $row
+            );
+        }
+        return $data;
     }
 
     /**
