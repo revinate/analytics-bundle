@@ -459,11 +459,14 @@ class QueryBuilder {
     }
 
     /**
-     *
+     * @return GoalSet
      */
-    public function getGoalsSet() {
+    public function getGoalSet() {
         if (! $this->resultSet) {
             $this->execute();
+        }
+        if (empty($this->getGoals())) {
+            return null;
         }
         return new GoalSet($this->getGoals(), $this->getResultSet());
     }

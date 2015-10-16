@@ -351,7 +351,7 @@ class QueryBuilderTestCase extends BaseTestCase {
             ->setFilter(FilterHelper::getValueFilter("browser", "chrome"))
             ->setGoals($goals)
         ;
-        $goalSet = $querybuilder->getGoalsSet();
+        $goalSet = $querybuilder->getGoalSet();
         $goalResults = $goalSet->get(ResultSet::TYPE_NESTED);
         $this->assertSame("100.00%", $goalResults["device"]["android"]["totalViews"], $this->debug($goalResults));
         $this->assertSame("50.00%", $goalResults["device"]["android"]["uniqueViews"], $this->debug($goalResults));
