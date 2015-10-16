@@ -69,7 +69,7 @@ class StatsController extends Controller {
 
             $response['results'] = $queryBuilder->execute()->getResult($format);
             if (isset($post['goals'])) {
-                $response['goalResults'] = $queryBuilder->getGoalsSet()->get($format);
+                $response['goalResults'] = $queryBuilder->getGoalSet()->get($format);
             }
         } catch (InvalidResultFormatTypeException $e) {
             $response = array('ok' => false, '_help' => $this->getHelp());
@@ -121,7 +121,14 @@ class StatsController extends Controller {
                     ->setIsNestedDimensions($isNestedDimensions)
                     ->addDimensions($post['dimensions'])
                     ->addMetrics($post['metrics'])
-                    ->setGoals(isset($post['goals']) ? $post['goals'] : null);
+                ;
+                if (isset($queriesPost['goals'])) {
+                    $goals = array();
+                    foreach ($queriesPost["goals"] as $key => $val) {
+                        $goals[] = new Goal($key, $val);
+                    }
+                    $queryBuilder->setGoals($goals);
+                }
                 if (!empty($post['filters'])) {
                     $queryBuilder->setFilter(self::getFilters($analytics, $post['filters']));
                 }
@@ -131,6 +138,12 @@ class StatsController extends Controller {
             $resultSets = $bulkQueryBuilder->execute();
             foreach ($resultSets as $resultSet) {
                 $response['results'][] = $resultSet->getResult($format);
+            }
+            if ($bulkQueryBuilder->getGoalSets()) {
+                $response['goalResults'] = array();
+                foreach ($bulkQueryBuilder->getGoalSets() as $goalSet) {
+                    $response['goalResults'][] = $goalSet->get($format);
+                }
             }
             if (isset($queriesPost['comparator'])) {
                 $response['comparator'] = $bulkQueryBuilder->getComparatorSet($queriesPost['comparator'])->get($format);

@@ -4,6 +4,7 @@ namespace Revinate\AnalyticsBundle\Query;
 
 use Revinate\AnalyticsBundle\Comparator\ComparatorFactory;
 use Revinate\AnalyticsBundle\Comparator\ComparatorSet;
+use Revinate\AnalyticsBundle\Goal\GoalSet;
 use Revinate\AnalyticsBundle\Result\ResultSet;
 
 class BulkQueryBuilder {
@@ -12,6 +13,8 @@ class BulkQueryBuilder {
     protected $queryBuilders;
     /** @var ResultSet[] */
     protected $resultSets = array();
+    /** @var GoalSet[] */
+    protected $goalSets = array();
 
     /**
      * @param QueryBuilder $queryBuilder
@@ -49,6 +52,23 @@ class BulkQueryBuilder {
     public function getResultSets()
     {
         return $this->resultSets;
+    }
+
+    /**
+     * @return GoalSet[]
+     */
+    public function getGoalSets() {
+        if (count($this->resultSets) == 0) {
+            $this->execute();
+        }
+        if (count($this->goalSets) == 0) {
+            foreach ($this->queryBuilders as $queryBuilder) {
+                if ($queryBuilder->getGoalSet()) {
+                    $this->goalSets[] = $queryBuilder->getGoalSet();
+                }
+            }
+        }
+        return $this->goalSets;
     }
 
     /**

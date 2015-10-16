@@ -115,7 +115,7 @@ class ApiControllerTest extends BaseTestCase
                     )
                 ),
                 "flags" => array("nestedDimensions" => false),
-                "format" => "nested"
+                "format" => "nested",
             )
         );
         $this->client->request("POST", "/api/analytics/source/view/bulkstats", array(), array(), array(), $post);
