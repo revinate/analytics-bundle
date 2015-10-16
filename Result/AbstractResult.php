@@ -88,6 +88,7 @@ abstract class AbstractResult implements ResultInterface {
             if (isset($dimensionData['buckets'])) {
                 $dimensionObject = $this->analytics->getDimension($dimension);
                 $filterSource = $dimensionObject->getFilterSource();
+                $result[$dimension] = array();
                 foreach ($dimensionData['buckets'] as $bucketIndex => $subDimensionData) {
                     $key = $this->getBucketKey($subDimensionData, $bucketIndex);
                     $subDimensionData = $this->unsetKeys($subDimensionData);

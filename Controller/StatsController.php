@@ -6,6 +6,7 @@ use Revinate\AnalyticsBundle\Analytics;
 use Revinate\AnalyticsBundle\AnalyticsInterface;
 use Revinate\AnalyticsBundle\Exception\InvalidResultFormatTypeException;
 use Revinate\AnalyticsBundle\Filter\AnalyticsCustomFiltersInterface;
+use Revinate\AnalyticsBundle\Goal\Goal;
 use Revinate\AnalyticsBundle\Metric\Result;
 use Revinate\AnalyticsBundle\Query\BulkQueryBuilder;
 use Revinate\AnalyticsBundle\Query\QueryBuilder;
@@ -37,34 +38,46 @@ class StatsController extends Controller {
             return new JsonResponse(array('ok' => false, '_help' => $this->getHelp()), Response::HTTP_BAD_REQUEST);
         }
 
-        $sourceConfig = $config['sources'][$source];
-        /** @var Analytics $analytics */
-        $analytics = new $sourceConfig['class']($container);
-        $analytics->setContext(isset($post['context']) ? $post['context'] : array());
-        $isNestedDimensions = isset($post['flags']['nestedDimensions']) ? $post['flags']['nestedDimensions'] : false;
-        /** @var ElasticaService $elasticaService */
-        $elasticaService = $container->get('revinate_analytics.elastica');
-        $queryBuilder = new QueryBuilder($elasticaService->getInstance($source), $analytics);
-        $queryBuilder
-            ->setIsNestedDimensions($isNestedDimensions)
-            ->addDimensions($post['dimensions'])
-            ->addMetrics($post['metrics'])
-            ->setGoals(isset($post['goals']) ? $post['goals'] : null)
-        ;
-        if (! empty($post['filters'])) {
-            $queryBuilder->setFilter($this->getFilters($analytics, $post['filters']));
-        }
-
-        $response = array();
+        $response = array("results" => array());
         $status = Response::HTTP_OK;
         try {
-            $response = $queryBuilder->execute()->getResult($format);
+            $sourceConfig = $config['sources'][$source];
+            /** @var Analytics $analytics */
+            $analytics = new $sourceConfig['class']($container);
+            $analytics->setContext(isset($post['context']) ? $post['context'] : array());
+            $isNestedDimensions = isset($post['flags']['nestedDimensions']) ? $post['flags']['nestedDimensions'] : false;
+            /** @var ElasticaService $elasticaService */
+            $elasticaService = $container->get('revinate_analytics.elastica');
+            $queryBuilder = new QueryBuilder($elasticaService->getInstance($source), $analytics);
+            $queryBuilder
+                ->setIsNestedDimensions($isNestedDimensions)
+                ->addDimensions($post['dimensions'])
+                ->addMetrics($post['metrics'])
+            ;
+
+            if (isset($post['goals'])) {
+                $goals = array();
+                foreach ($post["goals"] as $key => $val) {
+                    $goals[] = new Goal($key, $val);
+                }
+                $queryBuilder->setGoals($goals);
+            }
+
+            if (! empty($post['filters'])) {
+                $queryBuilder->setFilter($this->getFilters($analytics, $post['filters']));
+            }
+
+            $response['results'] = $queryBuilder->execute()->getResult($format);
+            if (isset($post['goals'])) {
+                $response['goalResults'] = $queryBuilder->getGoalsSet()->get($format);
+            }
         } catch (InvalidResultFormatTypeException $e) {
             $response = array('ok' => false, '_help' => $this->getHelp());
             $status = Response::HTTP_BAD_REQUEST;
         } catch (\Exception $e) {
             error_log(__METHOD__. " : Error getting analytics stats: " . $e->getMessage());
             $status = Response::HTTP_INTERNAL_SERVER_ERROR;
+            $response = array("ok" => false, "_help" => $e->getMessage());
         }
         return new JsonResponse($response, $status);
     }
@@ -88,33 +101,33 @@ class StatsController extends Controller {
             return new JsonResponse(array('ok' => false, '_help' => self::getHelp()), Response::HTTP_BAD_REQUEST);
         }
 
-        $sourceConfig = $config['sources'][$source];
-        /** @var Analytics $analytics */
-        $analytics = new $sourceConfig['class']($container);
-        $analytics->setContext(isset($post['context']) ? $post['context'] : array());
-        $bulkQueryBuilder = new BulkQueryBuilder();
-        $isNestedDimensions = isset($queriesPost['flags']['nestedDimensions']) ? $queriesPost['flags']['nestedDimensions'] : false;
-        foreach ($queriesPost['queries'] as $post) {
-            if (empty($post) || empty($post['dimensions']) || empty($post['metrics'])) {
-                return new JsonResponse(array('ok' => false, '_help' => $this->getHelp()), Response::HTTP_BAD_REQUEST);
-            }
-            /** @var ElasticaService $elasticaService */
-            $elasticaService = $container->get('revinate_analytics.elastica');
-            $queryBuilder = new QueryBuilder($elasticaService->getInstance($source), $analytics);
-            $queryBuilder
-                ->setIsNestedDimensions($isNestedDimensions)
-                ->addDimensions($post['dimensions'])
-                ->addMetrics($post['metrics'])
-                ->setGoals(isset($post['goals']) ? $post['goals'] : null);
-            if (!empty($post['filters'])) {
-                $queryBuilder->setFilter(self::getFilters($analytics, $post['filters']));
-            }
-            $bulkQueryBuilder->addQueryBuilder($queryBuilder);
-        }
-
         $response = array('results' => array());
         $status = Response::HTTP_OK;
         try {
+            $sourceConfig = $config['sources'][$source];
+            /** @var Analytics $analytics */
+            $analytics = new $sourceConfig['class']($container);
+            $analytics->setContext(isset($post['context']) ? $post['context'] : array());
+            $bulkQueryBuilder = new BulkQueryBuilder();
+            $isNestedDimensions = isset($queriesPost['flags']['nestedDimensions']) ? $queriesPost['flags']['nestedDimensions'] : false;
+            foreach ($queriesPost['queries'] as $post) {
+                if (empty($post) || empty($post['dimensions']) || empty($post['metrics'])) {
+                    return new JsonResponse(array('ok' => false, '_help' => $this->getHelp()), Response::HTTP_BAD_REQUEST);
+                }
+                /** @var ElasticaService $elasticaService */
+                $elasticaService = $container->get('revinate_analytics.elastica');
+                $queryBuilder = new QueryBuilder($elasticaService->getInstance($source), $analytics);
+                $queryBuilder
+                    ->setIsNestedDimensions($isNestedDimensions)
+                    ->addDimensions($post['dimensions'])
+                    ->addMetrics($post['metrics'])
+                    ->setGoals(isset($post['goals']) ? $post['goals'] : null);
+                if (!empty($post['filters'])) {
+                    $queryBuilder->setFilter(self::getFilters($analytics, $post['filters']));
+                }
+                $bulkQueryBuilder->addQueryBuilder($queryBuilder);
+            }
+
             $resultSets = $bulkQueryBuilder->execute();
             foreach ($resultSets as $resultSet) {
                 $response['results'][] = $resultSet->getResult($format);
@@ -127,6 +140,7 @@ class StatsController extends Controller {
             $status = Response::HTTP_BAD_REQUEST;
         } catch (\Exception $e) {
             $status = Response::HTTP_INTERNAL_SERVER_ERROR;
+            $response = array("ok" => false, "_help" => $e->getMessage());
         }
         return new JsonResponse($response, $status);
     }
@@ -141,6 +155,9 @@ class StatsController extends Controller {
     public static function getFilters(AnalyticsInterface $analytics, $postFilters) {
         $andFilter = new \Elastica\Filter\BoolAnd();
         foreach ($postFilters as $name => $postFilter) {
+            if (count($postFilter) < 2) {
+                throw new \Exception(__METHOD__  . "Invalid filter passed");
+            }
             $type = $postFilter[0];
             $value = $postFilter[1];
             $filter = null;
@@ -150,6 +167,9 @@ class StatsController extends Controller {
                     break;
                 case FilterHelper::TYPE_RANGE:
                     $filter = FilterHelper::getRangeFilter($name, $value);
+                    break;
+                case FilterHelper::TYPE_PERIOD:
+                    $filter = FilterHelper::getPeriodFilter($name, $value);
                     break;
                 case FilterHelper::TYPE_EXISTS:
                     $filter = FilterHelper::getExistsFilter($name);

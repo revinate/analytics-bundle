@@ -53,13 +53,14 @@ class DocumentsController extends Controller {
         if (! empty($post['filters'])) {
             $queryBuilder->setFilter(StatsController::getFilters($analytics, $post['filters']));
         }
-        $response = array();
+        $response = array("results" => array());
         $status = Response::HTTP_OK;
         try {
-            $response = $queryBuilder->execute()->getDocuments();
+            $response["results"] = $queryBuilder->execute()->getDocuments();
         } catch (\Exception $e) {
             error_log(__METHOD__. " : Error getting documents: " . $e->getMessage());
             $status = Response::HTTP_INTERNAL_SERVER_ERROR;
+            $response = array("ok" => false, "_help" => $e->getMessage());
         }
         return new JsonResponse($response, $status);
     }
