@@ -55,9 +55,47 @@ class ApiControllerTest extends BaseTestCase
         ));
         $this->client->request("POST", "/api/analytics/source/view/stats", array(), array(), array(), $post);
         $response = json_decode($this->client->getResponse()->getContent(), true);
-        $this->assertSame('23.0', $response["all"]['totalViews'], $this->debug($response));
-        $this->assertSame('4.0', $response["all"]['uniqueViews'], $this->debug($response));
-        $this->assertSame('5.8', $response["all"]['averageViews'], $this->debug($response));
+        $this->assertSame('23.0', $response["results"]["all"]['totalViews'], $this->debug($response));
+        $this->assertSame('4.0', $response["results"]["all"]['uniqueViews'], $this->debug($response));
+        $this->assertSame('5.8', $response["results"]["all"]['averageViews'], $this->debug($response));
+    }
+
+    public function testStatsSourceApiWithGoals() {
+        $this->createData();
+        $post = json_encode(array(
+            "dimensions" => array("all", "device"),
+            "metrics" => array("totalViews", "uniqueViews", "averageViews"),
+            "filters" => array(),
+            "flags" => array("nestedDimensions" => false),
+            "format" => "nested",
+            "goals" => array(
+                "totalViews" => 10,
+                "uniqueViews" => 4
+            )
+        ));
+        $this->client->request("POST", "/api/analytics/source/view/stats", array(), array(), array(), $post);
+        $response = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertSame('230.00%', $response["goalResults"]["all"]['totalViews'], $this->debug($response));
+        $this->assertSame('100.00%', $response["goalResults"]["all"]['uniqueViews'], $this->debug($response));
+        $this->assertNull($response["goalResults"]["all"]['averageViews'], $this->debug($response));
+    }
+
+    public function testStatsSourceWithPeriodFilterApi() {
+        $this->createData();
+        $post = json_encode(array(
+            "dimensions" => array("all", "device"),
+            "metrics" => array("totalViews", "uniqueViews", "averageViews"),
+            "filters" => array(
+                "date" => array("period", "mtd")
+            ),
+            "flags" => array("nestedDimensions" => false),
+            "format" => "nested"
+        ));
+        $this->client->request("POST", "/api/analytics/source/view/stats", array(), array(), array(), $post);
+        $response = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertSame('12.0', $response["results"]["all"]['totalViews'], $this->debug($response));
+        $this->assertSame('2.0', $response["results"]["all"]['uniqueViews'], $this->debug($response));
+        $this->assertSame('6.0', $response["results"]["all"]['averageViews'], $this->debug($response));
     }
 
     public function testBulkStatsSourceApi() {
@@ -140,9 +178,9 @@ class ApiControllerTest extends BaseTestCase
         // view_local uses a named connection
         $this->client->request("POST", "/api/analytics/source/view_local/stats", array(), array(), array(), $post);
         $response = json_decode($this->client->getResponse()->getContent(), true);
-        $this->assertSame('23.0', $response["all"]['totalViews'], $this->debug($response));
-        $this->assertSame('4.0', $response["all"]['uniqueViews'], $this->debug($response));
-        $this->assertSame('5.8', $response["all"]['averageViews'], $this->debug($response));
+        $this->assertSame('23.0', $response["results"]["all"]['totalViews'], $this->debug($response));
+        $this->assertSame('4.0', $response["results"]["all"]['uniqueViews'], $this->debug($response));
+        $this->assertSame('5.8', $response["results"]["all"]['averageViews'], $this->debug($response));
     }
 
     public function testDocumentsSourceApi() {
@@ -152,9 +190,9 @@ class ApiControllerTest extends BaseTestCase
         ));
         $this->client->request("POST", "/api/analytics/source/view/documents", array(), array(), array(), $post);
         $response = json_decode($this->client->getResponse()->getContent(), true);
-        $this->assertSame(count($response), 4, $this->debug($response));
-        $this->assertSame('ios', $response[0]['device'], $this->debug($response));
-        $this->assertSame('chrome', $response[0]['browser'], $this->debug($response));
-        $this->assertSame(6, $response[0]['views'], $this->debug($response));
+        $this->assertSame(count($response["results"]), 4, $this->debug($response));
+        $this->assertSame('ios', $response["results"][0]['device'], $this->debug($response));
+        $this->assertSame('chrome', $response["results"][0]['browser'], $this->debug($response));
+        $this->assertSame(6, $response["results"][0]['views'], $this->debug($response));
     }
 }

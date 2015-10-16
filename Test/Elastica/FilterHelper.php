@@ -2,11 +2,14 @@
 
 namespace Revinate\AnalyticsBundle\Test\Elastica;
 
+use Revinate\AnalyticsBundle\Lib\DateHelper;
+
 class FilterHelper {
     const TYPE_VALUE = 'value';
     const TYPE_RANGE = 'range';
     const TYPE_EXISTS = 'exists';
     const TYPE_MISSING = 'missing';
+    const TYPE_PERIOD = "period";
     const TYPE_CUSTOM = 'custom';
 
     /**
@@ -30,6 +33,18 @@ class FilterHelper {
      */
     public static function getRangeFilter($field, array $range) {
         return new \Elastica\Filter\NumericRange($field, $range);
+    }
+
+    /**
+     * @param $field
+     * @param $period
+     * @return \Elastica\Filter\Range
+     * @throws \Exception
+     */
+    public static function getPeriodFilter($field, $period) {
+        $perioInfo = DateHelper::getPeriodInfo($period);
+        $range = array("gte" => $perioInfo["period"][0], "lte" => $perioInfo["period"][2]);
+        return new \Elastica\Filter\Range($field, $range);
     }
 
     /**
