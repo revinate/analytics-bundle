@@ -13,7 +13,7 @@ abstract class AbstractMySQLFilterSource extends AbstractFilterSource implements
     public function get($id) {
         $repository = $this->getRepository();
         $qb = $repository->createQueryBuilder("entity");
-        $qb->select('entity')->where("id = :id")->setParameter("id", $id);
+        $qb->select('entity')->where("entity.id = :id")->setParameter("id", $id);
         $query = $qb->getQuery();
         $entity = $query->getSingleResult(Query::HYDRATE_ARRAY);
         return $entity;
