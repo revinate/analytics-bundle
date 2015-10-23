@@ -20,8 +20,18 @@ class SiteFilterSource extends AbstractFilterSource {
         array("id" => 10, "name" => "blekko.com", "slug" => "blek"),
     );
 
-    protected function getNameColumn() {
+    /**
+     * @return string
+     */
+    public function getNameColumn() {
         return "name";
+    }
+
+    /**
+     * @return string
+     */
+    public function getIdColumn() {
+        return "id";
     }
 
     /**
@@ -51,7 +61,7 @@ class SiteFilterSource extends AbstractFilterSource {
     {
         foreach (self::$sites as $site) {
             if ($site["id"] == $id) {
-                return $site;
+                return $this->normalize($site);
             }
         }
     }
@@ -70,7 +80,7 @@ class SiteFilterSource extends AbstractFilterSource {
         $matches = array();
         foreach (self::$sites as $site) {
             if (strpos($site["name"], $query) !== false) {
-                $matches[] = $site;
+                $matches[] = $this->normalize($site);
             }
         }
         return $matches;
@@ -80,6 +90,10 @@ class SiteFilterSource extends AbstractFilterSource {
      * @return mixed
      */
     public function getAll() {
-        return self::$sites;
+        $all = array();
+        foreach (self::$sites as $site) {
+            $all[] = $this->normalize($site);
+        }
+        return $all;
     }
 }

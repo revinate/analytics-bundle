@@ -416,7 +416,7 @@ class QueryBuilderTestCase extends BaseTestCase {
         $viewAnalytics = new ViewAnalytics($this->getContainer());
         $filterSource = $viewAnalytics->getFilterSource("siteId");
         $site = $filterSource->get(1);
-        $this->assertSame("google.com", $site["name"], $this->debug($site));
+        $this->assertSame("google.com", $site["_name"], $this->debug($site));
 
         $sites = $filterSource->getByQuery("oo", 1, 10);
         $this->assertSame(3, count($sites), $this->debug($sites));
@@ -432,8 +432,8 @@ class QueryBuilderTestCase extends BaseTestCase {
         ;
         $resultSet = $querybuilder->execute();
         $results = $resultSet->getNested();
-        $this->assertSame(1, $results["site"][1]["_info"]["id"], $this->debug($results));
-        $this->assertSame("google.com", $results["site"][1]["_info"]["name"], $this->debug($results));
+        $this->assertSame(1, $results["site"][1]["_info"]["_id"], $this->debug($results));
+        $this->assertSame("google.com", $results["site"][1]["_info"]["_name"], $this->debug($results));
         $this->assertSame("google", $results["site"][1]["_info"]["slug"], $this->debug($results));
         $this->assertSame(false, isset($results["device"]["ios"]["_info"]), $this->debug($results));
     }
@@ -450,7 +450,7 @@ class QueryBuilderTestCase extends BaseTestCase {
         $resultSet = $querybuilder->execute();
         $results = $resultSet->getNested();
         $this->assertSame(10, count($results["device"]["ios"]["site"]), $this->debug($results));
-        $this->assertSame("yahoo.com", $results["device"]["ios"]["site"][2]["_info"]["name"], $this->debug($results));
+        $this->assertSame("yahoo.com", $results["device"]["ios"]["site"][2]["_info"]["_name"], $this->debug($results));
         $this->assertFalse(isset($results["device"]["ios"]["site"][2]["totalViews"]), $this->debug($results));
     }
 
