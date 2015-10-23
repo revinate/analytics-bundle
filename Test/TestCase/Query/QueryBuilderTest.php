@@ -470,4 +470,21 @@ class QueryBuilderTestCase extends BaseTestCase {
         $this->assertSame("$0.23", $results["all"]["viewDollarValue"], $this->debug($results));
         $this->assertSame("Rs 14.26", $results["all"]["viewRupeeValue"], $this->debug($results));
     }
+
+    public function testDimensionsWithOrder() {
+        $this->createData();
+        $viewAnalytics = new ViewAnalytics($this->getContainer());
+        $querybuilder = new QueryBuilder($this->elasticaClient, $viewAnalytics);
+        $querybuilder->addDimensions(array("browser", "device", "dateRange", "tagName"))
+            ->addMetrics(array("totalViews", "uniqueViews"))
+            ->setSort(array("totalViews" => "asc"))
+        ;
+        $resultSet = $querybuilder->execute();
+        $results = $resultSet->getNested();
+
+        $firstDeviceResult = array_shift($results["device"]);
+        $firstBrowserResult = array_shift($results["browser"]);
+        $this->assertSame('10.0', $firstDeviceResult['totalViews'], $this->debug($results));
+        $this->assertSame('7.0', $firstBrowserResult['totalViews'], $this->debug($results));
+    }
 }

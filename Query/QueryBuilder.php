@@ -42,7 +42,7 @@ class QueryBuilder {
     /** @var int */
     protected $offset = 0;
     /** @var int Number of documents to return */
-    protected $size = 10;
+    protected $size = 0;
     /** @var array  */
     protected $sort;
     /** @var  Goal[] */
@@ -51,6 +51,8 @@ class QueryBuilder {
     protected $elasticaResultSet;
     /** @var  ResultSet */
     protected $resultSet;
+    /** @var  bool */
+    protected $debug = false;
 
     /**
      * @param \Elastica\Client $elasticaClient
@@ -232,9 +234,10 @@ class QueryBuilder {
 
     /**
      * @param Dimension $dimension
+     * @param bool $isNested
      * @return \Elastica\Aggregation\DateHistogram|\Elastica\Aggregation\DateRange|\Elastica\Aggregation\Histogram|\Elastica\Aggregation\Range|\Elastica\Aggregation\Terms|AllAggregation
      */
-    protected function getAggregationFromDimension(Dimension $dimension) {
+    protected function getAggregationFromDimension(Dimension $dimension, $isNested = false) {
         if ($dimension instanceof AllDimension) {
             $dimensionAgg = new AllAggregation($dimension->getName());
 
@@ -268,21 +271,23 @@ class QueryBuilder {
             $dimensionAgg = new Nested($dimension->getName() . '__Nested', $dimension->getPath());
             $subDimension = clone($dimension);
             $subDimension->setPath(null);
-            $dimensionAgg->addSubAggregation($this->getAggregationFromDimension($subDimension));
+            $dimensionAgg->addSubAggregation($this->getAggregationFromDimension($subDimension, true));
 
         } elseif ($dimension instanceof FiltersDimension) {
             $dimensionAgg = new \Elastica\Aggregation\Filters($dimension->getName());
             foreach ($dimension->getFilters() as $name => $filter) {
                 $dimensionAgg->addFilter($filter, $name);
             }
+
         } else { // $dimension instanceof Dimension
             $dimensionAgg = new \Elastica\Aggregation\Terms($dimension->getName());
             $dimensionAgg->setField($dimension->getField());
             $dimensionAgg->setSize($dimension->getSize());
-            // @TODO: Implement Ordering.
-//                if ($this->getSort()) {
-//                    $dimensionAgg->setOrder($this->getSort());
-//                }
+            // Note: The path for nested metric is complex and not known to clients
+            // Eg: Nested metric path can be "metric__ReverseNested.metric" rather than just being "metric"
+            if ($this->getSort() && ! $isNested) {
+                $dimensionAgg->setParam("order", $this->getSort());
+            }
         }
         return $dimensionAgg;
     }
@@ -372,7 +377,8 @@ class QueryBuilder {
         $query = new \Elastica\Query();
         $query->setSize($this->size);
         $query->setFrom($this->offset);
-        if ($this->getSort()) {
+        // If not an aggregation call, ie getting documents then set Sort if required
+        if (! $this->isAggregationCall() && $this->getSort()) {
             $query->setSort($this->getSort());
         }
 
@@ -433,6 +439,9 @@ class QueryBuilder {
             $filteredQuery->setFilter($this->filter);
             $query->setQuery($filteredQuery);
         }
+        if ($this->isDebug()) {
+            print_r($query->toArray());
+        }
         return $query;
     }
 
@@ -469,5 +478,28 @@ class QueryBuilder {
             return null;
         }
         return new GoalSet($this->getGoals(), $this->getResultSet());
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isDebug() {
+        return $this->debug;
+    }
+
+    /**
+     * @param boolean $debug
+     * @return $this
+     */
+    public function setDebug($debug) {
+        $this->debug = $debug;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isAggregationCall() {
+        return count($this->getMetrics()) > 0 && count($this->getDimensions()) > 0;
     }
 }
