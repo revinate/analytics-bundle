@@ -40,4 +40,14 @@ interface FilterSourceInterface {
      * @return array
      */
     public function getAll();
+
+    /**
+     * @return string
+     */
+    public function getNameColumn();
+
+    /**
+     * @return string
+     */
+    public function getIdColumn();
 }

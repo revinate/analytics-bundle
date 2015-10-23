@@ -47,5 +47,17 @@ abstract class AbstractFilterSource implements FilterSourceInterface {
         );
     }
 
-    protected abstract function getNameColumn();
+    /**
+     * @param $data
+     * NOTE: We might be overwriting
+     */
+    public function normalize($data) {
+        if (isset($data[$this->getIdColumn()])) {
+            $data["_id"] = $data[$this->getIdColumn()];
+        }
+        if (isset($data[$this->getNameColumn()])) {
+            $data["_name"] = $data[$this->getNameColumn()];
+        }
+        return $data;
+    }
 }
