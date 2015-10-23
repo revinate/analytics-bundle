@@ -1,7 +1,6 @@
 TODO:
-- Pass context from client to the analytics class
-- Filter by Id and dimension by some metric value
 - Order of buckets ?
+- Filter by Id and dimension by some metric value
 - Children Aggregations
 - Script Dimension
 
@@ -28,3 +27,4 @@ Done:
 - Custom Filter Classes (Parent/Child Filters)
 - Add Type of metrics (percentage, value, etc)
 - Reverse Nested Aggregations
+- Pass context from client to the analytics class
