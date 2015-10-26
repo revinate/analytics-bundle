@@ -156,7 +156,7 @@ abstract class AbstractResult implements ResultInterface {
                 continue;
             } else if ($this->isArrayOfArray($values)) {
                 $result[$key] = $this->calculateProcessedMetrics($values);
-            } else {
+            } else if (! empty($values)) {
                 $processedMetricNames = $this->analytics->getProcessedMetricNames();
                 $requestedMetricNames = $this->queryBuilder->getMetrics();
                 $requestedProcessMetrics = array_intersect($processedMetricNames, $requestedMetricNames);
