@@ -18,6 +18,9 @@ abstract class AbstractResult implements ResultInterface {
     /** @var  \Elastica\ResultSet */
     protected $elasticaResultSet;
 
+    /** @var array Internal keys that hold special data */
+    protected static $internalKeys = array("_info");
+
     /**
      * @param QueryBuilder $queryBuilder
      * @param \Elastica\ResultSet $elasticaResultSet
@@ -149,7 +152,9 @@ abstract class AbstractResult implements ResultInterface {
      */
     protected function calculateProcessedMetrics($result) {
         foreach ($result as $key => $values) {
-            if ($this->isArrayOfArray($values)) {
+            if (in_array($key, self::$internalKeys)) {
+                continue;
+            } else if ($this->isArrayOfArray($values)) {
                 $result[$key] = $this->calculateProcessedMetrics($values);
             } else {
                 $processedMetricNames = $this->analytics->getProcessedMetricNames();
@@ -196,8 +201,15 @@ abstract class AbstractResult implements ResultInterface {
         if (!is_array($array)) {
             return false;
         }
-        $first = array_shift($array);
-        return is_array($first);
+        foreach ($array as $key => $value) {
+            if (in_array($key, self::$internalKeys)) {
+                continue;
+            }
+            if (is_array($value)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -264,9 +276,7 @@ abstract class AbstractResult implements ResultInterface {
     protected function pickKeyValues($array, $keys) {
         $pickedKeyValues = array();
         foreach ($keys as $key) {
-            if (array_key_exists($key, $array)) {
-                $pickedKeyValues[$key] = $array[$key];
-            }
+            $pickedKeyValues[$key] = array_key_exists($key, $array) ? $array[$key] : null;
         }
         return $pickedKeyValues;
     }
