@@ -11,7 +11,7 @@ use Revinate\AnalyticsBundle\Query\BulkQueryBuilder;
 use Revinate\AnalyticsBundle\Query\QueryBuilder;
 use Revinate\AnalyticsBundle\Result\ResultSet;
 use Revinate\AnalyticsBundle\Service\ElasticaService;
-use Revinate\AnalyticsBundle\Test\Elastica\FilterHelper;
+use Revinate\AnalyticsBundle\Filter\FilterHelper;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 

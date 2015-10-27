@@ -11,7 +11,7 @@ use Revinate\AnalyticsBundle\Query\BulkQueryBuilder;
 use Revinate\AnalyticsBundle\Query\QueryBuilder;
 use Revinate\AnalyticsBundle\Result\ResultSet;
 use Revinate\AnalyticsBundle\Test\Elastica\DocumentHelper;
-use Revinate\AnalyticsBundle\Test\Elastica\FilterHelper;
+use Revinate\AnalyticsBundle\Filter\FilterHelper;
 use Revinate\AnalyticsBundle\Test\Entity\ViewAnalytics;
 use Revinate\AnalyticsBundle\Test\TestCase\BaseTestCase;
 

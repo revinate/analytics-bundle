@@ -6,7 +6,7 @@ use Revinate\AnalyticsBundle\Analytics;
 use Revinate\AnalyticsBundle\Dimension\AllDimension;
 use Revinate\AnalyticsBundle\Dimension\DateHistogramDimension;
 use Revinate\AnalyticsBundle\Dimension\Dimension;
-use Revinate\AnalyticsBundle\Test\Elastica\FilterHelper;
+use Revinate\AnalyticsBundle\Filter\FilterHelper;
 use Revinate\AnalyticsBundle\Test\Example\FilterSource\AppFilterSource;
 use Revinate\AnalyticsBundle\Test\Example\FilterSource\PropertyFilterSource;
 use Revinate\AnalyticsBundle\Metric\Metric;
