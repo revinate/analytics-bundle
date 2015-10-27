@@ -17,7 +17,7 @@ use Revinate\AnalyticsBundle\Metric\Metric;
 use Revinate\AnalyticsBundle\Metric\MetricInterface;
 use Revinate\AnalyticsBundle\Metric\ProcessedMetric;
 use Revinate\AnalyticsBundle\Metric\Result;
-use Revinate\AnalyticsBundle\Test\Elastica\FilterHelper;
+use Revinate\AnalyticsBundle\Filter\FilterHelper;
 use Revinate\AnalyticsBundle\Test\Entity\FilterSource\SiteFilterSource;
 
 class ViewAnalytics extends Analytics {

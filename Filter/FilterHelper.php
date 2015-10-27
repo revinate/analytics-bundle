@@ -1,6 +1,6 @@
 <?php
 
-namespace Revinate\AnalyticsBundle\Test\Elastica;
+namespace Revinate\AnalyticsBundle\Filter;
 
 use Revinate\AnalyticsBundle\Lib\DateHelper;
 
@@ -43,7 +43,9 @@ class FilterHelper {
      */
     public static function getPeriodFilter($field, $period) {
         $perioInfo = DateHelper::getPeriodInfo($period);
-        $range = array("gte" => $perioInfo["period"][0], "lte" => $perioInfo["period"][2]);
+        $startPeriod = date('c', strtotime($perioInfo["period"][0]));
+        $endPeriod = date('c', strtotime($perioInfo["period"][2]." 23:59:59"));
+        $range = array("gte" => $startPeriod, "lte" => $endPeriod);
         return new \Elastica\Filter\Range($field, $range);
     }
 
