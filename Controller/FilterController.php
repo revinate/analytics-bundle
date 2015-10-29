@@ -48,17 +48,22 @@ class FilterController extends Controller {
      * @return JsonResponse
      */
     public function getAction($source, $filter, $id) {
+        $idsArray = array_map("trim", explode(",", $id));
         /** @var ContainerInterface $container */
         $container = $this->get('service_container');
         $config = $container->getParameter('revinate_analytics.config');
-        if (!isset($config['sources'][$source]) || empty($id)) {
+        if (!isset($config['sources'][$source]) || empty($idsArray)) {
             return new JsonResponse(array('ok' => false), Response::HTTP_NOT_FOUND);
         }
         $analyticsFilter = $this->getAnalyticsFilter($config['sources'][$source], $filter);
         if (! $analyticsFilter) {
             return new JsonResponse(array('ok' => false), Response::HTTP_NOT_FOUND);
         }
-        $result = $analyticsFilter->get($id);
+        if (count($idsArray) == 1) {
+            $result = $analyticsFilter->get($idsArray[0]);
+        } else {
+            $result = $analyticsFilter->mget(array_unique($idsArray));
+        }
         return new JsonResponse($result);
     }
 
