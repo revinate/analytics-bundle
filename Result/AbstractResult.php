@@ -165,7 +165,7 @@ abstract class AbstractResult implements ResultInterface {
                     $metric = $this->analytics->getMetric($metricName);
                     // Note: $result doesn't have raw value but formatted value which can have prefix and postfixes.
                     $metricValue = call_user_func_array($metric->getPostProcessCallback(), $this->pickKeyValues($result[$key], $metric->getCalculatedFromMetrics()));
-                    $result[$key][$metric->getName()] = sprintf("%s%." . $metric->getPrecision() .  "f%s", $metric->getPrefix(), $metricValue, $metric->getPostfix());
+                    $result[$key][$metric->getName()] = $metricValue ? sprintf("%s%." . $metric->getPrecision() .  "f%s", $metric->getPrefix(), $metricValue, $metric->getPostfix()) : null;
                 }
             }
         }
@@ -278,7 +278,7 @@ abstract class AbstractResult implements ResultInterface {
         foreach ($keys as $key) {
             $pickedKeyValues[$key] = array_key_exists($key, $array) ? $array[$key] : null;
         }
-        return $pickedKeyValues;
+        return array_values($pickedKeyValues);
     }
 
     /**

@@ -21,7 +21,7 @@ class Metric implements MetricInterface {
     /** @var \Elastica\Filter\AbstractFilter */
     protected $filter;
     /** @var string */
-    protected $default = 0;
+    protected $default = null;
     /** @var int  */
     protected $precision = 1;
     /** @var string */
@@ -98,11 +98,11 @@ class Metric implements MetricInterface {
 
     /**
      * @param $data
-     * @return float
+     * @return mixed
      */
     public function getValue($data) {
         $value = isset($data[$this->getResultKey()]) ? $data[$this->getResultKey()] : $this->getDefault();
-        return sprintf("%s%." . $this->getPrecision() . "f%s", $this->getPrefix(), $value, $this->getPostfix());
+        return $value ? sprintf("%s%." . $this->getPrecision() . "f%s", $this->getPrefix(), $value, $this->getPostfix()) : null;
     }
 
     /**

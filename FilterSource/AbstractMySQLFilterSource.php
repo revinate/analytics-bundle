@@ -20,6 +20,21 @@ abstract class AbstractMySQLFilterSource extends AbstractFilterSource implements
     }
 
     /**
+     * @param array $ids
+     * @return array
+     */
+    public function mget(array $ids) {
+        $repository = $this->getRepository();
+        $qb = $repository->createQueryBuilder("entity");
+        $qb->select('entity');
+        $qb->where($qb->expr()->in("entity." . $this->getIdColumn(), ":ids"))
+            ->setParameter("ids", $ids)
+        ;
+        $query = $qb->getQuery();
+        return $query->execute(null, Query::HYDRATE_ARRAY);
+    }
+
+    /**
      * @param string $query
      * @param $page
      * @param $pageSize

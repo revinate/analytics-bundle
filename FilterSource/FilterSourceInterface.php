@@ -29,6 +29,12 @@ interface FilterSourceInterface {
     public function get($id);
 
     /**
+     * @param array $ids
+     * @return array
+     */
+    public function mget(array $ids);
+
+    /**
      * @param string $query
      * @param $page
      * @param $pageSize

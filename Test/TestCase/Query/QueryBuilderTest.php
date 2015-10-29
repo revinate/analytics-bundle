@@ -420,6 +420,12 @@ class QueryBuilderTestCase extends BaseTestCase {
 
         $sites = $filterSource->getByQuery("oo", 1, 10);
         $this->assertSame(3, count($sites), $this->debug($sites));
+
+        $site = $filterSource->get(1);
+        $this->assertSame("google.com", $site["name"], $this->debug($site));
+
+        $sites = $filterSource->mget(array(1,2,3,4,5,6));
+        $this->assertSame(6, count($sites), $this->debug($site));
     }
 
     public function testDimensionsKeysWithValues() {
@@ -486,5 +492,20 @@ class QueryBuilderTestCase extends BaseTestCase {
         $firstBrowserResult = array_shift($results["browser"]);
         $this->assertSame('10.0', $firstDeviceResult['totalViews'], $this->debug($results));
         $this->assertSame('7.0', $firstBrowserResult['totalViews'], $this->debug($results));
+    }
+
+    public function testNullMetricsIfMissing() {
+        $this->createData();
+        $viewAnalytics = new ViewAnalytics($this->getContainer());
+        $querybuilder = new QueryBuilder($this->elasticaClient, $viewAnalytics);
+        $querybuilder->addDimensions(array("all"))
+            ->addMetrics(array("totalViews", "uniqueViews", "averageViews", "chromeViewsPct", "viewDollarValue", "maxViews", "minViews"))
+            ->setFilter(FilterHelper::getValueFilter("views", 100)) // should return no results
+        ;
+        $resultSet = $querybuilder->execute();
+        $results = $resultSet->getNested();
+        foreach ($results["all"] as $result) {
+            $this->assertNull($result, $this->debug($results));
+        }
     }
 }

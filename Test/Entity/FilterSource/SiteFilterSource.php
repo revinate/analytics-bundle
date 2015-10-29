@@ -67,6 +67,21 @@ class SiteFilterSource extends AbstractFilterSource {
     }
 
     /**
+     * @param array $ids
+     * @return array
+     */
+    public function mget(array $ids)
+    {
+        $matches = array();
+        foreach (self::$sites as $site) {
+            if (in_array($site["id"], $ids)) {
+                $matches[] = $this->normalize($site);
+            }
+        }
+        return $matches;
+    }
+
+    /**
      * @param string $query
      * @param $page
      * @param $pageSize
@@ -96,4 +111,5 @@ class SiteFilterSource extends AbstractFilterSource {
         }
         return $all;
     }
+
 }
