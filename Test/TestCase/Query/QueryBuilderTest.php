@@ -279,6 +279,23 @@ class QueryBuilderTestCase extends BaseTestCase {
         $this->assertSame('7.0', $results["browser"]["opera"]["device"]["ios"]['totalViews'], $this->debug($results));
     }
 
+    public function testNestedDimensionsDeep() {
+        $this->createData();
+        $viewAnalytics = new ViewAnalytics($this->getContainer());
+        $querybuilder = new QueryBuilder($this->elasticaClient, $viewAnalytics);
+        $querybuilder->addDimensions(array("browser", "device", "site"))
+            ->addMetrics(array("totalViews"))
+            ->setIsNestedDimensions(true);
+        $resultSet = $querybuilder->execute();
+        $results = $resultSet->getNested();
+
+        $this->assertTrue(isset($results["browser"]["chrome"]["device"]["ios"]['site']), $this->debug($results));
+        $this->assertSame('6.0', $results["browser"]["chrome"]["device"]["ios"]['site'][1]['totalViews'], $this->debug($results));
+
+        $this->assertTrue(isset($results["browser"]["chrome"]["device"]["android"]['site']), $this->debug($results));
+        $this->assertSame('10.0', $results["browser"]["chrome"]["device"]["android"]['site'][4]['totalViews'], $this->debug($results));
+    }
+
     /**
      * @expectedException \Revinate\AnalyticsBundle\Exception\InvalidComparatorTypeException
      */
