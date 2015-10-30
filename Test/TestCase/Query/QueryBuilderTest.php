@@ -203,7 +203,7 @@ class QueryBuilderTestCase extends BaseTestCase {
         $resultSet = $querybuilder->execute();
         $results = $resultSet->getNested();
         $this->assertSame('16.0', $results["all"]['chromeTotalViews'], $this->debug($results));
-        $this->assertSame('0.0', $results["all"]['ie6TotalViews'], $this->debug($results));
+        $this->assertSame(null, $results["all"]['ie6TotalViews'], $this->debug($results));
     }
 
     public function testBaseMetricsWithTopLevelFilter() {
@@ -249,7 +249,7 @@ class QueryBuilderTestCase extends BaseTestCase {
         $results = $resultSet->getNested();
         $this->assertSame(array(array("totalViews"=> '11.0'),array("totalViews"=> '12.0')), array_values($results["dateRange"]), $this->debug($results));
         //$this->assertSame(array(array("totalViews"=> '5.0'),array("totalViews"=> '6.0'),array("totalViews"=> '0.0'),array("totalViews"=> '12.0')), array_values($results["dateHistogram"]), $this->debug($results));
-        $this->assertSame(array(array("totalViews"=> '5.0'),array("totalViews"=> '6.0'),array("totalViews"=> '0.0'),array("totalViews"=> '12.0')), array_values($results["formattedDate"]), $this->debug($results));
+        $this->assertSame(array(array("totalViews"=> '5.0'),array("totalViews"=> '6.0'),array("totalViews"=> null),array("totalViews"=> '12.0')), array_values($results["formattedDate"]), $this->debug($results));
         $this->assertTrue(strpos(key($results['formattedDate']), '/') !== false, $this->debug($results));
     }
 
