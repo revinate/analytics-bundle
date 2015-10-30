@@ -195,4 +195,38 @@ class ApiControllerTest extends BaseTestCase
         $this->assertSame('chrome', $response["results"][0]['browser'], $this->debug($response));
         $this->assertSame(6, $response["results"][0]['views'], $this->debug($response));
     }
+
+    public function testStatsWithNestedDimensionsApi() {
+        $this->createData();
+        $post = array(
+            "dimensions" => array("device", "browser"),
+            "metrics" => array("totalViews", "uniqueViews", "averageViews"),
+            "filters" => array(),
+            "flags" => array("nestedDimensions" => true),
+            "format" => "nested"
+        );
+        $this->client->request("POST", "/api/analytics/source/view/stats", array(), array(), array(), json_encode($post));
+        $response = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertTrue(isset($response["results"]["device"]['ios']['browser']), $this->debug($response));
+
+        $post["flags"]["nestedDimensions"] = "true";
+        $this->client->request("POST", "/api/analytics/source/view/stats", array(), array(), array(), json_encode($post));
+        $response = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertTrue(isset($response["results"]["device"]['ios']['browser']), $this->debug($response));
+
+        $post["flags"]["nestedDimensions"] = false;
+        $this->client->request("POST", "/api/analytics/source/view/stats", array(), array(), array(), json_encode($post));
+        $response = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertTrue(!isset($response["results"]["device"]['ios']['browser']), $this->debug($response));
+
+        $post["flags"]["nestedDimensions"] = "false";
+        $this->client->request("POST", "/api/analytics/source/view/stats", array(), array(), array(), json_encode($post));
+        $response = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertTrue(!isset($response["results"]["device"]['ios']['browser']), $this->debug($response));
+
+        $post["flags"]["nestedDimensions"] = "";
+        $this->client->request("POST", "/api/analytics/source/view/stats", array(), array(), array(), json_encode($post));
+        $response = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertTrue(!isset($response["results"]["device"]['ios']['browser']), $this->debug($response));
+    }
 }
