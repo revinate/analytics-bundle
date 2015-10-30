@@ -391,21 +391,21 @@ class QueryBuilder {
             // Nested Aggregations
             $dimensionAggregations = $this->removeAllAggregation($dimensionAggregations);
             $firstDimensionAggregation = $dimensionAggregations[0];
-            $previousDimensionAggregation = $firstDimensionAggregation;
+            /** @var AbstractAggregation[] $dimensionAggregations */
+            $dimensionAggregations = array_reverse($dimensionAggregations);
             /** @var \Elastica\Aggregation\AbstractAggregation $dimensionAggregation */
             foreach ($dimensionAggregations as $dimensionIndex => $dimensionAggregation) {
-                if ($dimensionIndex == 0) { continue; }
                 // If Last Dimension
-                if ($dimensionIndex == count($dimensionAggregations) - 1) {
+                if ($dimensionIndex == 0) {
                     foreach ($metricAggregations as $metricAggregation) {
                         $dimensionAggregation->addAggregation($metricAggregation);
                     }
                 }
-                $previousDimensionAggregation->addAggregation($dimensionAggregation);
-                $previousDimensionAggregation = $dimensionAggregation;
+                if (isset($dimensionAggregations[$dimensionIndex + 1])) {
+                    $dimensionAggregations[$dimensionIndex + 1]->addAggregation($dimensionAggregation);
+                }
             }
             $query->addAggregation($firstDimensionAggregation);
-
         } elseif (count($dimensionAggregations) > 0) {
             // Top Level Aggregations
             foreach ($dimensionAggregations as $dimensionAggregation) {
