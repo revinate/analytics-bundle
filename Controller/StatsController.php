@@ -46,6 +46,7 @@ class StatsController extends Controller {
             $analytics = new $sourceConfig['class']($container);
             $analytics->setContext(isset($post['context']) ? $post['context'] : array());
             $isNestedDimensions = isset($post['flags']['nestedDimensions']) ? $post['flags']['nestedDimensions'] : false;
+            $isNestedDimensions = (is_bool($isNestedDimensions) && $isNestedDimensions) || $isNestedDimensions == "true";
             /** @var ElasticaService $elasticaService */
             $elasticaService = $container->get('revinate_analytics.elastica');
             $queryBuilder = new QueryBuilder($elasticaService->getInstance($source), $analytics);
@@ -109,7 +110,8 @@ class StatsController extends Controller {
             $analytics = new $sourceConfig['class']($container);
             $analytics->setContext(isset($post['context']) ? $post['context'] : array());
             $bulkQueryBuilder = new BulkQueryBuilder();
-            $isNestedDimensions = isset($queriesPost['flags']['nestedDimensions']) ? $queriesPost['flags']['nestedDimensions'] : false;
+            $isNestedDimensions = isset($queriesPost['flags']['nestedDimensions']) ? $queriesPost['flags']['nestedDimensions'] == true : false;
+            $isNestedDimensions = (is_bool($isNestedDimensions) && $isNestedDimensions) || $isNestedDimensions == "true";
             foreach ($queriesPost['queries'] as $post) {
                 if (empty($post) || empty($post['dimensions']) || empty($post['metrics'])) {
                     return new JsonResponse(array('ok' => false, '_help' => $this->getHelp()), Response::HTTP_BAD_REQUEST);
