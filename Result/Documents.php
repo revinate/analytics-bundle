@@ -10,7 +10,9 @@ class Documents extends AbstractResult {
     public function getResult() {
         $documents = array();
         foreach ($this->getElasticaResultSet()->getResults() as $result) {
-            $documents[] = $result->getData();
+            $doc = $result->getData();
+            $doc["_id"] = $result->getId();
+            $documents[] = $doc;
         }
         return $documents;
     }
