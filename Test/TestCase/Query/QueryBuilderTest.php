@@ -7,6 +7,7 @@ use Revinate\AnalyticsBundle\Comparator\Percentage;
 use Revinate\AnalyticsBundle\Comparator\Value;
 use Revinate\AnalyticsBundle\Exception\InvalidComparatorTypeException;
 use Revinate\AnalyticsBundle\Goal\Goal;
+use Revinate\AnalyticsBundle\Lib\DateHelper;
 use Revinate\AnalyticsBundle\Query\BulkQueryBuilder;
 use Revinate\AnalyticsBundle\Query\QueryBuilder;
 use Revinate\AnalyticsBundle\Result\ResultSet;
@@ -163,6 +164,7 @@ class QueryBuilderTestCase extends BaseTestCase {
         $this->assertSame('ios', $results[0]['device'], $this->debug($results));
         $this->assertSame('chrome', $results[0]['browser'], $this->debug($results));
         $this->assertSame(6, $results[0]['views'], $this->debug($results));
+        $this->assertTrue(isset($results[0]['_id']), $this->debug($results));
     }
 
     public function testBasicDocumentsWithSort() {
@@ -248,8 +250,8 @@ class QueryBuilderTestCase extends BaseTestCase {
         $resultSet = $querybuilder->execute();
         $results = $resultSet->getNested();
         $this->assertSame(array(array("totalViews"=> '11.0'),array("totalViews"=> '12.0')), array_values($results["dateRange"]), $this->debug($results));
-        //$this->assertSame(array(array("totalViews"=> '5.0'),array("totalViews"=> '6.0'),array("totalViews"=> '0.0'),array("totalViews"=> '12.0')), array_values($results["dateHistogram"]), $this->debug($results));
-        $this->assertSame(array(array("totalViews"=> '5.0'),array("totalViews"=> '6.0'),array("totalViews"=> null),array("totalViews"=> '12.0')), array_values($results["formattedDate"]), $this->debug($results));
+        $this->assertTrue(strpos(key($results['dateRange']), '*') !== false, $this->debug($results));
+        $this->assertTrue(strpos(key($results['dateHistogram']), '-') !== false, $this->debug($results));
         $this->assertTrue(strpos(key($results['formattedDate']), '/') !== false, $this->debug($results));
     }
 
