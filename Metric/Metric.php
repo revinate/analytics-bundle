@@ -102,7 +102,7 @@ class Metric implements MetricInterface {
      */
     public function getValue($data) {
         $value = isset($data[$this->getResultKey()]) ? $data[$this->getResultKey()] : $this->getDefault();
-        return $value ? sprintf("%s%." . $this->getPrecision() . "f%s", $this->getPrefix(), $value, $this->getPostfix()) : null;
+        return ! is_null($value) ? sprintf("%s%." . $this->getPrecision() . "f%s", $this->getPrefix(), $value, $this->getPostfix()) : null;
     }
 
     /**
