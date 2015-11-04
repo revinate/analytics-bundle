@@ -103,8 +103,9 @@ abstract class AbstractResult implements ResultInterface {
                     }
                     $result[$dimension][$key] = $this->buildNestedResult($subDimensionData, $result[$dimension][$key], $depth + 1);
                 }
-                // Null fill missing keys
-                $result[$dimension] = $this->addMissingDimensions($filterSource, $result[$dimension]);
+                if ($dimensionObject->isReturnEmpty()) { // Null fill missing keys
+                    $result[$dimension] = $this->addMissingDimensions($filterSource, $result[$dimension]);
+                }
             } else { // If a metric
                 $metric = $this->analytics->getMetric($dimension);
                 $dimensionData = $this->unsetKeys($dimensionData);

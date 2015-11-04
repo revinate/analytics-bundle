@@ -34,6 +34,7 @@ class ViewAnalytics extends Analytics {
             AllDimension::create()->setReadableName("All Dimension")->setSize(0)->setType(Dimension::TYPE_STRING),
             Dimension::create("browser"),
             Dimension::create("site", "siteId")->setFilterSource($this->getFilterSource("siteId")),
+            Dimension::create("allSite", "siteId")->setFilterSource($this->getFilterSource("siteId"))->setReturnEmpty(true),
             Dimension::create("device")->setReadableName("Device Type"),
             DateHistogramDimension::create("dateHistogram", "date")->setInterval("month"),
             DateHistogramDimension::create("dateHistogramWithFormat", "date")->setInterval("month")->setFormat("yyyy:MM:dd"),

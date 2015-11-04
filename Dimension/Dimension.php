@@ -22,10 +22,13 @@ class Dimension implements DimensionInterface {
     protected $size = 0;
     /** @var  string */
     protected $type = self::TYPE_STRING;
+    /** @var  bool */
+    protected $returnEmpty = false;
     /** @var  string */
     protected $path;
     /** @var FilterSourceInterface */
     protected $filterSource;
+
     /**
      * @param $name
      * @param null $field
@@ -131,6 +134,24 @@ class Dimension implements DimensionInterface {
      */
     public function getFilterSource() {
         return $this->filterSource;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isReturnEmpty()
+    {
+        return $this->returnEmpty;
+    }
+
+    /**
+     * @param boolean $returnEmpty
+     * @return $this
+     */
+    public function setReturnEmpty($returnEmpty)
+    {
+        $this->returnEmpty = $returnEmpty;
+        return $this;
     }
 
     /**

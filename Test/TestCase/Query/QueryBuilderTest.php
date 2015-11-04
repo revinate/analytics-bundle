@@ -468,16 +468,33 @@ class QueryBuilderTestCase extends BaseTestCase {
         $viewAnalytics = new ViewAnalytics($this->getContainer());
         $querybuilder = new QueryBuilder($this->elasticaClient, $viewAnalytics);
         $querybuilder
+            ->addDimensions(array("device", "allSite"))
+            ->addMetrics(array("totalViews", "uniqueViews"))
+            ->setIsNestedDimensions(true)
+        ;
+        $resultSet = $querybuilder->execute();
+        $results = $resultSet->getNested();
+        $this->assertSame(10, count($results["device"]["ios"]["allSite"]), $this->debug($results));
+        $this->assertSame("yahoo.com", $results["device"]["ios"]["allSite"][2]["_info"]["_name"], $this->debug($results));
+        $this->assertFalse(isset($results["device"]["ios"]["allSite"][2]["totalViews"]), $this->debug($results));
+    }
+
+    public function testNoNullFilledDimensions() {
+        $this->createData();
+        $viewAnalytics = new ViewAnalytics($this->getContainer());
+        $querybuilder = new QueryBuilder($this->elasticaClient, $viewAnalytics);
+        $querybuilder
             ->addDimensions(array("device", "site"))
             ->addMetrics(array("totalViews", "uniqueViews"))
             ->setIsNestedDimensions(true)
         ;
         $resultSet = $querybuilder->execute();
         $results = $resultSet->getNested();
-        $this->assertSame(10, count($results["device"]["ios"]["site"]), $this->debug($results));
-        $this->assertSame("yahoo.com", $results["device"]["ios"]["site"][2]["_info"]["_name"], $this->debug($results));
+        $this->assertSame(2, count($results["device"]["ios"]["site"]), $this->debug($results));
+        $this->assertSame("google.com", $results["device"]["ios"]["site"][1]["_info"]["_name"], $this->debug($results));
         $this->assertFalse(isset($results["device"]["ios"]["site"][2]["totalViews"]), $this->debug($results));
     }
+
 
     public function testContextBasedMetrics() {
         $this->createData();
