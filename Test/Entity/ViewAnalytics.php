@@ -57,7 +57,7 @@ class ViewAnalytics extends Analytics {
             Metric::create("totalViews", "views")->setResult(Result::SUM),
             Metric::create("uniqueViews", "views")->setResult(Result::COUNT),
             ProcessedMetric::create("viewDollarValue")->setCalculatedFromMetrics(array("totalViews"), function($totalViews) {
-                return $totalViews ? $totalViews * 0.01 : null;
+                return $totalViews > 0 ? $totalViews * 0.01 : null;
             })->setPrefix('$')->setPrecision(2),
             ProcessedMetric::create("viewRupeeValue")->setCalculatedFromMetrics(array("totalViews"), function($totalViews) use ($dollarToRupeeConversionRate) {
                 return $totalViews * 0.01 * $dollarToRupeeConversionRate;

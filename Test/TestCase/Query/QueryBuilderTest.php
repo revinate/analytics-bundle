@@ -206,7 +206,7 @@ class QueryBuilderTestCase extends BaseTestCase {
         $resultSet = $querybuilder->execute();
         $results = $resultSet->getNested();
         $this->assertSame('16.0', $results["all"]['chromeTotalViews'], $this->debug($results));
-        $this->assertSame(null, $results["all"]['ie6TotalViews'], $this->debug($results));
+        $this->assertSame('0.0', $results["all"]['ie6TotalViews'], $this->debug($results));
     }
 
     public function testBaseMetricsWithTopLevelFilter() {
@@ -542,7 +542,15 @@ class QueryBuilderTestCase extends BaseTestCase {
         $resultSet = $querybuilder->execute();
         $results = $resultSet->getNested();
         foreach ($results["all"] as $result) {
-            $this->assertNull($result, $this->debug($results));
+
         }
+        $this->assertNull($results["all"]["maxViews"], $this->debug($results));
+        $this->assertNull($results["all"]["minViews"], $this->debug($results));
+        $this->assertNull($results["all"]["averageViews"], $this->debug($results));
+        $this->assertNull($results["all"]["viewDollarValue"], $this->debug($results));
+        $this->assertNull($results["all"]["chromeViewsPct"], $this->debug($results));
+        $this->assertSame('0.0', $results["all"]["chromeTotalViews"], $this->debug($results));
+        $this->assertSame('0.0', $results["all"]["totalViews"], $this->debug($results));
+        $this->assertSame('0.0', $results["all"]["uniqueViews"], $this->debug($results));
     }
 }
