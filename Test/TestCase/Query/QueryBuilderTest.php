@@ -165,6 +165,7 @@ class QueryBuilderTestCase extends BaseTestCase {
         $this->assertSame('chrome', $results[0]['browser'], $this->debug($results));
         $this->assertSame(6, $results[0]['views'], $this->debug($results));
         $this->assertTrue(isset($results[0]['_id']), $this->debug($results));
+        $this->assertTrue(!empty($results[0]["siteId_info"]), $this->debug($results));
     }
 
     public function testBasicDocumentsWithSort() {
