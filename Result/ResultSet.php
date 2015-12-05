@@ -34,6 +34,13 @@ class ResultSet {
     }
 
     /**
+     * @return QueryBuilder
+     */
+    public function getQueryBuilder() {
+        return $this->queryBuilder;
+    }
+
+    /**
      * @return array|mixed
      */
     public function getTabular() {

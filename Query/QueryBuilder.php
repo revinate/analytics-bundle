@@ -9,6 +9,7 @@ use Revinate\AnalyticsBundle\Aggregation\AllAggregation;
 use Revinate\AnalyticsBundle\Aggregation\Nested;
 use Revinate\AnalyticsBundle\Analytics;
 use Revinate\AnalyticsBundle\AnalyticsInterface;
+use Revinate\AnalyticsBundle\DimensionAggregate\DimensionAggregateSet;
 use Revinate\AnalyticsBundle\Dimension\AllDimension;
 use Revinate\AnalyticsBundle\Dimension\DateHistogramDimension;
 use Revinate\AnalyticsBundle\Dimension\DateRangeDimension;
@@ -478,6 +479,16 @@ class QueryBuilder {
             return null;
         }
         return new GoalSet($this->getGoals(), $this->getResultSet());
+    }
+
+    /**
+     * @return DimensionAggregateSet
+     */
+    public function getDimensionAggregateSet() {
+        if (! $this->resultSet) {
+            $this->execute();
+        }
+        return new DimensionAggregateSet($this->getResultSet());
     }
 
     /**

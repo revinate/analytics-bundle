@@ -80,6 +80,22 @@ class ApiControllerTest extends BaseTestCase
         $this->assertNull($response["goalResults"]["all"]['averageViews'], $this->debug($response));
     }
 
+    public function testStatsSourceApiWithAverageDimensionAggregation() {
+        $this->createData();
+        $post = json_encode(array(
+            "dimensions" => array("all", "device"),
+            "metrics" => array("totalViews", "uniqueViews", "averageViews"),
+            "filters" => array(),
+            "flags" => array("nestedDimensions" => false),
+            "format" => "nested",
+            "dimensionAggregate" => "average",
+        ));
+        $this->client->request("POST", "/api/analytics/source/view/stats", array(), array(), array(), $post);
+        $response = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertSame('11.50', $response[ "dimensionAggregate"]["device"]["average"]['totalViews'], $this->debug($response));
+        $this->assertSame('2.00', $response[ "dimensionAggregate"]["device"]["average"]['uniqueViews'], $this->debug($response));
+    }
+
     public function testStatsSourceWithPeriodFilterApi() {
         $this->createData();
         $post = json_encode(array(
@@ -164,6 +180,33 @@ class ApiControllerTest extends BaseTestCase
         $this->assertSame('16.67%', $response['comparator'][0]['device']['ios']['totalViews'], $this->debug($response));
         $this->assertSame('85.71%', $response['comparator'][1]['all']['totalViews'], $this->debug($response));
         $this->assertSame('100.00%', $response['comparator'][1]['browser']['chrome']['totalViews'], $this->debug($response));
+    }
+
+    public function testBulkStatsSourceApiWithDimensionAggregate() {
+        $this->createData();
+        $post = json_encode(
+            array(
+                'queries' => array(
+                    array(
+                        "dimensions" => array("all", "device"),
+                        "metrics" => array("totalViews", "uniqueViews", "averageViews"),
+                        "filters" => array(),
+                    ),
+                    array(
+                        "dimensions" => array("all", "device", "browser"),
+                        "metrics" => array("totalViews", "uniqueViews", "averageViews"),
+                        "filters" => array(),
+                    )
+                ),
+                "flags" => array("nestedDimensions" => false),
+                "format" => "nested",
+                "dimensionAggregate" => "average",
+            )
+        );
+        $this->client->request("POST", "/api/analytics/source/view/bulkstats", array(), array(), array(), $post);
+        $response = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertSame('11.50', $response['dimensionAggregate'][0]["device"]["average"]['totalViews'], $this->debug($response));
+        $this->assertSame('11.50', $response['dimensionAggregate'][1]["browser"]["average"]['totalViews'], $this->debug($response));
     }
 
     public function testStatsSourceApiWithNamedConnection() {

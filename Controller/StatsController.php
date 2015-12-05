@@ -4,6 +4,7 @@ namespace Revinate\AnalyticsBundle\Controller;
 
 use Revinate\AnalyticsBundle\Analytics;
 use Revinate\AnalyticsBundle\AnalyticsInterface;
+use Revinate\AnalyticsBundle\DimensionAggregate\DimensionAggregateSet;
 use Revinate\AnalyticsBundle\Exception\InvalidResultFormatTypeException;
 use Revinate\AnalyticsBundle\Filter\AnalyticsCustomFiltersInterface;
 use Revinate\AnalyticsBundle\Goal\Goal;
@@ -31,13 +32,13 @@ class StatsController extends Controller {
         $config = $container->getParameter('revinate_analytics.config');
         $post = json_decode($this->get('request_stack')->getMasterRequest()->getContent(), true);
         $format = isset($post['format']) ? $post['format'] : ResultSet::TYPE_NESTED;
+        $dimensionAggregate = isset($post["dimensionAggregate"]) ? $post["dimensionAggregate"] : null;
         if (!isset($config['sources'][$source])) {
             return new JsonResponse(array('ok' => false), Response::HTTP_NOT_FOUND);
         }
         if (empty($post) || empty($post['dimensions']) || empty($post['metrics'])) {
             return new JsonResponse(array('ok' => false, '_help' => $this->getHelp()), Response::HTTP_BAD_REQUEST);
         }
-
         $response = array("results" => array());
         $status = Response::HTTP_OK;
         try {
@@ -72,6 +73,9 @@ class StatsController extends Controller {
             if (isset($post['goals'])) {
                 $response['goalResults'] = $queryBuilder->getGoalSet()->get($format);
             }
+            if ($dimensionAggregate) {
+                $response["dimensionAggregate"] = $queryBuilder->getDimensionAggregateSet()->get($dimensionAggregate);
+            }
         } catch (InvalidResultFormatTypeException $e) {
             $response = array('ok' => false, '_help' => $this->getHelp());
             $status = Response::HTTP_BAD_REQUEST;
@@ -95,6 +99,7 @@ class StatsController extends Controller {
         $config = $container->getParameter('revinate_analytics.config');
         $queriesPost = json_decode($this->get('request_stack')->getMasterRequest()->getContent(), true);
         $format = isset($queriesPost['format']) ? $queriesPost['format'] : ResultSet::TYPE_NESTED;
+        $dimensionAggregate = isset($queriesPost["dimensionAggregate"]) ? $queriesPost["dimensionAggregate"] : null;
         if (!isset($config['sources'][$source])) {
             return new JsonResponse(array('ok' => false), Response::HTTP_NOT_FOUND);
         }
@@ -143,8 +148,14 @@ class StatsController extends Controller {
             }
             if ($bulkQueryBuilder->getGoalSets()) {
                 $response['goalResults'] = array();
-                foreach ($bulkQueryBuilder->getGoalSets() as $goalSet) {
-                    $response['goalResults'][] = $goalSet->get($format);
+                foreach ($bulkQueryBuilder->getGoalSets() as $set) {
+                    $response['goalResults'][] = $set->get($format);
+                }
+            }
+            if ($dimensionAggregate) {
+                $response["dimensionAggregate"] = array();
+                foreach ($bulkQueryBuilder->getDimensionAggregateSets() as $set) {
+                    $response["dimensionAggregate"][] = $set->get($dimensionAggregate);
                 }
             }
             if (isset($queriesPost['comparator'])) {
