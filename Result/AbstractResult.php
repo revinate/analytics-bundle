@@ -19,7 +19,7 @@ abstract class AbstractResult implements ResultInterface {
     protected $elasticaResultSet;
 
     /** @var array Internal keys that hold special data */
-    protected static $internalKeys = array("_info");
+    public static $internalKeys = array("_info");
 
     /**
      * @param QueryBuilder $queryBuilder
@@ -155,7 +155,7 @@ abstract class AbstractResult implements ResultInterface {
         foreach ($result as $key => $values) {
             if (in_array($key, self::$internalKeys)) {
                 continue;
-            } else if ($this->isArrayOfArray($values)) {
+            } else if (self::isArrayOfArray($values)) {
                 $result[$key] = $this->calculateProcessedMetrics($values);
             } else if (! empty($values)) {
                 $processedMetricNames = $this->analytics->getProcessedMetricNames();
@@ -198,12 +198,12 @@ abstract class AbstractResult implements ResultInterface {
      * @param array $array
      * @return bool
      */
-    protected function isArrayOfArray($array) {
+    public static function isArrayOfArray($array) {
         if (!is_array($array)) {
             return false;
         }
         foreach ($array as $key => $value) {
-            if (in_array($key, self::$internalKeys)) {
+            if (self::isInternalKey($key)) {
                 continue;
             }
             if (is_array($value)) {
@@ -211,6 +211,36 @@ abstract class AbstractResult implements ResultInterface {
             }
         }
         return false;
+    }
+
+
+    /**
+     * @param $array
+     * @return bool
+     */
+    public static function isArrayOfArrayOfScalars($array) {
+        if (! is_array($array)) {
+            return false;
+        }
+        foreach ($array as $value) {
+            if (! is_array($value)) {
+                return false;
+            }
+            foreach ($value as $key => $scalar) {
+                if (! self::isInternalKey($key) && ! is_scalar($scalar)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @param $key
+     * @return bool
+     */
+    public static function isInternalKey($key) {
+        return in_array($key, self::$internalKeys);
     }
 
     /**

@@ -19,7 +19,7 @@ class Tabular extends AbstractResult {
      */
     protected function buildResult($data, $tabular = array(), $prefixKey = '') {
         foreach ($data as $key => $values) {
-                if (! $this->isArrayOfArray($values) && is_array($values)) {
+                if (! self::isArrayOfArray($values) && is_array($values)) {
                     $tabular[$this->getJoinedKey(array($prefixKey, $key))] = $values;
                 } else {
                     $tabular = array_merge(

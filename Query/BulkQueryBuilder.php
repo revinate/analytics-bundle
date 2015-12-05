@@ -4,6 +4,7 @@ namespace Revinate\AnalyticsBundle\Query;
 
 use Revinate\AnalyticsBundle\Comparator\ComparatorFactory;
 use Revinate\AnalyticsBundle\Comparator\ComparatorSet;
+use Revinate\AnalyticsBundle\DimensionAggregate\DimensionAggregateSet;
 use Revinate\AnalyticsBundle\Goal\GoalSet;
 use Revinate\AnalyticsBundle\Result\ResultSet;
 
@@ -15,6 +16,8 @@ class BulkQueryBuilder {
     protected $resultSets = array();
     /** @var GoalSet[] */
     protected $goalSets = array();
+    /** @var DimensionAggregateSet[] */
+    protected $dimensionAggregateSets = array();
 
     /**
      * @param QueryBuilder $queryBuilder
@@ -69,6 +72,18 @@ class BulkQueryBuilder {
             }
         }
         return $this->goalSets;
+    }
+
+    public function getDimensionAggregateSets() {
+        if (count($this->resultSets) == 0) {
+            $this->execute();
+        }
+        if (count($this->dimensionAggregateSets) == 0) {
+            foreach ($this->queryBuilders as $queryBuilder) {
+                $this->dimensionAggregateSets[] = $queryBuilder->getDimensionAggregateSet();
+            }
+        }
+        return $this->dimensionAggregateSets;
     }
 
     /**

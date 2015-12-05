@@ -5,6 +5,7 @@ use Revinate\AnalyticsBundle\Comparator\Change;
 use Revinate\AnalyticsBundle\Comparator\Index;
 use Revinate\AnalyticsBundle\Comparator\Percentage;
 use Revinate\AnalyticsBundle\Comparator\Value;
+use Revinate\AnalyticsBundle\DimensionAggregate\DimensionAggregateSet;
 use Revinate\AnalyticsBundle\Exception\InvalidComparatorTypeException;
 use Revinate\AnalyticsBundle\Goal\Goal;
 use Revinate\AnalyticsBundle\Lib\DateHelper;
@@ -357,7 +358,7 @@ class QueryBuilderTestCase extends BaseTestCase {
         $compResults = $comparatorSet->getNested();
     }
 
-    public function testGoals() {
+    public function testGoalSet() {
         $this->createData();
         $viewAnalytics = new ViewAnalytics($this->getContainer());
         $goals = array(
@@ -377,6 +378,47 @@ class QueryBuilderTestCase extends BaseTestCase {
         $this->assertSame("50.00%", $goalResults["device"]["android"]["uniqueViews"], $this->debug($goalResults));
         $this->assertSame("60.00%", $goalResults["device"]["ios"]["totalViews"], $this->debug($goalResults));
         $this->assertSame("160.00%", $goalResults["browser"]["chrome"]["totalViews"], $this->debug($goalResults));
+    }
+
+    public function testAverageSetSingleDimension() {
+        $this->createData();
+        $viewAnalytics = new ViewAnalytics($this->getContainer());
+        $qb = new QueryBuilder($this->elasticaClient, $viewAnalytics);
+        $qb->addDimensions(array("browser"))
+            ->addMetrics(array("totalViews", "uniqueViews"))
+        ;
+        $aggregateSet = $qb->getDimensionAggregateSet();
+        $results = $aggregateSet->get(DimensionAggregateSet::TYPE_AVERGAE);
+        $this->assertSame("11.50", $results["browser"]["average"]["totalViews"], $this->debug($results));
+        $this->assertSame("2.00", $results["browser"]["average"]["uniqueViews"], $this->debug($results));
+    }
+
+    public function testAverageSetMultipleDimensions() {
+        $this->createData();
+        $viewAnalytics = new ViewAnalytics($this->getContainer());
+        $qb = new QueryBuilder($this->elasticaClient, $viewAnalytics);
+        $qb->addDimensions(array("browser", "device", "site"))
+            ->addMetrics(array("totalViews", "uniqueViews"))
+        ;
+        $aggregateSet = $qb->getDimensionAggregateSet();
+        $results = $aggregateSet->get(DimensionAggregateSet::TYPE_AVERGAE);
+        $this->assertSame("7.67", $results["site"]["average"]["totalViews"], $this->debug($results));
+        $this->assertSame("11.50", $results["device"]["average"]["totalViews"], $this->debug($results));
+        $this->assertSame("11.50", $results["browser"]["average"]["totalViews"], $this->debug($results));
+    }
+
+    public function testAverageSetNested() {
+        $this->createData();
+        $viewAnalytics = new ViewAnalytics($this->getContainer());
+        $qb = new QueryBuilder($this->elasticaClient, $viewAnalytics);
+        $qb->addDimensions(array("browser", "device", "site"))
+            ->addMetrics(array("totalViews", "uniqueViews"))
+            ->setIsNestedDimensions(true)
+        ;
+        $aggregateSet = $qb->getDimensionAggregateSet();
+        $results = $aggregateSet->get(DimensionAggregateSet::TYPE_AVERGAE);
+        $this->assertSame("10.00", $results["browser"]["chrome"]["device"]["android"]["site"]["average"]["totalViews"], $this->debug($results));
+        $this->assertSame("3.50", $results["browser"]["opera"]["device"]["ios"]["site"]["average"]["totalViews"], $this->debug($results));
     }
 
     public function testNestedAndReverseNestedDimensionAndMetrics() {
