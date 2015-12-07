@@ -11,7 +11,7 @@ use Revinate\AnalyticsBundle\Result\ResultSet;
 class BulkQueryBuilder {
 
     /** @var  QueryBuilder[] */
-    protected $queryBuilders;
+    protected $queryBuilders = array();
     /** @var ResultSet[] */
     protected $resultSets = array();
     /** @var GoalSet[] */
