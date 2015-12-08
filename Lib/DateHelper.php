@@ -272,7 +272,14 @@ class DateHelper {
             $howLong = (int)str_replace('ya', '', $periodName);
             $yearAgoTime = strtotime('-' . $howLong . ' year', $time);
             $period = array(date('Y-01-01', $yearAgoTime), 'year', date('Y-12-31', $yearAgoTime));
-            $return = array('period' => $period, 'description' => $howLong.' Years Ago: ' . date('Y', $yearAgoTime), 'short_description' => $howLong . ' Years Ago');
+            $return = array('period' => $period, 'description' => $howLong . ' Years Ago: ' . date('Y', $yearAgoTime), 'short_description' => $howLong . ' Years Ago');
+        } else if (strpos($periodName, 'lmp') !== FALSE) {
+            $dayOfMonth = date('d', $time);
+            $startDate = date('Y-m-d', self::addMonthOffset(-1, $time));
+            $daysInMonth = date('t', strtotime($startDate));
+            $dayOfMonth = intval($dayOfMonth) > intval($daysInMonth) ? $daysInMonth : $dayOfMonth;
+            $period = array($startDate, 'month', date('Y-m-', strtotime($startDate)) . $dayOfMonth);
+            return array('period' => $period, 'description' => 'Last Month Pace: ' . date('m/d/y', strtotime($period[0])) . ' - ' . date('m/d/y', strtotime($period[2])), 'short_description' => "Last Month Pace");
         } elseif (strpos($periodName, 'qtd') !== FALSE) {
             $startDay = date('Y-m-d', $time);
             $range = self::getScaleRange($startDay, 'quarter');
