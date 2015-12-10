@@ -56,7 +56,6 @@ class StatsController extends Controller {
                 ->addDimensions($post['dimensions'])
                 ->addMetrics($post['metrics'])
             ;
-
             if (isset($post['goals'])) {
                 $goals = array();
                 foreach ($post["goals"] as $key => $val) {
@@ -64,11 +63,12 @@ class StatsController extends Controller {
                 }
                 $queryBuilder->setGoals($goals);
             }
-
             if (! empty($post['filters'])) {
                 $queryBuilder->setFilter($this->getFilters($analytics, $post['filters']));
             }
-
+            if (isset($post['sort'])) {
+                $queryBuilder->setSort($post['sort']);
+            }
             $response['results'] = $queryBuilder->execute()->getResult($format);
             if (isset($post['goals'])) {
                 $response['goalResults'] = $queryBuilder->getGoalSet()->get($format);
@@ -138,6 +138,9 @@ class StatsController extends Controller {
                 }
                 if (!empty($post['filters'])) {
                     $queryBuilder->setFilter(self::getFilters($analytics, $post['filters']));
+                }
+                if (isset($post['sort'])) {
+                    $queryBuilder->setSort($post['sort']);
                 }
                 $bulkQueryBuilder->addQueryBuilder($queryBuilder);
             }
