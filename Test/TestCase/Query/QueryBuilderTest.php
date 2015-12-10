@@ -300,6 +300,19 @@ class QueryBuilderTestCase extends BaseTestCase {
         $this->assertSame('10.0', $results["browser"]["chrome"]["device"]["android"]['site'][4]['totalViews'], $this->debug($results));
     }
 
+    public function testNestedMetricWithFilter() {
+        $this->createData();
+        $viewAnalytics = new ViewAnalytics($this->getContainer());
+        $querybuilder = new QueryBuilder($this->elasticaClient, $viewAnalytics);
+        $querybuilder
+            ->addDimensions(array("all"))
+            ->addMetrics(array("averageWeightageForVip"))
+        ;
+        $resultSet = $querybuilder->execute();
+        $results = $resultSet->getNested();
+        $this->assertSame('4.0', $results["all"]["averageWeightageForVip"], $this->debug($results));
+    }
+
     /**
      * @expectedException \Revinate\AnalyticsBundle\Exception\InvalidComparatorTypeException
      */
