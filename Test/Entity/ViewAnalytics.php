@@ -75,6 +75,7 @@ class ViewAnalytics extends Analytics {
             Metric::create("ie6TotalViews", "views")->setFilter(FilterHelper::getValueFilter("browser", "ie6"))->setResult(Result::SUM),
             Metric::create("averageViews", "views")->setResult(Result::AVG),
             Metric::create("averageWeightage", "tags.weightage")->setNestedPath("tags")->setResult(Result::AVG),
+            Metric::create("averageWeightageForVip", "tags.weightage")->setNestedPath("tags")->setFilter(FilterHelper::getValueFilter("tags.name", "vip"))->setResult(Result::AVG),
             // Misc Random Result types
             Metric::create("maxViews", "views")->setResult(Result::MAX),
             Metric::create("minViews", "views")->setResult(Result::MIN),
