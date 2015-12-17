@@ -220,11 +220,17 @@ class DateHelper {
             $range = self::getScaleRange($startDay, 'month');
             $period = array($range[0], 'month', $range[1]);
             $return = array('period' => $period, 'description' => 'Last Month: ' . date('F y', strtotime($period[0])), 'short_description' => 'Last Month');
-        } elseif ($periodName == 'l3m') {
-            $range = self::getScaleRange(date('Y-m-d', $time), 'last_3_month');
-            $period = array($range[0], 'last_3_month', $range[1]);
+        } elseif (preg_match("/^l(\d+)m$/", $periodName, $matches)) {
+            $range = self::getScaleRange(date('Y-m-d', $time), 'last_' . $matches[1] . '_month');
+            $period = array($range[0], 'last_' . $matches[1] . '_month', $range[1]);
             $startTime = strtotime($range[0]);
-            $return = array('period' => $period, 'description' => 'Last 3 Months: ' . implode('/', array(date('M', $startTime), date('M', strtotime('+1 month', $startTime)), date('M', strtotime('+2 months', $startTime)))), 'short_description' => 'Last 3 Months');
+            $endTime = strtotime($range[1]);
+            $return = array('period' => $period, 'description' => 'Last ' . $matches[1] . ' Months: ' . date('M', $startTime) . ' - ' . date('M', $endTime), 'short_description' => 'Last ' . $matches[1] . ' Months');
+        } elseif (preg_match("/^l(\d+)mtd$/", $periodName, $matches)) {
+            $range = self::getScaleRange(date('Y-m-d', $time), 'last_' . $matches[1] . '_month');
+            $period = array($range[0], 'last_' . $matches[1] . '_month_to_date', date('Y-m-d', $time));
+            $startTime = strtotime($range[0]);
+            $return = array('period' => $period, 'description' => 'Last ' . $matches[1] . ' Months to date: ' . date('M', $startTime) . ' - ' . date('Y-m-d', $time), 'short_description' => 'Last ' . $matches[1] . ' Months to Date');
         } elseif ($periodName == 'ytd') {
             $period = array(date('Y-01-01', $time), 'year', date('Y-m-d'));
             $return = array('period' => $period, 'description' => 'Year To Date: ' . date('Y'), 'short_description' => 'Year to Date');
