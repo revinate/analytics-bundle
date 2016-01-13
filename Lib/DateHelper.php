@@ -15,6 +15,13 @@ class DateHelper {
     const TIMEZONE_REVINATE = 'America/Los_Angeles';
     const DEFAULT_TIMEZONE = 'America/Los_Angeles';
 
+    /** Scale types */
+    const SCALE_DAY     = 'day';
+    const SCALE_WEEK    = 'week';
+    const SCALE_MONTH   = 'month';
+    const SCALE_QUARTER = 'quarter';
+    const SCALE_YEAR    = 'year';
+
     /**
      * Rounds the timestamp to closest period based on the specified granularity
      *
@@ -441,5 +448,58 @@ class DateHelper {
         }
         DateHelper::changeTimezone($oldTz);
         return $period;
+    }
+
+    /**
+     * Get increment string for strtotime for a given scale string
+     *
+     * @param   string  $scale
+     * @return  string
+     */
+    public static function getIncrementStringFromScale($scale) {
+        switch ($scale) {
+            case self::SCALE_DAY:
+            case self::SCALE_WEEK:
+            case self::SCALE_MONTH:
+            case self::SCALE_YEAR:
+                return '+1 '.$scale;
+            case self::SCALE_QUARTER:
+                return '+3 months';
+            default:
+                return '';
+        }
+    }
+
+
+    /**
+     * Generates an array of timestamps for a given period array of format $period = array($startDate, $endDate).
+     * For monthly scale, sets period start to beginning of month. For quarterly scale, to the beginning of the quarter.
+     *
+     * @param   array   $period
+     * @param   string  $scale
+     * @return  array
+     */
+    public static function getIntervalTimestampsForES($period, $scale) {
+        // Adjust start time to match up with proper ES date buckets
+        if ($scale === self::SCALE_QUARTER) {
+            $scaleAdjustedStartTime = DateHelper::getDateAtStartOfQuarterRelativeToNow(0, strtotime($period[0]));
+        } else if ($scale === self::SCALE_MONTH){
+            $scaleAdjustedStartTime = date('1-m-Y', strtotime($period[0]));
+        } else if ($scale === self::SCALE_WEEK) {
+            $scaleAdjustedStartTime = date('d-m-Y', strtotime('last monday', strtotime($period[0])));
+        }else {
+            $scaleAdjustedStartTime = $period[0];
+        }
+
+        $time = strtotime($scaleAdjustedStartTime);
+        $endTime = strtotime($period[1]);
+        $incrementString = self::getIncrementStringFromScale($scale);
+
+        $timestamps = array();
+        while ($time <= $endTime) {
+            $timestamps[] = $time;
+            $time = strtotime($incrementString, $time);
+        }
+        return $timestamps;
     }
 }
