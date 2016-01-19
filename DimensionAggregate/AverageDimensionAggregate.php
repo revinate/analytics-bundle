@@ -6,9 +6,9 @@ use Revinate\AnalyticsBundle\Result\AbstractResult;
 
 class AverageDimensionAggregate implements DimensionAggregateInterface {
 
-    public function getAggregate($result) {
+    public function getAggregate($result, $info = null) {
         $agg = array();
-        $this->calculate($result, $agg);
+        $this->calculate($result, $agg, $info);
         return $agg;
     }
 
@@ -16,7 +16,7 @@ class AverageDimensionAggregate implements DimensionAggregateInterface {
      * @param $result
      * @param $agg
      */
-    public function calculate($result, &$agg) {
+    public function calculate($result, &$agg, $info = null) {
         foreach ($result as $bucketKey => $buckets) {
             if (AbstractResult::isArrayOfArrayOfScalars($buckets)) {
                 $agg[$bucketKey]["average"] = array();
@@ -40,7 +40,7 @@ class AverageDimensionAggregate implements DimensionAggregateInterface {
                 }
                 foreach ($agg[$bucketKey]["average"] as $key => $avg) {
                     //$metric = $this->queryBuilder->getAnalytics()->getMetric($key);
-                    $agg[$bucketKey]["average"][$key] = $nonZeroCountsByKey[$key] > 0 ? sprintf("%.2f",$avg / $nonZeroCountsByKey[$key]) : null;
+                    $agg[$bucketKey]["average"][$key] = $nonZeroCountsByKey[$key] > 0 ? sprintf("%.2f",$avg / (is_null($info) ? $nonZeroCountsByKey[$key] : $info)) : null;
                 }
             } else if(AbstractResult::isArrayOfArray($buckets)) {
                 $agg[$bucketKey] = array();

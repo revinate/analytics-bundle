@@ -22,11 +22,11 @@ class DimensionAggregateSet {
      * @param $type
      * @return array
      */
-    public function get($type) {
+    public function get($type, $info) {
         switch ($type) {
             case self::TYPE_AVERGAE:
                 $avg = new AverageDimensionAggregate();
-                return $avg->getAggregate($this->resultSet->getNested());
+                return $avg->getAggregate($this->resultSet->getNested(), $info);
         }
         return array();
     }

@@ -74,7 +74,13 @@ class StatsController extends Controller {
                 $response['goalResults'] = $queryBuilder->getGoalSet()->get($format);
             }
             if ($dimensionAggregate) {
-                $response["dimensionAggregate"] = $queryBuilder->getDimensionAggregateSet()->get($dimensionAggregate);
+                $response["dimensionAggregate"] = array();
+                $type = isset($dimensionAggregate['type']) ? $dimensionAggregate['type'] : null;
+                $info = isset($dimensionAggregate['info']) ? $dimensionAggregate['info'] : null;
+                if (is_null($type)) {
+                    throw new InvalidResultFormatTypeException("Invalid dimension aggregate: " . print_r($dimensionAggregate, 1));
+                }
+                $response["dimensionAggregate"] = $queryBuilder->getDimensionAggregateSet()->get($type, $info);
             }
         } catch (InvalidResultFormatTypeException $e) {
             $response = array('ok' => false, '_help' => $this->getHelp());
@@ -157,8 +163,13 @@ class StatsController extends Controller {
             }
             if ($dimensionAggregate) {
                 $response["dimensionAggregate"] = array();
+                $type = isset($dimensionAggregate['type']) ? $dimensionAggregate['type'] : null;
+                $info = isset($dimensionAggregate['info']) ? $dimensionAggregate['info'] : null;
+                if (is_null($type)) {
+                    throw new InvalidResultFormatTypeException("Invalid dimension aggregate: " . print_r($dimensionAggregate,1));
+                }
                 foreach ($bulkQueryBuilder->getDimensionAggregateSets() as $set) {
-                    $response["dimensionAggregate"][] = $set->get($dimensionAggregate);
+                    $response["dimensionAggregate"][] = $set->get($type, $info);
                 }
             }
             if (isset($queriesPost['comparator'])) {
