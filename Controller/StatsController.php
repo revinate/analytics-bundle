@@ -33,6 +33,7 @@ class StatsController extends Controller {
         $post = json_decode($this->get('request_stack')->getMasterRequest()->getContent(), true);
         $format = isset($post['format']) ? $post['format'] : ResultSet::TYPE_NESTED;
         $dimensionAggregate = isset($post["dimensionAggregate"]) ? $post["dimensionAggregate"] : null;
+        $dateRange = isset($post['dateRange']) ? $post['dateRange'] : null;
         if (!isset($config['sources'][$source])) {
             return new JsonResponse(array('ok' => false), Response::HTTP_NOT_FOUND);
         }
@@ -63,8 +64,14 @@ class StatsController extends Controller {
                 }
                 $queryBuilder->setGoals($goals);
             }
-            if (! empty($post['filters'])) {
-                $queryBuilder->setFilter($this->getFilters($analytics, $post['filters']));
+            $filters = isset($post['filters']) ? $post['filters'] : array();
+            if(! is_null($dateRange)) {
+                $dateFilterName = isset($dateRange[2]) ? $dateRange[2] : 'date';
+                $filters[$dateFilterName] = array($dateRange[0], $dateRange[1]);
+                $queryBuilder->setBounds($dateRange);
+            }
+            if (!empty($filters)) {
+                $queryBuilder->setFilter(self::getFilters($analytics, $filters));
             }
             if (isset($post['sort'])) {
                 $queryBuilder->setSort($post['sort']);
@@ -100,6 +107,7 @@ class StatsController extends Controller {
         $queriesPost = json_decode($this->get('request_stack')->getMasterRequest()->getContent(), true);
         $format = isset($queriesPost['format']) ? $queriesPost['format'] : ResultSet::TYPE_NESTED;
         $dimensionAggregate = isset($queriesPost["dimensionAggregate"]) ? $queriesPost["dimensionAggregate"] : null;
+        $dateRange = isset($post['dateRange']) ? $post['dateRange'] : null;
         if (!isset($config['sources'][$source])) {
             return new JsonResponse(array('ok' => false), Response::HTTP_NOT_FOUND);
         }
@@ -136,8 +144,13 @@ class StatsController extends Controller {
                     }
                     $queryBuilder->setGoals($goals);
                 }
-                if (!empty($post['filters'])) {
-                    $queryBuilder->setFilter(self::getFilters($analytics, $post['filters']));
+                $filters = isset($post['filters']) ? $post['filters'] : array();
+                if(! is_null($dateRange)) {
+                    $filters['date'] = $dateRange;
+                    $queryBuilder->setBounds($dateRange);
+                }
+                if (!empty($filters)) {
+                    $queryBuilder->setFilter(self::getFilters($analytics, $filters));
                 }
                 if (isset($post['sort'])) {
                     $queryBuilder->setSort($post['sort']);
@@ -250,7 +263,8 @@ class StatsController extends Controller {
                 'flags' => array(
                     'nestedDimensions' => 'true/false',
                 ),
-                'format' => 'flattened/raw/nested/tabular/google_data_table/chartjs'
+                'format' => 'flattened/raw/nested/tabular/google_data_table/chartjs',
+                'dateRange' => array('period/range', 'period name/from=>to', 'name of date field (defaults to date)')
             )
         );
     }
