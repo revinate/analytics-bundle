@@ -42,9 +42,9 @@ class FilterHelper {
      * @throws \Exception
      */
     public static function getPeriodFilter($field, $period) {
-        $perioInfo = DateHelper::getPeriodInfo($period);
-        $startPeriod = date('c', strtotime($perioInfo["period"][0]));
-        $endPeriod = date('c', strtotime($perioInfo["period"][2]." 23:59:59"));
+        $periodInfo = DateHelper::getPeriodInfo($period);
+        $startPeriod = date('c', strtotime($periodInfo["period"][0]));
+        $endPeriod = date('c', strtotime($periodInfo["period"][2]." 23:59:59"));
         $range = array("gte" => $startPeriod, "lte" => $endPeriod);
         return new \Elastica\Filter\Range($field, $range);
     }
