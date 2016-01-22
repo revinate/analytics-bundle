@@ -17,8 +17,10 @@ use Revinate\AnalyticsBundle\Dimension\Dimension;
 use Revinate\AnalyticsBundle\Dimension\FiltersDimension;
 use Revinate\AnalyticsBundle\Dimension\HistogramDimension;
 use Revinate\AnalyticsBundle\Dimension\RangeDimension;
+use Revinate\AnalyticsBundle\Filter\FilterHelper;
 use Revinate\AnalyticsBundle\Goal\Goal;
 use Revinate\AnalyticsBundle\Goal\GoalSet;
+use Revinate\AnalyticsBundle\Lib\DateHelper;
 use Revinate\AnalyticsBundle\Metric\ProcessedMetric;
 use Revinate\AnalyticsBundle\Metric\Result;
 use Revinate\AnalyticsBundle\Result\ResultSet;
@@ -54,6 +56,8 @@ class QueryBuilder {
     protected $resultSet;
     /** @var  bool */
     protected $debug = false;
+    /** @var null|array  */
+    protected $bounds = null;
 
     /**
      * @param \Elastica\Client $elasticaClient
@@ -222,6 +226,37 @@ class QueryBuilder {
     }
 
     /**
+     * Sets the bounds for extended buckets on date histograms
+     * @param $bounds array The extended bounds to be respected
+     * @throws \Exception
+     */
+    public function setBounds($bounds) {
+        $start = null;
+        $end = null;
+
+        if ($bounds[0] === FilterHelper::TYPE_PERIOD) {
+            $periodInfo = DateHelper::getPeriodInfo($bounds[1]);
+            $start = $periodInfo['period'][0];
+            $end = $periodInfo['period'][2];
+        } else if ($bounds[0] === FilterHelper::TYPE_RANGE) {
+            $start = $bounds[1]['from'];
+            $end = $bounds[1]['to'];
+        }
+        if (is_null($start) || is_null($end)) {
+            $this->bounds = null;
+        } else {
+            $this->bounds = array($start, $end);
+        }
+    }
+
+    /**
+     * @return null|array
+     */
+    public function getBounds() {
+        return $this->bounds;
+    }
+
+    /**
      * @return \Elastica\Aggregation\AbstractAggregation[]
      */
     protected function createDimensionAggregations() {
@@ -246,7 +281,10 @@ class QueryBuilder {
             $dimensionAgg = new \Elastica\Aggregation\DateHistogram($dimension->getName(), $dimension->getField(), $dimension->getInterval());
             $dimensionAgg->setFormat($dimension->getFormat());
             $dimensionAgg->setMinimumDocumentCount(0);
-
+            $bounds = $this->getBounds();
+            if (!is_null($bounds)) {
+                $dimensionAgg->setExtendedBounds($bounds[0], $bounds[1]);
+            }
         } elseif ($dimension instanceof HistogramDimension) {
             $dimensionAgg = new \Elastica\Aggregation\Histogram($dimension->getName(), $dimension->getField(), $dimension->getInterval());
             $dimensionAgg->setMinimumDocumentCount(0);
