@@ -66,7 +66,10 @@ class StatsController extends Controller {
             }
             $filters = isset($post['filters']) ? $post['filters'] : array();
             if(! is_null($dateRange)) {
-                $dateFilterName = isset($dateRange[2]) ? $dateRange[2] : 'date';
+                if (! isset($dateRange[2])) {
+                    throw new InvalidResultFormatTypeException();
+                }
+                $dateFilterName = $dateRange[2];
                 $filters[$dateFilterName] = array($dateRange[0], $dateRange[1]);
                 $queryBuilder->setBounds($dateRange);
             }
@@ -275,7 +278,7 @@ class StatsController extends Controller {
                     'nestedDimensions' => 'true/false',
                 ),
                 'format' => 'flattened/raw/nested/tabular/google_data_table/chartjs',
-                'dateRange' => array('period/range', 'period name/from=>to', 'name of date field (defaults to date)')
+                'dateRange' => array('period/range', 'period name/from=>to', 'name of date field')
             )
         );
     }
