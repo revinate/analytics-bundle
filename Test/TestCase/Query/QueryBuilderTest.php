@@ -25,6 +25,7 @@ class QueryBuilderTestCase extends BaseTestCase {
             ->createView("opera", "ios", 7, "-3 month", 5)
             ->createView("opera", "ios", 1, "-1 week", 2)
             ->createView("chrome", "android", 4, "+0 day", 10)
+            ->createView("opera", "ios", 8, "-1 week", null)
         ;
         $docHelper->refresh();
     }
@@ -546,7 +547,7 @@ class QueryBuilderTestCase extends BaseTestCase {
         ;
         $resultSet = $querybuilder->execute();
         $results = $resultSet->getNested();
-        $this->assertSame(2, count($results["device"]["ios"]["site"]), $this->debug($results));
+        $this->assertSame(3, count($results["device"]["ios"]["site"]), $this->debug($results));
         $this->assertSame("google.com", $results["device"]["ios"]["site"][1]["_info"]["_name"], $this->debug($results));
         $this->assertFalse(isset($results["device"]["ios"]["site"][2]["totalViews"]), $this->debug($results));
     }
@@ -607,5 +608,26 @@ class QueryBuilderTestCase extends BaseTestCase {
         $this->assertSame('0.0', $results["all"]["chromeTotalViews"], $this->debug($results));
         $this->assertSame('0.0', $results["all"]["totalViews"], $this->debug($results));
         $this->assertSame('0.0', $results["all"]["uniqueViews"], $this->debug($results));
+    }
+
+    /**Test Dimension Aggregate where the result contains nulls**/
+    public function testNullFilledAverageSetDimensions() {
+        $this->createData();
+        $viewAnalytics = new ViewAnalytics($this->getContainer());
+        $queryBuilder = new QueryBuilder($this->elasticaClient, $viewAnalytics);
+        $queryBuilder
+            ->addDimensions(array("allSite"))
+            ->addMetrics(array("totalViews"))
+            ->setFilter(FilterHelper::getValueFilter("device", "ios"))
+        ;
+        $resultSet = $queryBuilder->execute()->getNested();
+        $this->assertSame('0.0', $resultSet["allSite"][8]['totalViews']);
+
+        //Now we get the average
+        $aggregateSet = $queryBuilder->getDimensionAggregateSet();
+        $results = $aggregateSet->get(DimensionAggregateSet::TYPE_AVERGAE);
+        $this->assertSame("ask.com", $resultSet["allSite"][8]["_info"]["_name"], $this->debug($results));
+        $this->assertFalse(isset($resultSet["allSite"][2]["totalViews"]), $this->debug($results));
+        $this->assertSame('6.50', $results["allSite"]["average"]["totalViews"], $this->debug($results));
     }
 }

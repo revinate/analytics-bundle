@@ -22,7 +22,7 @@ class DimensionAggregateSet {
      * @param $type
      * @return array
      */
-    public function get($type, $info) {
+    public function get($type, $info = null) {
         switch ($type) {
             case self::TYPE_AVERGAE:
                 $avg = new AverageDimensionAggregate();
