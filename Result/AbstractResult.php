@@ -227,7 +227,7 @@ abstract class AbstractResult implements ResultInterface {
                 return false;
             }
             foreach ($value as $key => $scalar) {
-                if (! self::isInternalKey($key) && ! is_scalar($scalar)) {
+                if (! self::isInternalKey($key) && (! is_scalar($scalar) && $scalar != null)) {
                     return false;
                 }
             }
