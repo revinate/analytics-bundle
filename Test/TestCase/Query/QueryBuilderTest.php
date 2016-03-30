@@ -13,7 +13,7 @@ use Revinate\AnalyticsBundle\Query\BulkQueryBuilder;
 use Revinate\AnalyticsBundle\Query\QueryBuilder;
 use Revinate\AnalyticsBundle\Result\ResultSet;
 use Revinate\AnalyticsBundle\Test\Elastica\DocumentHelper;
-use Revinate\AnalyticsBundle\Filter\FilterHelper;
+use Revinate\AnalyticsBundle\Query\QueryHelper;
 use Revinate\AnalyticsBundle\Test\Entity\ViewAnalytics;
 use Revinate\AnalyticsBundle\Test\TestCase\BaseTestCase;
 
@@ -217,7 +217,7 @@ class QueryBuilderTestCase extends BaseTestCase {
         $querybuilder = new QueryBuilder($this->elasticaClient, $viewAnalytics);
         $querybuilder->addDimensions(array("all", "device"))
             ->addMetrics(array("totalViews", "uniqueViews", "averageViews"))
-            ->setFilter(FilterHelper::getValueFilter("device", "ios"))
+            ->setBoolQuery(QueryHelper::getValueQuery("device", "ios"))
         ;
         $resultSet = $querybuilder->execute();
         $results = $resultSet->getNested();
@@ -326,13 +326,13 @@ class QueryBuilderTestCase extends BaseTestCase {
         $querybuilder1
             ->addDimensions(array("browser", "device"))
             ->addMetrics(array("totalViews", "uniqueViews"))
-            ->setFilter(FilterHelper::getValueFilter("browser", "chrome"))
+            ->setBoolQuery(QueryHelper::getValueQuery("browser", "chrome"))
         ;
         $querybuilder2 = new QueryBuilder($this->elasticaClient, $viewAnalytics);
         $querybuilder2
             ->addDimensions(array("browser", "device"))
             ->addMetrics(array("totalViews"))
-            ->setFilter(FilterHelper::getValueFilter("browser", "opera"))
+            ->setBoolQuery(QueryHelper::getValueQuery("browser", "opera"))
         ;
         $querybuilder3 = new QueryBuilder($this->elasticaClient, $viewAnalytics);
         $querybuilder3
@@ -383,7 +383,7 @@ class QueryBuilderTestCase extends BaseTestCase {
         $querybuilder
             ->addDimensions(array("browser", "device"))
             ->addMetrics(array("totalViews", "uniqueViews"))
-            ->setFilter(FilterHelper::getValueFilter("browser", "chrome"))
+            ->setBoolQuery(QueryHelper::getValueQuery("browser", "chrome"))
             ->setGoals($goals)
         ;
         $goalSet = $querybuilder->getGoalSet();
@@ -593,7 +593,7 @@ class QueryBuilderTestCase extends BaseTestCase {
         $querybuilder = new QueryBuilder($this->elasticaClient, $viewAnalytics);
         $querybuilder->addDimensions(array("all"))
             ->addMetrics(array("totalViews", "uniqueViews", "averageViews", "chromeViewsPct", "viewDollarValue", "maxViews", "minViews"))
-            ->setFilter(FilterHelper::getValueFilter("views", 100)) // should return no results
+            ->setBoolQuery(QueryHelper::getValueQuery("views", 100)) // should return no results
         ;
         $resultSet = $querybuilder->execute();
         $results = $resultSet->getNested();
@@ -618,7 +618,7 @@ class QueryBuilderTestCase extends BaseTestCase {
         $queryBuilder
             ->addDimensions(array("allSite"))
             ->addMetrics(array("totalViews"))
-            ->setFilter(FilterHelper::getValueFilter("device", "ios"))
+            ->setBoolQuery(QueryHelper::getValueQuery("device", "ios"))
         ;
         $resultSet = $queryBuilder->execute()->getNested();
         $this->assertSame('0.0', $resultSet["allSite"][8]['totalViews']);

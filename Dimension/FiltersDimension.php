@@ -15,11 +15,11 @@ class FiltersDimension extends Dimension {
     }
 
     /**
-     * @param \Elastica\Filter\AbstractFilter $filter
+     * @param \Elastica\Query\AbstractQuery $filter
      * @param string $name
      * @return $this
      */
-    public function addFilter(\Elastica\Filter\AbstractFilter $filter, $name = null) {
+    public function addFilter(\Elastica\Query\AbstractQuery $filter, $name = null) {
         if ($name) {
             $this->filters[$name] = $filter;
         } else {

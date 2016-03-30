@@ -5,6 +5,7 @@ namespace Revinate\AnalyticsBundle\Query;
 
 use Elastica\Aggregation\AbstractAggregation;
 use Elastica\Filter\AbstractFilter;
+use Elastica\Query\AbstractQuery;
 use Revinate\AnalyticsBundle\Aggregation\AllAggregation;
 use Revinate\AnalyticsBundle\Aggregation\Nested;
 use Revinate\AnalyticsBundle\Analytics;
@@ -17,7 +18,7 @@ use Revinate\AnalyticsBundle\Dimension\Dimension;
 use Revinate\AnalyticsBundle\Dimension\FiltersDimension;
 use Revinate\AnalyticsBundle\Dimension\HistogramDimension;
 use Revinate\AnalyticsBundle\Dimension\RangeDimension;
-use Revinate\AnalyticsBundle\Filter\FilterHelper;
+use Revinate\AnalyticsBundle\Query\QueryHelper;
 use Revinate\AnalyticsBundle\Goal\Goal;
 use Revinate\AnalyticsBundle\Goal\GoalSet;
 use Revinate\AnalyticsBundle\Lib\DateHelper;
@@ -38,8 +39,8 @@ class QueryBuilder {
     protected $dimensions = array();
     /** @var  array */
     protected $metrics = array();
-    /** @var  \Elastica\Filter\AbstractFilter */
-    protected $filter;
+    /** @var  \Elastica\Query\AbstractQuery */
+    protected $boolQuery;
     /** @var  bool */
     protected $isNestedDimensions = false;
     /** @var int */
@@ -143,11 +144,20 @@ class QueryBuilder {
     }
 
     /**
-     * @param AbstractFilter $filter
+     * @param AbstractQuery $query
      * @return $this
      */
-    public function setFilter(AbstractFilter $filter) {
-        $this->filter = $filter;
+    public function setBoolQuery(AbstractQuery $query) {
+        $this->boolQuery = $query;
+        return $this;
+    }
+
+    /**
+     * @param AbstractQuery $filter
+     * @return $this
+     */
+    public function setFilter(AbstractQuery $filter) {
+        $this->boolQuery = $filter;
         return $this;
     }
 
@@ -170,11 +180,11 @@ class QueryBuilder {
     }
 
     /**
-     * @return AbstractFilter
+     * @return AbstractQuery
      */
-    public function getFilter()
+    public function getBoolQuery()
     {
-        return $this->filter;
+        return $this->boolQuery;
     }
 
     /**
@@ -234,11 +244,11 @@ class QueryBuilder {
         $start = null;
         $end = null;
 
-        if ($bounds[0] === FilterHelper::TYPE_PERIOD) {
+        if ($bounds[0] === QueryHelper::TYPE_PERIOD) {
             $periodInfo = DateHelper::getPeriodInfo($bounds[1]);
             $start = $periodInfo['period'][0];
             $end = $periodInfo['period'][2];
-        } else if ($bounds[0] === FilterHelper::TYPE_RANGE) {
+        } else if ($bounds[0] === QueryHelper::TYPE_RANGE) {
             $start = $bounds[1]['from'];
             $end = $bounds[1]['to'];
         }
@@ -473,10 +483,10 @@ class QueryBuilder {
         }
 
         // Add Filter
-        if (!is_null($this->filter)) {
-            $filteredQuery = new \Elastica\Query\Filtered();
-            $filteredQuery->setFilter($this->filter);
-            $query->setQuery($filteredQuery);
+        if (!is_null($this->boolQuery)) {
+            $boolQuery = QueryHelper::getBoolQuery();
+            $boolQuery->addMust($this->getBoolQuery());
+            $query->setQuery($boolQuery);
         }
         if ($this->isDebug()) {
             print_r($query->toArray());

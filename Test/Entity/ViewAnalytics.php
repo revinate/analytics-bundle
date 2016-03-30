@@ -17,7 +17,7 @@ use Revinate\AnalyticsBundle\Metric\Metric;
 use Revinate\AnalyticsBundle\Metric\MetricInterface;
 use Revinate\AnalyticsBundle\Metric\ProcessedMetric;
 use Revinate\AnalyticsBundle\Metric\Result;
-use Revinate\AnalyticsBundle\Filter\FilterHelper;
+use Revinate\AnalyticsBundle\Query\QueryHelper;
 use Revinate\AnalyticsBundle\Test\Entity\FilterSource\SiteFilterSource;
 
 class ViewAnalytics extends Analytics {
@@ -43,7 +43,7 @@ class ViewAnalytics extends Analytics {
             HistogramDimension::create("viewsHistogram", "views")->setInterval(10),
             RangeDimension::create("customRangeViews", "views")->addRange(array("to" => 5))->addRange(array("from" => 10))->setType(Dimension::TYPE_NUMBER),
             Dimension::create("tagName", "tags.name")->setPath("tags"),
-            FiltersDimension::create("device_filtered")->addFilter(FilterHelper::getValueFilter("device", "ios"), "ios")->addFilter(FilterHelper::getValueFilter("device", "android"), "android"),
+            FiltersDimension::create("device_filtered")->addFilter(QueryHelper::getValueQuery("device", "ios"), "ios")->addFilter(QueryHelper::getValueQuery("device", "android"), "android"),
         );
     }
 
@@ -71,11 +71,11 @@ class ViewAnalytics extends Analytics {
             ProcessedMetric::create("chromeAndIe6ViewDollarValue")->setCalculatedFromMetrics(array("chromeAndIe6Views"), function($chromeAndIe6Views) {
                 return $chromeAndIe6Views * 0.05;
             })->setPrecision(2),
-            Metric::create("chromeTotalViews", "views")->setFilter(FilterHelper::getValueFilter("browser", "chrome"))->setResult(Result::SUM),
-            Metric::create("ie6TotalViews", "views")->setFilter(FilterHelper::getValueFilter("browser", "ie6"))->setResult(Result::SUM),
+            Metric::create("chromeTotalViews", "views")->setFilter(QueryHelper::getValueQuery("browser", "chrome"))->setResult(Result::SUM),
+            Metric::create("ie6TotalViews", "views")->setFilter(QueryHelper::getValueQuery("browser", "ie6"))->setResult(Result::SUM),
             Metric::create("averageViews", "views")->setResult(Result::AVG),
             Metric::create("averageWeightage", "tags.weightage")->setNestedPath("tags")->setResult(Result::AVG),
-            Metric::create("averageWeightageForVip", "tags.weightage")->setNestedPath("tags")->setFilter(FilterHelper::getValueFilter("tags.name", "vip"))->setResult(Result::AVG),
+            Metric::create("averageWeightageForVip", "tags.weightage")->setNestedPath("tags")->setFilter(QueryHelper::getValueQuery("tags.name", "vip"))->setResult(Result::AVG),
             // Misc Random Result types
             Metric::create("maxViews", "views")->setResult(Result::MAX),
             Metric::create("minViews", "views")->setResult(Result::MIN),

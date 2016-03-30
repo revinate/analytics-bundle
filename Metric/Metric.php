@@ -66,7 +66,7 @@ class Metric implements MetricInterface {
      * @param $filter
      * @return $this
      */
-    public function setFilter(\Elastica\Filter\AbstractFilter $filter) {
+    public function setFilter(\Elastica\Query\AbstractQuery $filter) {
         $this->filter = $filter;
         return $this;
     }

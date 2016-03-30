@@ -88,7 +88,7 @@ class ApiControllerTest extends BaseTestCase
             "filters" => array(),
             "flags" => array("nestedDimensions" => false),
             "format" => "nested",
-            "dimensionAggregate" => "average",
+            "dimensionAggregate" => array("type" => "average"),
         ));
         $this->client->request("POST", "/api/analytics/source/view/stats", array(), array(), array(), $post);
         $response = json_decode($this->client->getResponse()->getContent(), true);
@@ -200,7 +200,7 @@ class ApiControllerTest extends BaseTestCase
                 ),
                 "flags" => array("nestedDimensions" => false),
                 "format" => "nested",
-                "dimensionAggregate" => "average",
+                "dimensionAggregate" => array("type" => "average"),
             )
         );
         $this->client->request("POST", "/api/analytics/source/view/bulkstats", array(), array(), array(), $post);

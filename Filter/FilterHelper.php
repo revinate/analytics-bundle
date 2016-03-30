@@ -2,7 +2,7 @@
 
 namespace Revinate\AnalyticsBundle\Filter;
 
-use Revinate\AnalyticsBundle\Lib\DateHelper;
+use Revinate\AnalyticsBundle\Query\QueryHelper;
 
 class FilterHelper {
     const TYPE_VALUE = 'value';
@@ -13,55 +13,45 @@ class FilterHelper {
     const TYPE_CUSTOM = 'custom';
 
     /**
-     * @param string        $field
-     * @param string|array  $value
-     * @return \Elastica\Filter\Term|\Elastica\Filter\Terms
+     * @param $field
+     * @param $value
+     * @return \Elastica\Query\Terms
      */
     public static function getValueFilter($field, $value) {
-        if (is_array($value)) {
-            return new \Elastica\Filter\Terms($field, $value);
-        } else {
-            return new \Elastica\Filter\Term(array($field => $value));
-        }
+        return QueryHelper::getValueQuery($field, $value);
     }
 
     /**
-     * @link http://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-range-filter.html
      * @param $field
-     * @param array $range supported gte, lte, gt, lt
-     * @return \Elastica\Filter\NumericRange
+     * @param array $range
+     * @return \Elastica\Query\Range
      */
     public static function getRangeFilter($field, array $range) {
-        return new \Elastica\Filter\NumericRange($field, $range);
+        return QueryHelper::getRangeQuery($field, $range);
     }
 
     /**
      * @param $field
      * @param $period
-     * @return \Elastica\Filter\Range
-     * @throws \Exception
+     * @return \Elastica\Query\Range
      */
     public static function getPeriodFilter($field, $period) {
-        $periodInfo = DateHelper::getPeriodInfo($period);
-        $startPeriod = date('c', strtotime($periodInfo["period"][0]));
-        $endPeriod = date('c', strtotime($periodInfo["period"][2]." 23:59:59"));
-        $range = array("gte" => $startPeriod, "lte" => $endPeriod);
-        return new \Elastica\Filter\Range($field, $range);
+        return QueryHelper::getPeriodQuery($field, $period);
     }
 
     /**
      * @param $field
-     * @return \Elastica\Filter\Exists
+     * @return \Elastica\Filter\Exists|\Elastica\Query\Exists
      */
     public static function getExistsFilter($field) {
-        return new \Elastica\Filter\Exists($field);
+        return QueryHelper::getExistsQuery($field);
     }
 
     /**
      * @param $field
-     * @return \Elastica\Filter\Missing
+     * @return \Elastica\Filter\Missing|\Elastica\Query\Missing
      */
     public static function getMissingFilter($field) {
-        return new \Elastica\Filter\Missing($field);
+        return QueryHelper::getMissingQuery($field);
     }
 }
