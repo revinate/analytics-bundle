@@ -3,7 +3,7 @@
 .PHONY: tests
 tests:
 	make build
-	docker-compose run rabbitmq-bundle
+	docker-compose run analytics-bundle
 
 .PHONY: build
 build:
