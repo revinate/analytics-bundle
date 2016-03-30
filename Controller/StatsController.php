@@ -13,7 +13,7 @@ use Revinate\AnalyticsBundle\Query\BulkQueryBuilder;
 use Revinate\AnalyticsBundle\Query\QueryBuilder;
 use Revinate\AnalyticsBundle\Result\ResultSet;
 use Revinate\AnalyticsBundle\Service\ElasticaService;
-use Revinate\AnalyticsBundle\Filter\FilterHelper;
+use Revinate\AnalyticsBundle\Query\QueryHelper;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -74,7 +74,7 @@ class StatsController extends Controller {
                 $queryBuilder->setBounds($dateRange);
             }
             if (!empty($filters)) {
-                $queryBuilder->setFilter(self::getFilters($analytics, $filters));
+                $queryBuilder->setBoolQuery(self::getFilters($analytics, $filters));
             }
             if (isset($post['sort'])) {
                 $queryBuilder->setSort($post['sort']);
@@ -159,7 +159,7 @@ class StatsController extends Controller {
                     $queryBuilder->setBounds($dateRange);
                 }
                 if (!empty($filters)) {
-                    $queryBuilder->setFilter(self::getFilters($analytics, $filters));
+                    $queryBuilder->setBoolQuery(self::getFilters($analytics, $filters));
                 }
                 if (isset($post['sort'])) {
                     $queryBuilder->setSort($post['sort']);
@@ -206,10 +206,10 @@ class StatsController extends Controller {
      * @param \Revinate\AnalyticsBundle\AnalyticsInterface|AnalyticsCustomFiltersInterface $analytics
      * @param $postFilters
      * @throws \Exception
-     * @return \Elastica\Filter\BoolAnd
+     * @return \Elastica\Query\Bool
      */
     public static function getFilters(AnalyticsInterface $analytics, $postFilters) {
-        $andFilter = new \Elastica\Filter\BoolAnd();
+        $boolQuery = QueryHelper::getBoolQuery();
         foreach ($postFilters as $name => $postFilter) {
             if (count($postFilter) < 2) {
                 throw new \Exception(__METHOD__  . "Invalid filter passed");
@@ -218,22 +218,22 @@ class StatsController extends Controller {
             $value = $postFilter[1];
             $filter = null;
             switch ($type) {
-                case FilterHelper::TYPE_VALUE:
-                    $filter = FilterHelper::getValueFilter($name, $value);
+                case QueryHelper::TYPE_VALUE:
+                    $filter = QueryHelper::getValueQuery($name, $value);
                     break;
-                case FilterHelper::TYPE_RANGE:
-                    $filter = FilterHelper::getRangeFilter($name, $value);
+                case QueryHelper::TYPE_RANGE:
+                    $filter = QueryHelper::getRangeQuery($name, $value);
                     break;
-                case FilterHelper::TYPE_PERIOD:
-                    $filter = FilterHelper::getPeriodFilter($name, $value);
+                case QueryHelper::TYPE_PERIOD:
+                    $filter = QueryHelper::getPeriodQuery($name, $value);
                     break;
-                case FilterHelper::TYPE_EXISTS:
-                    $filter = FilterHelper::getExistsFilter($name);
+                case QueryHelper::TYPE_EXISTS:
+                    $filter = QueryHelper::getExistsQuery($name);
                     break;
-                case FilterHelper::TYPE_MISSING:
-                    $filter = FilterHelper::getMissingFilter($name);
+                case QueryHelper::TYPE_MISSING:
+                    $filter = QueryHelper::getMissingQuery($name);
                     break;
-                case FilterHelper::TYPE_CUSTOM:
+                case QueryHelper::TYPE_CUSTOM:
                     if (! $analytics instanceof AnalyticsCustomFiltersInterface) {
                         throw new \Exception(__METHOD__  . " Given analytics source does not implement AnalyticsCustomFiltersInterface");
                     }
@@ -242,9 +242,9 @@ class StatsController extends Controller {
                 default:
                     throw new \Exception(__METHOD__  . "Invalid filter passed");
             }
-            $andFilter->addFilter($filter);
+            $boolQuery->addMust($filter);
         }
-        return $andFilter;
+        return $boolQuery;
     }
 
     /**

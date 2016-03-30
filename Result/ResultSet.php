@@ -65,6 +65,13 @@ class ResultSet {
     }
 
     /**
+     * @return array|mixed
+     */
+    public function getDefault() {
+        return $this->getNested();
+    }
+
+    /**
      * @return array
      */
     public function getRaw() {

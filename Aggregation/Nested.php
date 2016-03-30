@@ -30,11 +30,12 @@ class Nested extends \Elastica\Aggregation\Nested {
         $array = parent::toArray();
         if (array_key_exists('global_aggregation', $array)) {
             // compensate for class name GlobalAggregation
-            $array = array('global' => new \stdClass);
+            $array = array('global' => new \stdClass());
         }
         if (sizeof($this->_aggs)) {
-            $array['aggs'] = $this->_aggs;
+            $array['aggs'] = method_exists($this, "_convertArrayable") ? $this->_convertArrayable($this->_aggs) : $this->_aggs;
         }
+
         return $array;
     }
 }

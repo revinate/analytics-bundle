@@ -34,6 +34,11 @@ class ElasticaService {
      * @return mixed
      */
     protected function getConnection($source = null) {
+        $envHost = getenv("ES_HOST");
+        $envPort = getenv("ES_PORT") ?: 9200;
+        if ($envHost) {
+            return array("host" => $envHost, "port" => $envPort);
+        }
         if (is_null($source)) {
             return $this->config["connection"];
         }

@@ -3,15 +3,8 @@
 namespace Revinate\AnalyticsBundle\Controller;
 
 use Revinate\AnalyticsBundle\Analytics;
-use Revinate\AnalyticsBundle\AnalyticsInterface;
-use Revinate\AnalyticsBundle\Exception\InvalidResultFormatTypeException;
-use Revinate\AnalyticsBundle\Filter\AnalyticsCustomFiltersInterface;
-use Revinate\AnalyticsBundle\Metric\Result;
-use Revinate\AnalyticsBundle\Query\BulkQueryBuilder;
 use Revinate\AnalyticsBundle\Query\QueryBuilder;
-use Revinate\AnalyticsBundle\Result\ResultSet;
 use Revinate\AnalyticsBundle\Service\ElasticaService;
-use Revinate\AnalyticsBundle\Filter\FilterHelper;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -51,7 +44,7 @@ class DocumentsController extends Controller {
             $queryBuilder->setSort($post['sort']);
         }
         if (! empty($post['filters'])) {
-            $queryBuilder->setFilter(StatsController::getFilters($analytics, $post['filters']));
+            $queryBuilder->setBoolQuery(StatsController::getFilters($analytics, $post['filters']));
         }
         $response = array("results" => array());
         $status = Response::HTTP_OK;
