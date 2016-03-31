@@ -19,7 +19,6 @@ Analytics Bundle
  	- [Stats API](#stats-api)
  	- [Bulk Stats API](#bulk-stats-api)
     - [Documents API](#documents-api)
-- [ToDo](#todo)
 
 ---
 
