@@ -1,0 +1,8 @@
+analytics-bundle:
+  build: .
+  links:
+    - elasticsearch
+  environment:
+    - ES_HOST=elasticsearch
+elasticsearch:
+  image: elasticsearch:1.7.3
