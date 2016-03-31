@@ -1,3 +1,5 @@
+![Build Status](https://travis-ci.org/revinate/analytics-bundle.svg?branch=master)
+
 Analytics Bundle
 ==============
 
