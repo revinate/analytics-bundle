@@ -25,11 +25,14 @@ abstract class Analytics implements AnalyticsInterface {
     }
 
     /**
-     * @param $name
+     * @param string|Dimension $name
      * @throws \Exception
      * @return Dimension
      */
     public function getDimension($name) {
+        if ($name instanceof Dimension) {
+            return $name;
+        }
         foreach ($this->getDimensions() as $dimension) {
             if ($dimension->getName() == $name) {
                 return $dimension;
@@ -39,11 +42,14 @@ abstract class Analytics implements AnalyticsInterface {
     }
 
     /**
-     * @param $name
+     * @param string|Metric $name
      * @throws \Exception
      * @return Metric
      */
     public function getMetric($name) {
+        if ($name instanceof Metric) {
+            return $name;
+        }
         foreach ($this->getMetrics() as $metric) {
             if ($metric->getName() == $name) {
                 return $metric;
@@ -58,6 +64,9 @@ abstract class Analytics implements AnalyticsInterface {
      * @return AbstractFilterSource
      */
     public function getFilterSource($name) {
+        if ($name instanceof AbstractFilterSource) {
+            return $name;
+        }
         foreach ($this->getFilterSources() as $filterSource) {
             if ($filterSource->getName() == $name) {
                 return $filterSource;
