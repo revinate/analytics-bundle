@@ -3,6 +3,11 @@ TODO:
 - Filter by Id and dimension by some metric value
 - Children Aggregations
 - Script Dimension
+- Support very large list of metrics and dimensions
+- Support context on other endpoints like /source
+- Change $path to $nestedPath
+- tagged metrics or dimensions
+- search dimensions and metrics (name and tags)
 
 May be:
 - Remove Container from Analytics. If we do, we can't create dynamic metrics. May be give EntityManager only?
