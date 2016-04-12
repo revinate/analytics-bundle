@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "c29c2d89ea0a5ae70bdd403c5c09d7c6",
-    "content-hash": "0dc7c2fd79f36aff20f8f80c9520e341",
+    "hash": "1b9761dec7f8fcf76860e02fe7205c33",
+    "content-hash": "e33565a1ac808079d987111482dc6b02",
     "packages": [
         {
             "name": "amnl/gc-datatable",
@@ -3198,7 +3198,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=5.3.0"
+        "php": ">=5.5.0"
     },
     "platform-dev": []
 }

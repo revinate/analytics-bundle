@@ -11,7 +11,7 @@
         "ruflin/Elastica": "Elastica version correlating to your Elasticsearch installation is required."
     },
     "require": {
-        "php"                         : ">=5.3.0",
+        "php"                         : ">=5.5.0",
         "symfony/yaml"                : ">=2.4.8 <3.0",
         "symfony/dependency-injection": ">=2.4.8 <3.0",
         "symfony/config"              : ">=2.4.8 <3.0",
