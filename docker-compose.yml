@@ -6,5 +6,3 @@ analytics-bundle:
     - ES_HOST=elasticsearch
 elasticsearch:
   image: elasticsearch:1.7.3
-  ports:
-    - "9200:9200"
