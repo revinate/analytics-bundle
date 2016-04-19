@@ -70,7 +70,7 @@ class StatsController extends Controller {
                     throw new InvalidResultFormatTypeException();
                 }
                 $dateFilterName = $dateRange[2];
-                $filters[$dateFilterName] = array($dateRange[0], $dateRange[1]);
+                $filters[$dateFilterName] = array($dateRange[0], $dateRange[1], $dateRange[2]);
                 $queryBuilder->setBounds($dateRange);
             }
             if (!empty($filters)) {
@@ -155,7 +155,11 @@ class StatsController extends Controller {
                 }
                 $filters = isset($post['filters']) ? $post['filters'] : array();
                 if(! is_null($dateRange)) {
-                    $filters['date'] = $dateRange;
+                    if (! isset($dateRange[2])) {
+                        throw new InvalidResultFormatTypeException();
+                    }
+                    $dateFilterName = $dateRange[2];
+                    $filters[$dateFilterName] = array($dateRange[0], $dateRange[1], $dateRange[2]);
                     $queryBuilder->setBounds($dateRange);
                 }
                 if (!empty($filters)) {
