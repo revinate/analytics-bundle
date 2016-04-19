@@ -102,7 +102,7 @@ class ApiControllerTest extends BaseTestCase
             "dimensions" => array("all", "device"),
             "metrics" => array("totalViews", "uniqueViews", "averageViews"),
             "filters" => array(
-                "date" => array("period", "l7d")
+                "date" => array("period", "l7d", "date")
             ),
             "flags" => array("nestedDimensions" => false),
             "format" => "nested"

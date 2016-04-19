@@ -83,6 +83,12 @@ abstract class Analytics implements AnalyticsInterface {
         throw new \Exception(__METHOD__ . " Invalid Custom Filter: " . $name);
     }
 
+    /**
+     * @return CustomFilterInterface[]
+     */
+    public function getCustomFilters() {
+        return array();
+    }
 
     /**
      * @return string[]

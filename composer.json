@@ -11,19 +11,19 @@
         "ruflin/Elastica": "Elastica version correlating to your Elasticsearch installation is required."
     },
     "require": {
-        "php"                         : ">=5.3.0",
-        "symfony/yaml"                : "2.4.*",
-        "symfony/dependency-injection": "2.4.*",
-        "symfony/config"              : "2.4.*",
+        "php"                         : ">=5.5.0",
+        "symfony/yaml"                : ">=2.4.8 <3.0",
+        "symfony/dependency-injection": ">=2.4.8 <3.0",
+        "symfony/config"              : ">=2.4.8 <3.0",
         "amnl/gc-datatable"           : "dev-master"
     },
     "require-dev": {
-        "symfony/console": "2.4.*",
-        "symfony/framework-bundle": "2.4.*",
+        "symfony/console": ">=2.4.8 <3.0",
+        "symfony/framework-bundle": ">=2.4.8 <3.0",
         "phpunit/phpunit": ">=4.6.9",
-        "symfony/finder": "2.4.*",
-        "symfony/process": "2.4.*",
-        "symfony/browser-kit": "2.4.*",
+        "symfony/finder": ">=2.4.8 <3.0",
+        "symfony/process": ">=2.4.8 <3.0",
+        "symfony/browser-kit": ">=2.4.8 <3.0",
         "ruflin/elastica": "2.3.1",
         "doctrine/orm": ">=2.4"
     },

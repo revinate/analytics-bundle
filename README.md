@@ -1,3 +1,5 @@
+![Build Status](https://travis-ci.org/revinate/analytics-bundle.svg?branch=master)
+
 Analytics Bundle
 ==============
 
@@ -19,7 +21,7 @@ Analytics Bundle
  	- [Stats API](#stats-api)
  	- [Bulk Stats API](#bulk-stats-api)
     - [Documents API](#documents-api)
-- [ToDo](#todo)
+- [Docker local deployment](#docker-local-deployment)
 
 ---
 
@@ -476,4 +478,44 @@ Response Format:
 ]
 ```
 --- 
+
+## Docker local deployment
+
+You will need to have VirtualBox installed 
+```
+brew install docker docker-machine docker-compose
+docker-machine create -d virtualbox analytics-bundle
+```
+
+At this point you may need to reboot, because VirtualBox tends to loose network routing connectivity because routing rules for vboxnet* mysteriously disappear. 
+```
+eval $(docker-machine env analytics-bundle)
+composer install
+docker-compose up
+```
+
+This will run testsuite.
+
+### To develop locally against Docker Elasticsearch
+
+add port forwarding rules to docker-compose.yml, so, that it says: 
+
+```
+elasticsearch:
+  image: elasticsearch:1.7.3
+  ports:
+    - "9200:9200"
+```
+
+modify you /etc/hosts adding DOCKER_HOST (which should normally be 192.168.99.100, but it is worth itself to verify by doing ```docker-machine env analytics-bundle```
+```
+192.168.99.100 elasticsearch
+```
+
+and then
+```
+docker-compose up -d
+phpunit
+```
+
 

@@ -70,7 +70,7 @@ class StatsController extends Controller {
                     throw new InvalidResultFormatTypeException();
                 }
                 $dateFilterName = $dateRange[2];
-                $filters[$dateFilterName] = array($dateRange[0], $dateRange[1]);
+                $filters[$dateFilterName] = array($dateRange[0], $dateRange[1], $dateRange[2]);
                 $queryBuilder->setBounds($dateRange);
             }
             if (!empty($filters)) {
@@ -155,7 +155,11 @@ class StatsController extends Controller {
                 }
                 $filters = isset($post['filters']) ? $post['filters'] : array();
                 if(! is_null($dateRange)) {
-                    $filters['date'] = $dateRange;
+                    if (! isset($dateRange[2])) {
+                        throw new InvalidResultFormatTypeException();
+                    }
+                    $dateFilterName = $dateRange[2];
+                    $filters[$dateFilterName] = array($dateRange[0], $dateRange[1], $dateRange[2]);
                     $queryBuilder->setBounds($dateRange);
                 }
                 if (!empty($filters)) {
@@ -216,6 +220,9 @@ class StatsController extends Controller {
             }
             $type = $postFilter[0];
             $value = $postFilter[1];
+            if ($type == FilterHelper::TYPE_PERIOD && count($postFilter) < 3) {
+                throw new \Exception(__METHOD__  . "Invalid filter passed");
+            }
             $filter = null;
             switch ($type) {
                 case FilterHelper::TYPE_VALUE:
@@ -225,7 +232,7 @@ class StatsController extends Controller {
                     $filter = FilterHelper::getRangeFilter($name, $value);
                     break;
                 case FilterHelper::TYPE_PERIOD:
-                    $filter = FilterHelper::getPeriodFilter($name, $value);
+                    $filter = FilterHelper::getPeriodFilter($postFilter[2], $value);
                     break;
                 case FilterHelper::TYPE_EXISTS:
                     $filter = FilterHelper::getExistsFilter($name);

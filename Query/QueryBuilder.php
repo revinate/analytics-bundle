@@ -400,8 +400,8 @@ class QueryBuilder {
         foreach ($metrics as $metricName) {
             $metric = $this->analytics->getMetric($metricName);
             if ($metric instanceof ProcessedMetric) {
-                $calulatedFromMetrics = $this->getAllMetricsRequiredForPostProcessing($metric->getCalculatedFromMetrics());
-                $allMetrics = array_merge($allMetrics, $calulatedFromMetrics);
+                $calculatedFromMetrics = $this->getAllMetricsRequiredForPostProcessing($metric->getCalculatedFromMetrics());
+                $allMetrics = array_merge($allMetrics, $calculatedFromMetrics);
             } else {
                 $allMetrics[] = $metricName;
             }
@@ -513,7 +513,8 @@ class QueryBuilder {
         if (! $this->resultSet) {
             $this->execute();
         }
-        if (empty($this->getGoals())) {
+        $goals = $this->getGoals();
+        if (empty($goals)) {
             return null;
         }
         return new GoalSet($this->getGoals(), $this->getResultSet());
