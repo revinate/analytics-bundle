@@ -282,7 +282,7 @@ class QueryBuilder {
             $dimensionAgg->setFormat($dimension->getFormat());
             $dimensionAgg->setMinimumDocumentCount(0);
             $bounds = $this->getBounds();
-            if (!is_null($bounds)) {
+            if (!is_null($bounds) && method_exists($dimensionAgg, "setExtendedBounds")) {
                 $dimensionAgg->setExtendedBounds($bounds[0], $bounds[1]);
             }
         } elseif ($dimension instanceof HistogramDimension) {

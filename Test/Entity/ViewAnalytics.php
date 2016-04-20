@@ -37,6 +37,7 @@ class ViewAnalytics extends Analytics {
             Dimension::create("allSite", "siteId")->setFilterSource($this->getFilterSource("siteId"))->setReturnEmpty(true),
             Dimension::create("device")->setReadableName("Device Type"),
             DateHistogramDimension::create("dateHistogram", "date")->setInterval("month"),
+            DateHistogramDimension::create("dateHistogramWeekly", "date")->setInterval("week"),
             DateHistogramDimension::create("dateHistogramWithFormat", "date")->setInterval("month")->setFormat("yyyy:MM:dd"),
             DateHistogramDimension::create("formattedDate", "date")->setInterval("month")->setFormat("yyyy/MM/dd")->setType(Dimension::TYPE_DATE),
             DateRangeDimension::create("dateRange", "date")->addRange(array("to" => "now-1M/M"))->addRange(array("from" => "now-1M/M"))->setFormat("yyyy-MM-dd"),

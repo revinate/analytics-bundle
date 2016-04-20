@@ -258,6 +258,19 @@ class QueryBuilderTestCase extends BaseTestCase {
         $this->assertTrue(strpos(key($results['formattedDate']), '/') !== false, $this->debug($results));
     }
 
+    public function testDateDimensionsWithBounds() {
+        $this->createData();
+        $viewAnalytics = new ViewAnalytics($this->getContainer());
+        $querybuilder = new QueryBuilder($this->elasticaClient, $viewAnalytics);
+        $querybuilder->addDimensions(array("dateHistogramWeekly"))
+            ->addMetrics(array("totalViews"))
+            ->setFilter(FilterHelper::getPeriodFilter("date", "wtd"))
+            ->setBounds(array(FilterHelper::TYPE_PERIOD, "mtd"));
+        $resultSet = $querybuilder->execute();
+        $results = $resultSet->getNested();
+        $this->assertTrue(count($results['dateHistogramWeekly']) > 0, $this->debug($results));
+    }
+
     public function testMetricDimensions() {
         $this->createData();
         $viewAnalytics = new ViewAnalytics($this->getContainer());
