@@ -54,6 +54,7 @@ class ViewAnalytics extends Analytics {
     public function getMetrics()
     {
         $dollarToRupeeConversionRate = $this->getContextValue("dollarToRupeeConversionRate");
+        $activeBrowser = $this->getContextValue("browser");
         return array(
             Metric::create("totalViews", "views")->setResult(Result::SUM),
             Metric::create("uniqueViews", "views")->setResult(Result::COUNT),
@@ -73,6 +74,7 @@ class ViewAnalytics extends Analytics {
                 return $chromeAndIe6Views * 0.05;
             })->setPrecision(2),
             Metric::create("chromeTotalViews", "views")->setFilter(FilterHelper::getValueFilter("browser", "chrome"))->setResult(Result::SUM),
+            Metric::create("browserTotalViews", "views")->setFilter(FilterHelper::getValueFilter("browser", $activeBrowser))->setResult(Result::SUM)->setReadableName("Total Views For $activeBrowser"),
             Metric::create("ie6TotalViews", "views")->setFilter(FilterHelper::getValueFilter("browser", "ie6"))->setResult(Result::SUM),
             Metric::create("averageViews", "views")->setResult(Result::AVG),
             Metric::create("averageWeightage", "tags.weightage")->setNestedPath("tags")->setResult(Result::AVG),

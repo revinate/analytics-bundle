@@ -44,6 +44,12 @@ class ApiControllerTest extends BaseTestCase
         $this->assertTrue(!empty($response['metrics']), $this->debug($response));
     }
 
+    public function testListSourceApiWithParams() {
+        $this->client->request("GET", "/api/analytics/source/view?browser=firefox");
+        $content = $this->client->getResponse()->getContent();
+        $this->assertContains('Total Views For firefox', $content);
+    }
+
     public function testStatsSourceApi() {
         $this->createData();
         $post = json_encode(array(
