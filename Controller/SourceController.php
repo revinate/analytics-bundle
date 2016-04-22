@@ -3,11 +3,12 @@
 namespace Revinate\AnalyticsBundle\Controller;
 
 use Revinate\AnalyticsBundle\AnalyticsInterface;
+use Revinate\AnalyticsBundle\Analytics;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Component\HttpFoundation\JsonResponse;
-
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class SourceController extends Controller {
@@ -45,6 +46,13 @@ class SourceController extends Controller {
         $sourceConfig = $config['sources'][$source];
         /** @var AnalyticsInterface $analytics */
         $analytics = new $sourceConfig['class']($this->get('service_container'));
+        if ($analytics instanceof Analytics) {
+            /** @var Analytics $analytics */
+            /** @var Request $request */
+            $request = $this->get('request_stack')->getMasterRequest();
+            $params = $request->query->all();
+            $analytics->setContext($params);
+        }
         $data = array_merge(
             $analytics->getConfig(),
             array('_links' => $this->getLinks($analytics, $source))
