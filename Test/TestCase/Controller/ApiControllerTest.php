@@ -116,8 +116,8 @@ class ApiControllerTest extends BaseTestCase
         $this->client->request("POST", "/api/analytics/source/view/stats", array(), array(), array(), $post);
         $response = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertSame('10.0', $response["results"]["all"]['totalViews'], $this->debug($response));
-        $this->assertSame('2.0', $response["results"]["all"]['uniqueViews'], $this->debug($response));
-        $this->assertSame('6.0', $response["results"]["all"]['averageViews'], $this->debug($response));
+        $this->assertSame('1.0', $response["results"]["all"]['uniqueViews'], $this->debug($response));
+        $this->assertSame('10.0', $response["results"]["all"]['averageViews'], $this->debug($response));
     }
 
     public function testBulkStatsSourceApi() {
