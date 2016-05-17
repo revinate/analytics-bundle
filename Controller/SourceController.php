@@ -2,11 +2,12 @@
 
 namespace Revinate\AnalyticsBundle\Controller;
 
-use Revinate\AnalyticsBundle\AnalyticsInterface;
-use Revinate\AnalyticsBundle\Analytics;
+use Revinate\AnalyticsBundle\BaseAnalytics;
+use Revinate\AnalyticsBundle\BaseAnalyticsInterface;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -39,20 +40,16 @@ class SourceController extends Controller {
      * @return JsonResponse
      */
     public function getAction($source) {
-        $config = $this->get('service_container')->getParameter('revinate_analytics.config');
+        /** @var ContainerInterface $container */
+        $container = $this->get('service_container');
+        $config = $container->getParameter('revinate_analytics.config');
         if (!isset($config['sources'][$source])) {
             return new JsonResponse(array('ok' => false), Response::HTTP_NOT_FOUND);
         }
         $sourceConfig = $config['sources'][$source];
-        /** @var AnalyticsInterface $analytics */
+        /** @var BaseAnalytics $analytics */
         $analytics = new $sourceConfig['class']($this->get('service_container'));
-        if ($analytics instanceof Analytics) {
-            /** @var Analytics $analytics */
-            /** @var Request $request */
-            $request = $this->get('request_stack')->getMasterRequest();
-            $params = $request->query->all();
-            $analytics->setContext($params);
-        }
+        $this->setContextFromRequest($analytics);
         $data = array_merge(
             $analytics->getConfig(),
             array('_links' => $this->getLinks($analytics, $source))
@@ -61,11 +58,70 @@ class SourceController extends Controller {
     }
 
     /**
-     * @param AnalyticsInterface $analytics
+     * @param $source
+     * @return JsonResponse
+     */
+    public function getDimensionsAction($source) {
+        // @TODO: Support pagination and search by query
+        $config = $this->get('service_container')->getParameter('revinate_analytics.config');
+        if (!isset($config['sources'][$source])) {
+            return new JsonResponse(array('ok' => false), Response::HTTP_NOT_FOUND);
+        }
+        $sourceConfig = $config['sources'][$source];
+        /** @var BaseAnalytics $analytics */
+        $analytics = new $sourceConfig['class']($this->get('service_container'));
+        $this->setContextFromRequest($analytics);
+        return new JsonResponse($analytics->getDimensionsArray());
+    }
+
+    /**
+     * @param $source
+     * @return JsonResponse
+     */
+    public function getMetricsAction($source) {
+        // @TODO: Support pagination and search by query
+        $config = $this->get('service_container')->getParameter('revinate_analytics.config');
+        if (!isset($config['sources'][$source])) {
+            return new JsonResponse(array('ok' => false), Response::HTTP_NOT_FOUND);
+        }
+        $sourceConfig = $config['sources'][$source];
+        /** @var BaseAnalytics $analytics */
+        $analytics = new $sourceConfig['class']($this->get('service_container'));
+        $this->setContextFromRequest($analytics);
+        return new JsonResponse($analytics->getMetricsArray());
+    }
+
+    /**
+     * @param $source
+     * @return JsonResponse
+     */
+    public function getFilterSourcesAction($source) {
+        $config = $this->get('service_container')->getParameter('revinate_analytics.config');
+        if (!isset($config['sources'][$source])) {
+            return new JsonResponse(array('ok' => false), Response::HTTP_NOT_FOUND);
+        }
+        $sourceConfig = $config['sources'][$source];
+        /** @var BaseAnalytics $analytics */
+        $analytics = new $sourceConfig['class']($this->get('service_container'));
+        $this->setContextFromRequest($analytics);
+        return new JsonResponse($analytics->getFilterSourcesArray());
+    }
+
+    /**
+     * @param BaseAnalyticsInterface $analytics
+     */
+    protected function setContextFromRequest(BaseAnalyticsInterface $analytics) {
+        $request = $this->get('request_stack')->getMasterRequest();
+        $params = $request->query->all();
+        $analytics->setContext($params);
+    }
+
+    /**
+     * @param BaseAnalyticsInterface $analytics
      * @param $source
      * @return array
      */
-    protected function getLinks(AnalyticsInterface $analytics, $source) {
+    protected function getLinks(BaseAnalyticsInterface $analytics, $source) {
         /** @var Router $router */
         $router = $this->container->get('router');
         $filterLinks = array();
@@ -83,7 +139,6 @@ class SourceController extends Controller {
                     'uri' => $router->generate('revinate_analytics_filter_query', array('source' => $source, 'filter' => $filter->getName(), 'page' => '1', 'pageSize' => '20'), true) . "?query=query",
                     'method' => 'GET'
                 ),
-
             );
         }
         return array(

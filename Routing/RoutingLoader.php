@@ -44,6 +44,21 @@ class RoutingLoader extends Loader {
             array('_controller' => 'RevinateAnalyticsBundle:Source:get'));
         $routes->add("revinate_analytics_source_get", $route);
 
+        // Route for Dimensions
+        $route = new Route($basePath . '/source/{source}/dimension',
+            array('_controller' => 'RevinateAnalyticsBundle:Source:getDimensions'));
+        $routes->add("revinate_analytics_source_dimension_list", $route);
+
+        // Route for Metrics
+        $route = new Route($basePath . '/source/{source}/metric',
+            array('_controller' => 'RevinateAnalyticsBundle:Source:getMetrics'));
+        $routes->add("revinate_analytics_source_metric_list", $route);
+
+        // Route for Filter Sources
+        $route = new Route($basePath . '/source/{source}/filter_source',
+            array('_controller' => 'RevinateAnalyticsBundle:Source:getFilterSources'));
+        $routes->add("revinate_analytics_source_filter_source_list", $route);
+
         // Route for Stats
         $route = new Route($basePath . '/source/{source}/stats',
             array('_controller' => 'RevinateAnalyticsBundle:Stats:searchStats'),

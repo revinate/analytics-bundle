@@ -2,8 +2,7 @@
 
 namespace Revinate\AnalyticsBundle\Metric;
 
-use Revinate\AnalyticsBundle\Analytics;
-use Revinate\AnalyticsBundle\AnalyticsInterface;
+use Revinate\AnalyticsBundle\BaseAnalyticsInterface;
 
 class ProcessedMetric extends Metric {
 
@@ -55,14 +54,14 @@ class ProcessedMetric extends Metric {
     }
 
     /**
-     * @param Analytics $analytics
+     * @param BaseAnalyticsInterface $analytics
      * @return bool
      * @throws \Exception
      */
-    public function isDependentOnProcessedMetric(Analytics $analytics) {
+    public function isDependentOnProcessedMetric(BaseAnalyticsInterface $analytics) {
         foreach ($this->calculatedFromMetrics as $metricName) {
             $metric = $analytics->getMetric($metricName);
-            if ($metric instanceof ProcessedMetric) {
+            if ($metric && $metric instanceof ProcessedMetric) {
                 return true;
             }
         }
@@ -70,15 +69,15 @@ class ProcessedMetric extends Metric {
     }
 
     /**
-     * @param Analytics $analytics
+     * @param BaseAnalyticsInterface $analytics
      * @return array
      * @throws \Exception
      */
-    public function getCalculatedFromProcessedMetricsOnly(Analytics $analytics) {
+    public function getCalculatedFromProcessedMetricsOnly(BaseAnalyticsInterface $analytics) {
         $processedMetrics = array();
         foreach ($this->calculatedFromMetrics as $metricName) {
             $metric = $analytics->getMetric($metricName);
-            if ($metric instanceof ProcessedMetric) {
+            if ($metric && $metric instanceof ProcessedMetric) {
                 $processedMetrics[] = $metricName;
             }
         }

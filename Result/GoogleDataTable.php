@@ -26,7 +26,9 @@ class GoogleDataTable extends AbstractResult {
         $this->service->addColumn('Label', GoogleDataTableService::TYPE_STRING);
         foreach ($this->getQueryBuilder()->getMetrics() as $metricName) {
             $metric = $analytics->getMetric($metricName);
-            $this->service->addColumn($metric->getName(), GoogleDataTableService::TYPE_NUMBER);
+            if ($metric) {
+                $this->service->addColumn($metric->getName(), GoogleDataTableService::TYPE_NUMBER);
+            }
         }
         foreach ($tabular->getResult() as $key => $metricValues) {
             $values = array($key);

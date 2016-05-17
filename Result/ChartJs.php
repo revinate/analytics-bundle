@@ -27,7 +27,7 @@ class ChartJs extends AbstractResult {
             $labels[] = $dimensionName;
             foreach ($this->getQueryBuilder()->getMetrics() as $metricName) {
                 $metric = $analytics->getMetric($metricName);
-                $valuesByMetric[$metricName][] = isset($metricValues[$metricName]) ? $metricValues[$metricName] : $metric->getDefault();
+                $valuesByMetric[$metricName][] = $metric ? (isset($metricValues[$metricName]) ? $metricValues[$metricName] : $metric->getDefault()) : null;
             }
         }
         foreach ($valuesByMetric as $metricName => $metricValues) {

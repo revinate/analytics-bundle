@@ -23,6 +23,16 @@ interface FilterSourceInterface {
     public function getReadableName();
 
     /**
+     * @return string
+     */
+    public function getName();
+
+    /**
+     * @return array
+     */
+    public function toArray();
+
+        /**
      * @param string|int $id
      * @return array
      */

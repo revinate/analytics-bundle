@@ -14,10 +14,11 @@ use Revinate\AnalyticsBundle\Query\QueryBuilder;
 use Revinate\AnalyticsBundle\Result\ResultSet;
 use Revinate\AnalyticsBundle\Test\Elastica\DocumentHelper;
 use Revinate\AnalyticsBundle\Filter\FilterHelper;
+use Revinate\AnalyticsBundle\Test\Entity\DynamicViewAnalytics;
 use Revinate\AnalyticsBundle\Test\Entity\ViewAnalytics;
 use Revinate\AnalyticsBundle\Test\TestCase\BaseTestCase;
 
-class QueryBuilderTestCase extends BaseTestCase {
+class QueryBuilderTest extends BaseTestCase {
 
     protected function createData() {
         $docHelper = new DocumentHelper($this->type);
@@ -151,6 +152,21 @@ class QueryBuilderTestCase extends BaseTestCase {
         $this->assertSame('$0.23', $results["all"]['viewDollarValue'], $this->debug($results));
         $this->assertSame('10.0', $results["all"]['maxViews'], $this->debug($results));
         $this->assertSame('2.0', $results["all"]['minViews'], $this->debug($results));
+    }
+
+
+    public function testBasicMetricsForDynamicAnalytics() {
+        $this->createData();
+        $viewAnalytics = new DynamicViewAnalytics($this->getContainer());
+        $querybuilder = new QueryBuilder($this->elasticaClient, $viewAnalytics);
+        $querybuilder->addDimensions(array("all", "browser"))
+            ->addMetrics(array("totalViews", "uniqueViews"));
+        $resultSet = $querybuilder->execute();
+        $results = $resultSet->getNested();
+        $this->assertSame('23.0', $results["all"]['totalViews'], $this->debug($results));
+        $this->assertSame('4.0', $results["all"]['uniqueViews'], $this->debug($results));
+        $this->assertSame('16.0', $results['browser']["chrome"]['totalViews'], $this->debug($results));
+        $this->assertSame('2.0', $results['browser']["chrome"]['uniqueViews'], $this->debug($results));
     }
 
     public function testBasicDocuments() {

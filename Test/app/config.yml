@@ -14,4 +14,5 @@ revinate_analytics:
         local: { host: 'elasticsearch', port: 9200 }
     sources:
           view:   { class:  Revinate\AnalyticsBundle\Test\Entity\ViewAnalytics }
+          dynamic_view:   { class:  Revinate\AnalyticsBundle\Test\Entity\DynamicViewAnalytics }
           view_local:   { class:  Revinate\AnalyticsBundle\Test\Entity\ViewAnalytics, connection: local }

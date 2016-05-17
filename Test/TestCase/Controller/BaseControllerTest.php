@@ -30,7 +30,7 @@ class BaseControllerTestCase extends BaseTestCase
     public function testConfig()
     {
         $config = $this->getContainer()->getParameter('revinate_analytics.config');
-        $this->assertSame(2, count($config['sources']), $this->debug($config));
+        $this->assertSame(3, count($config['sources']), $this->debug($config));
         $this->assertTrue(isset($config['sources']['view']), $this->debug($config));
         $this->assertSame('Revinate\AnalyticsBundle\Test\Entity\ViewAnalytics', $config['sources']['view']['class'], $this->debug($config));
     }

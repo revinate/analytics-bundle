@@ -3,7 +3,9 @@
 namespace Revinate\AnalyticsBundle\Result;
 
 use Revinate\AnalyticsBundle\Aggregation\AllAggregation;
+use Revinate\AnalyticsBundle\BaseAnalyticsInterface;
 use Revinate\AnalyticsBundle\FilterSource\FilterSourceInterface;
+use Revinate\AnalyticsBundle\Metric\Metric;
 use Revinate\AnalyticsBundle\Metric\ProcessedMetric;
 use Revinate\AnalyticsBundle\Query\QueryBuilder;
 
@@ -20,6 +22,10 @@ abstract class AbstractResult implements ResultInterface {
 
     /** @var array Internal keys that hold special data */
     public static $internalKeys = array("_info");
+    /** @var QueryBuilder  */
+    protected $queryBuilder;
+    /** @var BaseAnalyticsInterface */
+    protected $analytics;
 
     /**
      * @param QueryBuilder $queryBuilder
@@ -109,7 +115,7 @@ abstract class AbstractResult implements ResultInterface {
             } else { // If a metric
                 $metric = $this->analytics->getMetric($dimension);
                 $dimensionData = $this->unsetKeys($dimensionData);
-                if (array_key_exists($metric->getResultKey(), $dimensionData)) {
+                if ($metric && array_key_exists($metric->getResultKey(), $dimensionData)) {
                     $metricValue = $metric->getValue($dimensionData);
                     if ($isTopLevel) {
                         // If metric at top level, it must be for All Dimension
@@ -158,14 +164,14 @@ abstract class AbstractResult implements ResultInterface {
             } else if (self::isArrayOfArray($values)) {
                 $result[$key] = $this->calculateProcessedMetrics($values);
             } else if (! empty($values)) {
-                $processedMetricNames = $this->analytics->getProcessedMetricNames();
+                $processedMetricNames = $this->getProcessedMetricNames($this->queryBuilder->getMetrics());
                 $requestedMetricNames = $this->queryBuilder->getMetrics();
                 $requestedProcessMetrics = array_intersect($processedMetricNames, $requestedMetricNames);
                 foreach ($this->getOrderedListOfProcessedMetrics($requestedProcessMetrics) as $metricName) {
                     /** @var ProcessedMetric $metric */
                     $metric = $this->analytics->getMetric($metricName);
                     // Note: $result doesn't have raw value but formatted value which can have prefix and postfixes.
-                    $metricValue = call_user_func_array($metric->getPostProcessCallback(), $this->pickKeyValues($result[$key], $metric->getCalculatedFromMetrics()));
+                    $metricValue = $metric ? call_user_func_array($metric->getPostProcessCallback(), $this->pickKeyValues($result[$key], $metric->getCalculatedFromMetrics())) : null;
                     $result[$key][$metric->getName()] = ! is_null($metricValue) ? sprintf("%s%." . $metric->getPrecision() .  "f%s", $metric->getPrefix(), $metricValue, $metric->getPostfix()) : null;
                 }
             }
@@ -182,6 +188,7 @@ abstract class AbstractResult implements ResultInterface {
         foreach ($metricNames as $metricName) {
             /** @var ProcessedMetric $metric */
             $metric = $this->analytics->getMetric($metricName);
+            if (! $metric) { continue; }
             if ($metric->isDependentOnProcessedMetric($this->analytics)) {
                 foreach ($this->getOrderedListOfProcessedMetrics($metric->getCalculatedFromProcessedMetricsOnly($this->analytics)) as $processedMetricName) {
                     $orderedMetrics[] = $processedMetricName;
@@ -325,5 +332,20 @@ abstract class AbstractResult implements ResultInterface {
             return $data['key'];
         }
         return $bucketIndex;
+    }
+
+    /**
+     * @param array $metricNames array of metric names
+     * @return array
+     */
+    protected function getProcessedMetricNames($metricNames) {
+        $names = array();
+        foreach ($metricNames as $name) {
+            $metric = $this->analytics->getMetric($name);
+            if ($metric && $metric instanceof ProcessedMetric) {
+                $names[] = $metric->getName();
+            }
+        }
+        return $names;
     }
 }
