@@ -51,4 +51,15 @@ class DateHistogramDimension extends Dimension {
         return $this->format;
     }
 
+    /**
+     * @return array
+     */
+    public function toArray() {
+        return array_merge(parent::toArray(),
+            array(
+                'format' => $this->getFormat(),
+                'interval' => $this->getInterval(),
+            )
+        );
+    }
 }

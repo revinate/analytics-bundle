@@ -9,9 +9,9 @@ framework:
         strict_requirements: ~
 
 revinate_analytics:
-    connection: { host: 'elasticsearch', port: 9200 }
+    connection: { host: '127.0.0.1', port: 9200 }
     connections:
-        local: { host: 'elasticsearch', port: 9200 }
+        local: { host: '127.0.0.1', port: 9200 }
     sources:
           view:   { class:  Revinate\AnalyticsBundle\Test\Entity\ViewAnalytics }
           dynamic_view:   { class:  Revinate\AnalyticsBundle\Test\Entity\DynamicViewAnalytics }

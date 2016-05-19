@@ -83,14 +83,15 @@ abstract class BaseAnalytics implements BaseAnalyticsInterface, AnalyticsViewInt
     }
 
     /**
-    /**
      * Gets Analytics Config
+     * @param $page
+     * @param $size
      * @return array
      */
-    public function getConfig() {
+    public function getConfig($page, $size) {
         $config = array();
-        $config['dimensions'] = $this->getDimensionsArray();
-        $config['metrics'] = $this->getMetricsArray();
+        $config['dimensions'] = $this->getDimensionsArray($page, $size);
+        $config['metrics'] = $this->getMetricsArray($page, $size);
         $config['filterSources'] = $this->getFilterSourcesArray();
         $config['customFilters'] = $this->getCustomFiltersArray();
         return $config;

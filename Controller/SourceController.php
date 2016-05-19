@@ -43,6 +43,8 @@ class SourceController extends Controller {
         /** @var ContainerInterface $container */
         $container = $this->get('service_container');
         $config = $container->getParameter('revinate_analytics.config');
+        /** @var Request $request */
+        $request = $this->get('request_stack')->getMasterRequest();
         if (!isset($config['sources'][$source])) {
             return new JsonResponse(array('ok' => false), Response::HTTP_NOT_FOUND);
         }
@@ -51,7 +53,7 @@ class SourceController extends Controller {
         $analytics = new $sourceConfig['class']($this->get('service_container'));
         $this->setContextFromRequest($analytics);
         $data = array_merge(
-            $analytics->getConfig(),
+            $analytics->getConfig($request->get("page", 1), $request->get("size", 100)),
             array('_links' => $this->getLinks($analytics, $source))
         );
         return new JsonResponse($data);
@@ -62,7 +64,8 @@ class SourceController extends Controller {
      * @return JsonResponse
      */
     public function getDimensionsAction($source) {
-        // @TODO: Support pagination and search by query
+        /** @var Request $request */
+        $request = $this->get('request_stack')->getMasterRequest();
         $config = $this->get('service_container')->getParameter('revinate_analytics.config');
         if (!isset($config['sources'][$source])) {
             return new JsonResponse(array('ok' => false), Response::HTTP_NOT_FOUND);
@@ -71,7 +74,7 @@ class SourceController extends Controller {
         /** @var BaseAnalytics $analytics */
         $analytics = new $sourceConfig['class']($this->get('service_container'));
         $this->setContextFromRequest($analytics);
-        return new JsonResponse($analytics->getDimensionsArray());
+        return new JsonResponse($analytics->getDimensionsArray($request->get("page",1), $request->get("size", 100)));
     }
 
     /**
@@ -79,7 +82,8 @@ class SourceController extends Controller {
      * @return JsonResponse
      */
     public function getMetricsAction($source) {
-        // @TODO: Support pagination and search by query
+        /** @var Request $request */
+        $request = $this->get('request_stack')->getMasterRequest();
         $config = $this->get('service_container')->getParameter('revinate_analytics.config');
         if (!isset($config['sources'][$source])) {
             return new JsonResponse(array('ok' => false), Response::HTTP_NOT_FOUND);
@@ -88,7 +92,7 @@ class SourceController extends Controller {
         /** @var BaseAnalytics $analytics */
         $analytics = new $sourceConfig['class']($this->get('service_container'));
         $this->setContextFromRequest($analytics);
-        return new JsonResponse($analytics->getMetricsArray());
+        return new JsonResponse($analytics->getMetricsArray($request->get("page",1), $request->get("size", 100)));
     }
 
     /**
@@ -111,9 +115,12 @@ class SourceController extends Controller {
      * @param BaseAnalyticsInterface $analytics
      */
     protected function setContextFromRequest(BaseAnalyticsInterface $analytics) {
+        /** @var Request $request */
         $request = $this->get('request_stack')->getMasterRequest();
-        $params = $request->query->all();
-        $analytics->setContext($params);
+        $ctx = json_decode($request->query->get("context"), true);
+        if (is_array($ctx)) {
+            $analytics->setContext($ctx);
+        }
     }
 
     /**
@@ -150,7 +157,9 @@ class SourceController extends Controller {
                 'uri' => $router->generate('revinate_analytics_document_search', array('source' => $source), true),
                 'method' => 'POST'
             ),
-            'filterSources' => $filterLinks
+            'dimensions' =>  $router->generate('revinate_analytics_source_dimension_list', array('source' => $source, 'page' => 1, 'size' => 100), true),
+            'metrics' =>  $router->generate('revinate_analytics_source_metric_list', array('source' => $source, 'page' => 1, 'size' => 100), true),
+            'filterSources' => $filterLinks,
         );
     }
 }

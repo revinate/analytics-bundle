@@ -32,4 +32,15 @@ class HistogramDimension extends Dimension {
     public function getInterval() {
         return $this->interval;
     }
+
+    /**
+     * @return array
+     */
+    public function toArray() {
+        return array_merge(parent::toArray(),
+            array(
+                'interval' => $this->getInterval(),
+            )
+        );
+    }
 }

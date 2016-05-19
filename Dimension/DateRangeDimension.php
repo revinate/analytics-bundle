@@ -36,4 +36,15 @@ class DateRangeDimension extends RangeDimension {
     public function getFormat() {
         return $this->format;
     }
+
+    /**
+     * @return array
+     */
+    public function toArray() {
+        return array_merge(parent::toArray(),
+            array(
+                'format' => $this->getFormat(),
+            )
+        );
+    }
 }

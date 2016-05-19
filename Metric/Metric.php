@@ -7,7 +7,6 @@ namespace Revinate\AnalyticsBundle\Metric;
  * @package Revinate\AnalyticsBundle\Metric
  */
 class Metric implements MetricInterface {
-
     /** @var string */
     protected $name;
     /** @var  string */
@@ -28,6 +27,10 @@ class Metric implements MetricInterface {
     protected $prefix = "";
     /** @var string  */
     protected $postfix = "";
+    /** @var string  */
+    protected $type = MetricType::COUNT;
+    /** @var  array map of key value pairs */
+    protected $attributes = array();
 
     /**
      * @param $name
@@ -205,6 +208,22 @@ class Metric implements MetricInterface {
     }
 
     /**
+     * @return string
+     */
+    public function getType() {
+        return $this->type;
+    }
+
+    /**
+     * @param string $type
+     * @return $this
+     */
+    public function setType($type) {
+        $this->type = $type;
+        return $this;
+    }
+
+    /**
      * @param string $readableName
      * @return $this
      */
@@ -222,6 +241,51 @@ class Metric implements MetricInterface {
     }
 
     /**
+     * @return array key value pairs
+     */
+    public function getAttributes() {
+        return $this->attributes;
+    }
+
+    /**
+     * @param $key
+     * @return string|null
+     */
+    public function getAttribute($key) {
+        return isset($this->attributes[$key]) ? $this->attributes[$key] : null;
+    }
+
+    /**
+     * @param array $attributes
+     * @return $this
+     */
+    public function setAttributes($attributes){
+        $this->attributes = $attributes;
+        return $this;
+    }
+
+    /**
+     * @param string $key
+     * @param string $value
+     * @return $this
+     */
+    public function addAttribute($key, $value) {
+        $this->attributes[$key] = $value;
+        return $this;
+    }
+
+    /**
+     * @param array $attrs key-value pairs of attributes
+     * @return $this
+     */
+    public function addAttributes($attrs) {
+        foreach ($attrs as $key => $value) {
+            $this->attributes[$key] = $value;
+        }
+        return $this;
+    }
+
+    /**
      * @return array|mixed
      */
     public function toArray() {
@@ -230,7 +294,9 @@ class Metric implements MetricInterface {
             'readableName' => $this->getReadableName(),
             'prefix' => $this->getPrefix(),
             'postfix' => $this->getPostfix(),
-            'precision' => $this->getPrecision()
+            'precision' => $this->getPrecision(),
+            'type' => $this->getType(),
+            'attributes' => $this->getAttributes(),
         );
     }
 }

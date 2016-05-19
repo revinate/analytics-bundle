@@ -11,14 +11,18 @@ namespace Revinate\AnalyticsBundle;
 
 interface AnalyticsViewInterface {
     /**
+     * @param $page
+     * @param $size
      * @return array
      */
-    public function getDimensionsArray();
+    public function getDimensionsArray($page, $size);
 
     /**
+     * @param $page
+     * @param $size
      * @return array
      */
-    public function getMetricsArray();
+    public function getMetricsArray($page, $size);
 
     /**
      * @return array

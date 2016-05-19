@@ -50,14 +50,18 @@ interface BaseAnalyticsInterface {
     public function getCustomFilters();
 
     /**
+     * @param $page
+     * @param $size
      * @return array
      */
-    public function getDimensionsArray();
+    public function getDimensionsArray($page, $size);
 
     /**
+     * @param $page
+     * @param $size
      * @return array
      */
-    public function getMetricsArray();
+    public function getMetricsArray($page, $size);
 
     /**
      * @return array
@@ -75,9 +79,11 @@ interface BaseAnalyticsInterface {
     public function getType();
 
     /**
+     * @param $page
+     * @param $size
      * @return mixed
      */
-    public function getConfig();
+    public function getConfig($page, $size);
 
     /**
      * @return mixed

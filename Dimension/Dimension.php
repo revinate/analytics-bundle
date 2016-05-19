@@ -29,7 +29,7 @@ class Dimension implements DimensionInterface {
     /** @var FilterSourceInterface */
     protected $filterSource;
     /** @var  array map of key value pairs */
-    protected $attributes;
+    protected $attributes = array();
 
     /**
      * @param $name
@@ -211,12 +211,16 @@ class Dimension implements DimensionInterface {
     }
 
     /**
-     * @return array|mixed
+     * @return array
      */
     public function toArray() {
         return array(
             'name' => $this->getName(),
             'readableName' => $this->getReadableName(),
+            'type' => $this->getType(),
+            'attributes' => $this->getAttributes(),
+            'filterSource' => $this->getFilterSource() ? $this->getFilterSource()->toArray() : null,
+            'size' => $this->getSize(),
         );
     }
 }

@@ -39,9 +39,13 @@ class DynamicViewAnalytics extends BaseAnalytics {
 
 
     /**
+     * @param $page
+     * @param $size
      * @return array
+     * @internal param $attributes
      */
-    public function getDimensionsArray() {
+    public function getDimensionsArray($page, $size) {
+        // Use $this->getContext() to return dimensions
         $config = array();
         foreach (array($this->getDimension("all"), $this->getDimension("browser"), $this->getDimension("site")) as $dimension) {
             /** @var Dimension $dimension */
@@ -51,9 +55,12 @@ class DynamicViewAnalytics extends BaseAnalytics {
     }
 
     /**
+     * @param $page
+     * @param $size
      * @return array
      */
-    public function getMetricsArray() {
+    public function getMetricsArray($page, $size) {
+        // Use $this->getContext() to return metrics
         $config = array();
         foreach (array($this->getMetric("totalViews"), $this->getMetric("uniqueViews")) as $metric) {
             /** @var Metric $metric */
