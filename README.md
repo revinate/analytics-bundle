@@ -491,10 +491,17 @@ At this point you may need to reboot, because VirtualBox tends to loose network 
 ```
 eval $(docker-machine env analytics-bundle)
 composer install
+docker-compose rm -f
+docker-compose build
 docker-compose up
 ```
 
-This will run testsuite.
+This will run testsuite. And each time you change code you will have to do these three steps, because somewhy docker-compose magically caches old code in old images. 
+```
+docker-compose rm -f
+docker-compose build
+docker-compose up
+```
 
 ### To develop locally against Docker Elasticsearch
 
