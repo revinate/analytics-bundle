@@ -203,10 +203,12 @@ class QueryBuilder {
 
     /**
      * @param array $sort
+     * @return $this
      */
     public function setSort($sort)
     {
         $this->sort = $sort;
+        return $this;
     }
 
     /**
