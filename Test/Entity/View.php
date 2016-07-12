@@ -7,6 +7,7 @@ class View {
     protected $device;
     protected $views;
     protected $siteId;
+    protected $dateTimestamp;
     /** @var  Tag[] */
     protected $tags;
 
@@ -106,6 +107,23 @@ class View {
     }
 
     /**
+     * @return mixed
+     */
+    public function getDateTimestamp()
+    {
+        return $this->dateTimestamp;
+    }
+
+    /**
+     * @param mixed $dateTimestamp
+     */
+    public function setDateTimestamp($dateTimestamp)
+    {
+        $this->dateTimestamp = $dateTimestamp;
+    }
+
+
+    /**
      * @return array
      */
     public function toArray() {
@@ -119,6 +137,7 @@ class View {
             "siteId" => $this->getSiteId(),
             "views" => $this->getViews(),
             "date" => $this->getDate()->format("c"),
+            "dateTimestamp" => $this->getDateTimestamp(),
             "tags" => $tagDocuments,
         );
     }

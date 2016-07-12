@@ -11,6 +11,9 @@
       "type": "date",
       "format": "dateOptionalTime"
     },
+    "dateTimestamp": {
+      "type": "long"
+    },
     "browser": {
       "type": "string"
     },

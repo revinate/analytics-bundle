@@ -257,6 +257,18 @@ class ApiControllerTest extends BaseTestCase
         $this->assertSame(10, $response["results"][0]['views'], $this->debug($response));
     }
     
+    public function testDocumentsSourceWithPeriodTimeStampFilterApi() {
+        $this->createData();
+        $post = json_encode(array(
+            "filters" => array("date" => array("period", "l7d", "dateTimestamp", "timestamp")),
+        ));
+        $this->client->request("POST", "/api/analytics/source/view/documents", array(), array(), array(), $post);
+        $response = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertSame(count($response["results"]), 1, $this->debug($response));
+        $this->assertSame('chrome', $response["results"][0]['browser'], $this->debug($response));
+        $this->assertSame(10, $response["results"][0]['views'], $this->debug($response));
+    }
+    
     public function testStatsWithNestedDimensionsApi() {
         $this->createData();
         $post = array(
