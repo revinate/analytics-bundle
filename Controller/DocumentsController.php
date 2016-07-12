@@ -50,8 +50,20 @@ class DocumentsController extends Controller {
         if (isset($post['sort'])) {
             $queryBuilder->setSort($post['sort']);
         }
-        if (! empty($post['filters'])) {
-            $queryBuilder->setFilter(StatsController::getFilters($analytics, $post['filters']));
+        $filters = isset($post['filters']) ? $post['filters'] : null;
+        //Set date filter
+        $dateRange = isset($post['dateRange']) ? $post['dateRange'] : null;
+        if(! is_null($dateRange)) {
+            if (! isset($dateRange[2])) {
+                throw new InvalidResultFormatTypeException();
+            }
+            $dateFilterName = $dateRange[2];
+            $typeComparator = isset($dateRange[3]) ? $dateRange[3] : FilterHelper::TYPE_TIME_COMPARATOR_DATE;
+            $filters[$dateFilterName] = array($dateRange[0], $dateRange[1], $dateRange[2], $typeComparator);
+            $queryBuilder->setBounds($dateRange);
+        }
+        if (! empty($filters)) {
+            $queryBuilder->setFilter(StatsController::getFilters($analytics, $filters));
         }
         $response = array("results" => array());
         $status = Response::HTTP_OK;
