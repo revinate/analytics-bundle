@@ -219,9 +219,21 @@ class DateHelper {
             $range = self::getScaleRange(date('Y-m-d', strtotime('-7 days', $time)), 'week');
             $period = array($range[0], 'week', $range[1]);
             $return = array('period' => $period, 'description' => 'Last Week: ' . date('n/j/y', strtotime($range[0])) . '-' . date('n/j/y', strtotime($range[1])), 'short_description' => 'Last Week');
+        } elseif ($periodName == 'lwpp') {
+            $lw = self::getScaleRange(date('Y-m-d', strtotime('-7 days', $time)), 'week');
+            $period = array(date('Y-m-d', strtotime('-1 week', strtotime($lw[0]))), 'last_week_previous_period', date('Y-m-d', strtotime('-1 week', strtotime($lw[1]))));
+            $return = Array('period' => $period, 'description' => 'Last Week Previous Period: ' . date('n/j/y', strtotime($period[0])) . ' - ' . date('n/j/y', strtotime($period[2])), 'short_description' => 'Last Week Previous Period');
         } elseif ($periodName == 'mtd') {
             $period = array(date('Y-m-01', $time), 'month', date('Y-m-d'));
             $return = array('period' => $period, 'description' => 'Month To Date: ' . date('n/j/y', strtotime($period[0])) . '-' . date('n/j/y'), 'short_description' => 'Month to Date');
+        } elseif ($periodName == 'mtdpp') {
+            $mtd = array(date('Y-m-01', $time), date('Y-m-d', $time));
+            $period = array(date('Y-m-d', strtotime('-1 month', strtotime($mtd[0]))), 'month_previous_period', date('Y-m-d', strtotime('-1 month', strtotime($mtd[1]))));
+            $return = array('period' => $period, 'description' => 'Month To Date Previous Period: ' . date('n/j/y', strtotime($period[0])) . ' - ' . date('n/j/y', strtotime($period[2])), 'short_description' => 'Month To Date Previous Period');
+        } elseif ($periodName == 'mtdpy') {
+            $mtd = array(date('Y-m-01', $time), date('Y-m-d', $time));
+            $period = array(date('Y-m-d', strtotime('-1 year', strtotime($mtd[0]))), 'month_previous_year', date('Y-m-d', strtotime('-1 year', strtotime($mtd[1]))));
+            $return = array('period' => $period, 'description' => 'Month To Date Previous Year: ' . date('n/j/y', strtotime($period[0])) . ' - ' . date('n/j/y', strtotime($period[2])), 'short_description' => 'Month to Date Previous Year');
         } elseif ($periodName == 'lm') {
             $startDay = date('Y-m-01', strtotime('-1 month', strtotime(date('Y-m-01', $time))));
             $range = self::getScaleRange($startDay, 'month');
@@ -241,6 +253,10 @@ class DateHelper {
         } elseif ($periodName == 'ytd') {
             $period = array(date('Y-01-01', $time), 'year', date('Y-m-d'));
             $return = array('period' => $period, 'description' => 'Year To Date: ' . date('Y'), 'short_description' => 'Year to Date');
+        } elseif ($periodName == 'ytdpy') {
+            $ytd = array(date('Y-01-01', $time), date('Y-m-d', $time));
+            $period = array(date('Y-m-d', strtotime('-1 year', strtotime($ytd[0]))), 'year_previous_year', date('Y-m-d',strtotime('-1 year', strtotime($ytd[1]))));
+            $return =  array('period' => $period, 'description' => 'Year To Date Previous Year: ' . date('Y', strtotime('-1 year', strtotime($ytd[0]))), 'short_description' => 'Year to Date Previous Year');
         } elseif ($periodName == 'ly') {
             $yearAgoTime = strtotime('-1 year', $time);
             $period = array(date('Y-01-01', $yearAgoTime), 'year', date('Y-12-31', $yearAgoTime));
@@ -248,6 +264,10 @@ class DateHelper {
         } elseif ($periodName == 'wtd') {
             $period = array(date('Y-m-d', strtotime('last sunday', $time)), 'week', date('Y-m-d'));
             $return = array('period' => $period, 'description' => 'Week To Date: ' . date('n/j/y', strtotime($period[0])) . '-' . date('n/j/y'), 'short_description' => 'Week to Date');
+        } elseif ($periodName == 'wtdpp') {
+            $wtd = date('Y-m-d', strtotime('last sunday', $time));
+            $period = array(date('Y-m-d', strtotime('-1 week', strtotime($wtd))), 'week_previous_period', date('Y-m-d', strtotime('-1 week', $time)));
+            $return = array('period' => $period, 'description' => 'Week To Date Previous Period: ' . date('n/j/y', strtotime($period[0])) . ' - ' . date('n/j/y', strtotime($period[2])), 'short_description' => 'Week to Date Previous Period');
         } elseif (strpos($periodName, 'da') !== false) {
             $howLong = (int) str_replace('da', '', $periodName);
             $daysAgo = $howLong;
@@ -293,6 +313,18 @@ class DateHelper {
             $dayOfMonth = intval($dayOfMonth) > intval($daysInMonth) ? $daysInMonth : $dayOfMonth;
             $period = array($startDate, 'month', date('Y-m-', strtotime($startDate)) . $dayOfMonth);
             return array('period' => $period, 'description' => 'Last Month Pace: ' . date('m/d/y', strtotime($period[0])) . ' - ' . date('m/d/y', strtotime($period[2])), 'short_description' => "Last Month Pace");
+        } elseif ($periodName == 'qtdpp') {
+            $startDay = date('Y-m-d', $time);
+            $range = self::getScaleRange($startDay, 'quarter');
+            $qtd = array($range[0], date('Y-m-d', $time));
+            $period = array(date('Y-m-d',strtotime('-3 month', strtotime($qtd[0]))), 'quarter_previous_period',  date('Y-m-d',strtotime('-3 month', strtotime($qtd[1]))));
+            $return = array('period' => $period, 'description' => 'Quarter To Date Previous Period: ' . date('n/j/y', strtotime($period[0])) . ' - ' . date('n/j/y', strtotime($period[2])), 'short_description' => 'Quarter To Date Previous Period');
+        } elseif ($periodName == 'qtdpy') {
+            $startDay = date('Y-m-d', $time);
+            $range = self::getScaleRange($startDay, 'quarter');
+            $qtd = array($range[0], date('Y-m-d', $time));
+            $period = array(date('Y-m-d',strtotime('-1 year', strtotime($qtd[0]))), 'quarter_previous_year',  date('Y-m-d',strtotime('-1 year', strtotime($qtd[1]))));
+            $return = array('period' => $period, 'description' => 'Quarter To Date Previous Year: ' . date('n/j/y', strtotime($period[0])) . ' - ' . date('n/j/y', strtotime($period[2])), 'short_description' => 'Quarter To Date Previous Year');
         } elseif (strpos($periodName, 'qtd') !== FALSE) {
             $startDay = date('Y-m-d', $time);
             $range = self::getScaleRange($startDay, 'quarter');
