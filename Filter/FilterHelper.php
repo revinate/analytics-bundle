@@ -48,11 +48,12 @@ class FilterHelper {
     {
         $periodInfo = DateHelper::getPeriodInfo($period);
         $startPeriod = date('c', strtotime($periodInfo["period"][0]));
-        $endPeriod = date('c', strtotime($periodInfo["period"][2] . " 23:59:59"));
+        $endPeriod = date('c', strtotime("+1 day", strtotime($periodInfo["period"][2])));
+
         if ($typeComparator == FilterHelper::TYPE_TIME_COMPARATOR_TIMESTAMP) {
-            $range = array("gte" => strtotime($startPeriod), "lte" => strtotime($endPeriod));
+            $range = array("gte" => strtotime($startPeriod), "lt" => strtotime($endPeriod));
         } else {
-            $range = array("gte" => $startPeriod, "lte" => $endPeriod);
+            $range = array("gte" => $startPeriod, "lt" => $endPeriod);
         }
         return new \Elastica\Filter\Range($field, $range);
     }

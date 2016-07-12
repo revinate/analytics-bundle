@@ -26,12 +26,14 @@ class DocumentHelper {
      */
     public function createView($browser, $device, $siteId, $dateString = null, $views = 1) {
         $date = $dateString ? new \DateTime($dateString) : new \DateTime('now');
+        $dateTimestamp = $dateString ? strtotime($dateString) : strtotime('now');
         $view = new View();
         $view->setBrowser($browser);
         $view->setSiteId($siteId);
         $view->setDevice($device);
         $view->setViews($views);
         $view->setDate($date);
+        $view->setDateTimestamp($dateTimestamp);
         $tags = array();
         $tags[] = new Tag("vip", 4.0);
         $tags[] = new Tag("new", 3.0);
