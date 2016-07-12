@@ -232,7 +232,8 @@ class StatsController extends Controller {
                     $filter = FilterHelper::getRangeFilter($name, $value);
                     break;
                 case FilterHelper::TYPE_PERIOD:
-                    $filter = FilterHelper::getPeriodFilter($postFilter[2], $value);
+                    $typeComparator = isset($postFilter[3]) ? $postFilter[3] : FilterHelper::TYPE_TIME_COMPARATOR_DATE;
+                    $filter = FilterHelper::getPeriodFilter($postFilter[2], $value, $typeComparator);
                     break;
                 case FilterHelper::TYPE_EXISTS:
                     $filter = FilterHelper::getExistsFilter($name);

@@ -12,6 +12,9 @@ class FilterHelper {
     const TYPE_PERIOD = "period";
     const TYPE_CUSTOM = 'custom';
 
+    const TYPE_TIME_COMPARATOR_TIMESTAMP = 'timestamp';
+    const TYPE_TIME_COMPARATOR_DATE = 'date';
+
     /**
      * @param string        $field
      * @param string|array  $value
@@ -41,11 +44,16 @@ class FilterHelper {
      * @return \Elastica\Filter\Range
      * @throws \Exception
      */
-    public static function getPeriodFilter($field, $period) {
+    public static function getPeriodFilter($field, $period, $typeComparator = FilterHelper::TYPE_TIME_COMPARATOR_DATE)
+    {
         $periodInfo = DateHelper::getPeriodInfo($period);
         $startPeriod = date('c', strtotime($periodInfo["period"][0]));
-        $endPeriod = date('c', strtotime($periodInfo["period"][2]." 23:59:59"));
-        $range = array("gte" => $startPeriod, "lte" => $endPeriod);
+        $endPeriod = date('c', strtotime($periodInfo["period"][2] . " 23:59:59"));
+        if ($typeComparator == FilterHelper::TYPE_TIME_COMPARATOR_TIMESTAMP) {
+            $range = array("gte" => strtotime($startPeriod), "lte" => strtotime($endPeriod));
+        } else {
+            $range = array("gte" => $startPeriod, "lte" => $endPeriod);
+        }
         return new \Elastica\Filter\Range($field, $range);
     }
 
