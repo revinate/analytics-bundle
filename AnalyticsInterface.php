@@ -11,7 +11,6 @@ use Revinate\AnalyticsBundle\Metric\MetricInterface;
 
 
 interface AnalyticsInterface {
-
     /**
      * @return Dimension[]
      */
@@ -27,18 +26,4 @@ interface AnalyticsInterface {
      */
     public function getFilterSources();
 
-    /**
-     * @return string
-     */
-    public function getIndex();
-
-    /**
-     * @return string
-     */
-    public function getType();
-
-    /**
-     * @return mixed
-     */
-    public function getConfig();
 }

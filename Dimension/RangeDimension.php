@@ -39,4 +39,14 @@ class RangeDimension extends Dimension {
         return $this->ranges;
     }
 
+    /**
+     * @return array
+     */
+    public function toArray() {
+        return array_merge(parent::toArray(),
+            array(
+                'ranges' => $this->getRanges(),
+            )
+        );
+    }
 }

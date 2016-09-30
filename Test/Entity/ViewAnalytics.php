@@ -2,7 +2,6 @@
 namespace Revinate\AnalyticsBundle\Test\Entity;
 
 use Revinate\AnalyticsBundle\Analytics;
-use Revinate\AnalyticsBundle\AnalyticsInterface;
 use Revinate\AnalyticsBundle\Dimension\AllDimension;
 use Revinate\AnalyticsBundle\Dimension\DateHistogramDimension;
 use Revinate\AnalyticsBundle\Dimension\DateRangeDimension;
@@ -12,9 +11,9 @@ use Revinate\AnalyticsBundle\Dimension\FiltersDimension;
 use Revinate\AnalyticsBundle\Dimension\HistogramDimension;
 use Revinate\AnalyticsBundle\Dimension\RangeDimension;
 use Revinate\AnalyticsBundle\FilterSource\AbstractFilterSource;
-use Revinate\AnalyticsBundle\Goal\Goal;
 use Revinate\AnalyticsBundle\Metric\Metric;
 use Revinate\AnalyticsBundle\Metric\MetricInterface;
+use Revinate\AnalyticsBundle\Metric\MetricType;
 use Revinate\AnalyticsBundle\Metric\ProcessedMetric;
 use Revinate\AnalyticsBundle\Metric\Result;
 use Revinate\AnalyticsBundle\Filter\FilterHelper;
@@ -34,6 +33,7 @@ class ViewAnalytics extends Analytics {
             AllDimension::create()->setReadableName("All Dimension")->setSize(0)->setType(Dimension::TYPE_STRING),
             Dimension::create("browser"),
             Dimension::create("site", "siteId")->setFilterSource($this->getFilterSource("siteId")),
+            Dimension::create("siteWithAttributes", "siteId")->addAttributes(array("type" => "attributed"))->addAttribute("public", true),
             Dimension::create("allSite", "siteId")->setFilterSource($this->getFilterSource("siteId"))->setReturnEmpty(true),
             Dimension::create("device")->setReadableName("Device Type"),
             DateHistogramDimension::create("dateHistogram", "date")->setInterval("month"),
@@ -57,7 +57,7 @@ class ViewAnalytics extends Analytics {
         $activeBrowser = $this->getContextValue("browser");
         return array(
             Metric::create("totalViews", "views")->setResult(Result::SUM),
-            Metric::create("uniqueViews", "views")->setResult(Result::COUNT),
+            Metric::create("uniqueViews", "views")->setResult(Result::COUNT)->setType(MetricType::AVERAGE),
             ProcessedMetric::create("viewDollarValue")->setCalculatedFromMetrics(array("totalViews"), function($totalViews) {
                 return $totalViews > 0 ? $totalViews * 0.01 : null;
             })->setPrefix('$')->setPrecision(2),
@@ -66,7 +66,7 @@ class ViewAnalytics extends Analytics {
             })->setPrefix('Rs ')->setPrecision(2),
             ProcessedMetric::create("chromeViewsPct")->setCalculatedFromMetrics(array("totalViews", "chromeTotalViews"), function($totalViews, $chromeTotalViews) {
                 return $totalViews > 0 ? $chromeTotalViews / $totalViews * 100 : null;
-            })->setPostfix("%")->setPrecision(2),
+            })->setPostfix("%")->setPrecision(2)->setType(MetricType::PERCENTAGE),
             ProcessedMetric::create("chromeAndIe6Views")->setCalculatedFromMetrics(array("chromeTotalViews", "ie6TotalViews"), function($chromeTotalViews, $ie6TotalViews) {
                 return $chromeTotalViews + $ie6TotalViews;
             })->setPrecision(2),

@@ -2,13 +2,9 @@
 
 namespace Revinate\AnalyticsBundle\Controller;
 
-use Revinate\AnalyticsBundle\Analytics;
-use Revinate\AnalyticsBundle\AnalyticsInterface;
-use Revinate\AnalyticsBundle\DimensionAggregate\DimensionAggregateSet;
+use Revinate\AnalyticsBundle\BaseAnalyticsInterface;
 use Revinate\AnalyticsBundle\Exception\InvalidResultFormatTypeException;
-use Revinate\AnalyticsBundle\Filter\AnalyticsCustomFiltersInterface;
 use Revinate\AnalyticsBundle\Goal\Goal;
-use Revinate\AnalyticsBundle\Metric\Result;
 use Revinate\AnalyticsBundle\Query\BulkQueryBuilder;
 use Revinate\AnalyticsBundle\Query\QueryBuilder;
 use Revinate\AnalyticsBundle\Result\ResultSet;
@@ -44,7 +40,7 @@ class StatsController extends Controller {
         $status = Response::HTTP_OK;
         try {
             $sourceConfig = $config['sources'][$source];
-            /** @var Analytics $analytics */
+            /** @var BaseAnalyticsInterface $analytics */
             $analytics = new $sourceConfig['class']($container);
             $analytics->setContext(isset($post['context']) ? $post['context'] : array());
             $isNestedDimensions = isset($post['flags']['nestedDimensions']) ? $post['flags']['nestedDimensions'] : false;
@@ -128,7 +124,7 @@ class StatsController extends Controller {
         $status = Response::HTTP_OK;
         try {
             $sourceConfig = $config['sources'][$source];
-            /** @var Analytics $analytics */
+            /** @var BaseAnalyticsInterface $analytics */
             $analytics = new $sourceConfig['class']($container);
             $analytics->setContext(isset($post['context']) ? $post['context'] : array());
             $bulkQueryBuilder = new BulkQueryBuilder();
@@ -207,12 +203,12 @@ class StatsController extends Controller {
 
 
     /**
-     * @param \Revinate\AnalyticsBundle\AnalyticsInterface|AnalyticsCustomFiltersInterface $analytics
+     * @param BaseAnalyticsInterface $analytics
      * @param $postFilters
      * @throws \Exception
      * @return \Elastica\Filter\BoolAnd
      */
-    public static function getFilters(AnalyticsInterface $analytics, $postFilters) {
+    public static function getFilters(BaseAnalyticsInterface $analytics, $postFilters) {
         $andFilter = new \Elastica\Filter\BoolAnd();
         foreach ($postFilters as $name => $postFilter) {
             if (count($postFilter) < 2) {
@@ -242,9 +238,6 @@ class StatsController extends Controller {
                     $filter = FilterHelper::getMissingFilter($name);
                     break;
                 case FilterHelper::TYPE_CUSTOM:
-                    if (! $analytics instanceof AnalyticsCustomFiltersInterface) {
-                        throw new \Exception(__METHOD__  . " Given analytics source does not implement AnalyticsCustomFiltersInterface");
-                    }
                     $filter = $analytics->getCustomFilter($name)->getFilter($value);
                     break;
                 default:

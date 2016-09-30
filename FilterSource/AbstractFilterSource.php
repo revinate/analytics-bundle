@@ -6,12 +6,12 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 abstract class AbstractFilterSource implements FilterSourceInterface {
     const ALL = '_all';
-
     /** @var  string */
     protected $name;
-
     /** @var  ContainerInterface */
     protected $container;
+    /** @var  string */
+    protected $type = FilterSourceType::VALUE;
 
     /**
      * @param ContainerInterface $container
@@ -38,12 +38,27 @@ abstract class AbstractFilterSource implements FilterSourceInterface {
     }
 
     /**
+     * @return string
+     */
+    public function getType() {
+        return $this->type;
+    }
+
+    /**
+     * @param string $type
+     */
+    public function setType($type) {
+        $this->type = $type;
+    }
+
+    /**
      * @return array
      */
     public function toArray() {
         return array(
             'name' => $this->getReadableName(),
-            "field" => $this->getName()
+            "field" => $this->getName(),
+            "type" => $this->getType(),
         );
     }
 

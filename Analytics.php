@@ -3,26 +3,9 @@
 namespace Revinate\AnalyticsBundle;
 
 use Revinate\AnalyticsBundle\Dimension\Dimension;
-use Revinate\AnalyticsBundle\Filter\CustomFilterInterface;
-use Revinate\AnalyticsBundle\Filter\AnalyticsCustomFiltersInterface;
-use Revinate\AnalyticsBundle\FilterSource\AbstractFilterSource;
 use Revinate\AnalyticsBundle\Metric\Metric;
-use Revinate\AnalyticsBundle\Metric\ProcessedMetric;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
-abstract class Analytics implements AnalyticsInterface {
-
-    /** @var  ContainerInterface */
-    protected $container;
-    /** @var  array */
-    protected $context = array();
-
-    /**
-     * @param ContainerInterface $container
-     */
-    public function __construct(ContainerInterface $container) {
-        $this->container = $container;
-    }
+abstract class Analytics extends BaseAnalytics implements AnalyticsInterface {
 
     /**
      * @param $name
@@ -53,113 +36,30 @@ abstract class Analytics implements AnalyticsInterface {
     }
 
     /**
-     * @param $name
-     * @throws \Exception
-     * @return AbstractFilterSource
-     */
-    public function getFilterSource($name) {
-        foreach ($this->getFilterSources() as $filterSource) {
-            if ($filterSource->getName() == $name) {
-                return $filterSource;
-            }
-        }
-        throw new \Exception(__METHOD__ . " Invalid Filter: " . $name);
-    }
-
-    /**
-     * @param $name
-     * @throws \Exception
-     * @return CustomFilterInterface
-     */
-    public function getCustomFilter($name) {
-        if (! $this instanceof AnalyticsCustomFiltersInterface) {
-            return null;
-        }
-        foreach ($this->getCustomFilters() as $customFilter) {
-            if ($customFilter->getName() == $name) {
-                return $customFilter;
-            }
-        }
-        throw new \Exception(__METHOD__ . " Invalid Custom Filter: " . $name);
-    }
-
-    /**
-     * @return CustomFilterInterface[]
-     */
-    public function getCustomFilters() {
-        return array();
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getProcessedMetricNames() {
-        $allMetrics = $this->getMetrics();
-        $postProcessedMetrics = array();
-        foreach ($allMetrics as $metric) {
-            if ($metric instanceof ProcessedMetric) {
-                $postProcessedMetrics[] = $metric->getName();
-            }
-        }
-        return $postProcessedMetrics;
-    }
-
-    /**
-     * @return \Symfony\Component\DependencyInjection\ContainerInterface
-     */
-    public function getContainer() {
-        return $this->container;
-    }
-
-    /**
-     * Gets Analytics Config
+     * @param $page
+     * @param $size
      * @return array
+     * @internal param $attributes
      */
-    public function getConfig() {
-        $config = array(
-            'dimensions' => array(),
-            'metrics' => array(),
-            'filterSources' => array(),
-            'customFilters' => array(),
-        );
+    public function getDimensionsArray($page, $size) {
+        $config = array();
         foreach ($this->getDimensions() as $dimension) {
-            $config['dimensions'][] = $dimension->toArray();
+            $config[] = $dimension->toArray();
         }
-        foreach ($this->getMetrics() as $metric) {
-            $config['metrics'][] = $metric->toArray();
-        }
-        foreach ($this->getFilterSources() as $filter) {
-            $config['filterSources'][] = $filter->toArray();
-        }
-        if ($this instanceof AnalyticsCustomFiltersInterface) {
-            foreach ($this->getCustomFilters() as $customFilter) {
-                $config['customFilters'][] = $customFilter->toArray();
-            }
-        }
-        return $config;
+        return array_slice($config, ($page - 1) * $size, $size);
     }
 
     /**
+     * @param $page
+     * @param $size
      * @return array
      */
-    public function getContext()
-    {
-        return $this->context;
+    public function getMetricsArray($page, $size) {
+        $config = array();
+        foreach ($this->getMetrics() as $metric) {
+            $config[] = $metric->toArray();
+        }
+        return array_slice($config, ($page - 1) * $size, $size);
     }
 
-    /**
-     * @param array $context
-     */
-    public function setContext($context)
-    {
-        $this->context = $context;
-    }
-
-    /**
-     * @param $key
-     * @return null
-     */
-    public function getContextValue($key) {
-        return isset($this->context[$key]) ? $this->context[$key] : null;
-    }
 }

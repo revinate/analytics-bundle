@@ -28,6 +28,8 @@ class Dimension implements DimensionInterface {
     protected $path;
     /** @var FilterSourceInterface */
     protected $filterSource;
+    /** @var  array map of key value pairs */
+    protected $attributes = array();
 
     /**
      * @param $name
@@ -164,12 +166,61 @@ class Dimension implements DimensionInterface {
     }
 
     /**
-     * @return array|mixed
+     * @return array key value pairs
+     */
+    public function getAttributes() {
+        return $this->attributes;
+    }
+
+    /**
+     * @param $key
+     * @return string|null
+     */
+    public function getAttribute($key) {
+        return isset($this->attributes[$key]) ? $this->attributes[$key] : null;
+    }
+
+    /**
+     * @param array $attributes
+     * @return $this
+     */
+    public function setAttributes($attributes){
+        $this->attributes = $attributes;
+        return $this;
+    }
+
+    /**
+     * @param string $key
+     * @param string $value
+     * @return $this
+     */
+    public function addAttribute($key, $value) {
+        $this->attributes[$key] = $value;
+        return $this;
+    }
+
+    /**
+     * @param array $attrs key-value pairs of attributes
+     * @return $this
+     */
+    public function addAttributes($attrs) {
+        foreach ($attrs as $key => $value) {
+            $this->attributes[$key] = $value;
+        }
+        return $this;
+    }
+
+    /**
+     * @return array
      */
     public function toArray() {
         return array(
             'name' => $this->getName(),
             'readableName' => $this->getReadableName(),
+            'type' => $this->getType(),
+            'attributes' => $this->getAttributes(),
+            'filterSource' => $this->getFilterSource() ? $this->getFilterSource()->toArray() : null,
+            'size' => $this->getSize(),
         );
     }
 }

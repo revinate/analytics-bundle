@@ -2,16 +2,9 @@
 
 namespace Revinate\AnalyticsBundle\Controller;
 
-use Revinate\AnalyticsBundle\Analytics;
-use Revinate\AnalyticsBundle\AnalyticsInterface;
-use Revinate\AnalyticsBundle\Exception\InvalidResultFormatTypeException;
-use Revinate\AnalyticsBundle\Filter\AnalyticsCustomFiltersInterface;
-use Revinate\AnalyticsBundle\Metric\Result;
-use Revinate\AnalyticsBundle\Query\BulkQueryBuilder;
+use Revinate\AnalyticsBundle\BaseAnalyticsInterface;
 use Revinate\AnalyticsBundle\Query\QueryBuilder;
-use Revinate\AnalyticsBundle\Result\ResultSet;
 use Revinate\AnalyticsBundle\Service\ElasticaService;
-use Revinate\AnalyticsBundle\Filter\FilterHelper;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -38,8 +31,7 @@ class DocumentsController extends Controller {
         $size = isset($post['size']) ? $post['size'] : 10;
         $offset = isset($post['offset']) ? $post['offset'] : 0;
         $sourceConfig = $config['sources'][$source];
-        /** @var Analytics $analytics */
-        /** @var Analytics $analytics */
+        /** @var BaseAnalyticsInterface $analytics */
         $analytics = new $sourceConfig['class']($container);
         $analytics->setContext(isset($post['context']) ? $post['context'] : array());
         /** @var ElasticaService $elasticaService */

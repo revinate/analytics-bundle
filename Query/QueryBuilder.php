@@ -7,8 +7,7 @@ use Elastica\Aggregation\AbstractAggregation;
 use Elastica\Filter\AbstractFilter;
 use Revinate\AnalyticsBundle\Aggregation\AllAggregation;
 use Revinate\AnalyticsBundle\Aggregation\Nested;
-use Revinate\AnalyticsBundle\Analytics;
-use Revinate\AnalyticsBundle\AnalyticsInterface;
+use Revinate\AnalyticsBundle\BaseAnalyticsInterface;
 use Revinate\AnalyticsBundle\DimensionAggregate\DimensionAggregateSet;
 use Revinate\AnalyticsBundle\Dimension\AllDimension;
 use Revinate\AnalyticsBundle\Dimension\DateHistogramDimension;
@@ -24,13 +23,14 @@ use Revinate\AnalyticsBundle\Lib\DateHelper;
 use Revinate\AnalyticsBundle\Metric\ProcessedMetric;
 use Revinate\AnalyticsBundle\Metric\Result;
 use Revinate\AnalyticsBundle\Result\ResultSet;
+use Symfony\Component\Config\Definition\Exception\Exception;
 
 /**
  * Class QueryBuilder
  * @package Revinate\AnalyticsBundle\Query
  */
 class QueryBuilder {
-    /** @var  AnalyticsInterface|Analytics */
+    /** @var  BaseAnalyticsInterface */
     protected $analytics;
     /** @var  \Elastica\Client  */
     protected $elasticaClient;
@@ -61,9 +61,9 @@ class QueryBuilder {
 
     /**
      * @param \Elastica\Client $elasticaClient
-     * @param AnalyticsInterface $analytics
+     * @param BaseAnalyticsInterface $analytics
      */
-    public function __construct(\Elastica\Client $elasticaClient, AnalyticsInterface $analytics) {
+    public function __construct(\Elastica\Client $elasticaClient, BaseAnalyticsInterface $analytics) {
         $this->elasticaClient = $elasticaClient;
         $this->analytics = $analytics;
         return $this;
@@ -120,7 +120,7 @@ class QueryBuilder {
     }
 
     /**
-     * @return \Revinate\AnalyticsBundle\Analytics|\Revinate\AnalyticsBundle\AnalyticsInterface
+     * @return BaseAnalyticsInterface
      */
     public function getAnalytics() {
         return $this->analytics;
@@ -203,10 +203,12 @@ class QueryBuilder {
 
     /**
      * @param array $sort
+     * @return $this
      */
     public function setSort($sort)
     {
         $this->sort = $sort;
+        return $this;
     }
 
     /**
@@ -258,12 +260,17 @@ class QueryBuilder {
 
     /**
      * @return \Elastica\Aggregation\AbstractAggregation[]
+     * @throws \Exception if metric is not found
      */
     protected function createDimensionAggregations() {
         $dimensionAggregations = array();
         foreach ($this->dimensions as $dimensionName) {
             $dimension = $this->analytics->getDimension($dimensionName);
-            $dimensionAggregations[] = $this->getAggregationFromDimension($dimension);
+            if ($dimension) {
+                $dimensionAggregations[] = $this->getAggregationFromDimension($dimension);
+            } else {
+                throw new \Exception(__METHOD__ . " Dimension [$dimensionName] not found");
+            }
         }
         return $dimensionAggregations;
     }
@@ -333,11 +340,15 @@ class QueryBuilder {
 
     /**
      * @return \Elastica\Aggregation\AbstractAggregation[]
+     * @throws \Exception if metric is not found
      */
     protected function createMetricAggregations() {
         $metricAggregations = array();
         foreach ($this->getAllMetricsRequiredForPostProcessing($this->metrics) as $metricName) {
             $metric = $this->analytics->getMetric($metricName);
+            if (! $metric) {
+                throw new \Exception(__METHOD__ . " Metric [$metricName] not found");
+            }
 
             // Leaf level aggregation for the metric itself
             if ($metric->isResultOfType(Result::COUNT)) {
@@ -399,6 +410,7 @@ class QueryBuilder {
         $allMetrics = array();
         foreach ($metrics as $metricName) {
             $metric = $this->analytics->getMetric($metricName);
+            if (! $metric) { continue; }
             if ($metric instanceof ProcessedMetric) {
                 $calculatedFromMetrics = $this->getAllMetricsRequiredForPostProcessing($metric->getCalculatedFromMetrics());
                 $allMetrics = array_merge($allMetrics, $calculatedFromMetrics);

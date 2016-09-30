@@ -31,25 +31,6 @@ class ApiControllerTest extends BaseTestCase
         return "Response: " . print_r($response, true);
     }
 
-    public function testListSourceApi() {
-        $this->client->request("GET", "/api/analytics/source");
-        $response = json_decode($this->client->getResponse()->getContent(), true);
-        $this->assertSame("view", key($response), $this->debug($response));
-    }
-
-    public function testGetSourceApi() {
-        $this->client->request("GET", "/api/analytics/source/view");
-        $response = json_decode($this->client->getResponse()->getContent(), true);
-        $this->assertTrue(!empty($response['dimensions']), $this->debug($response));
-        $this->assertTrue(!empty($response['metrics']), $this->debug($response));
-    }
-
-    public function testListSourceApiWithParams() {
-        $this->client->request("GET", "/api/analytics/source/view?browser=firefox");
-        $content = $this->client->getResponse()->getContent();
-        $this->assertContains('Total Views For firefox', $content);
-    }
-
     public function testStatsSourceApi() {
         $this->createData();
         $post = json_encode(array(

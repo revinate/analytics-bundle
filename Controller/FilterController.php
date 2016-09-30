@@ -2,7 +2,7 @@
 
 namespace Revinate\AnalyticsBundle\Controller;
 
-use Revinate\AnalyticsBundle\AnalyticsInterface;
+use Revinate\AnalyticsBundle\BaseAnalyticsInterface;
 
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -93,15 +93,9 @@ class FilterController extends Controller {
      * @return null|\Revinate\AnalyticsBundle\FilterSource\AbstractFilterSource
      */
     protected function getAnalyticsFilter($sourceConfig, $filter) {
-        /** @var AnalyticsInterface $analytics */
+        /** @var BaseAnalyticsInterface $analytics */
         $analytics = new $sourceConfig['class']($this->get('service_container'));
         $analyticsFilter = null;
-        foreach ($analytics->getFilterSources() as $filterInstance) {
-            if ($filterInstance->getName() == $filter) {
-                $analyticsFilter = $filterInstance;
-                break;
-            }
-        }
-        return $analyticsFilter;
+        return $analytics->getFilterSource($filter);
     }
 }
