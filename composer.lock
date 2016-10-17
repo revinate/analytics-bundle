@@ -4,21 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "1b9761dec7f8fcf76860e02fe7205c33",
-    "content-hash": "e33565a1ac808079d987111482dc6b02",
+    "hash": "ffe5ee30b92e7003106d14abaa88a5d5",
+    "content-hash": "4d35e1bf0ff3e4eee3a45d5be8cb3f33",
     "packages": [
         {
             "name": "amnl/gc-datatable",
-            "version": "dev-master",
+            "version": "v0.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/itavero/AMNL-GCDataTable.git",
-                "reference": "cb1a376cc5bf61dfdf3479c9fa92cc6f5d376f58"
+                "reference": "4b1f2632cac527061e5e8b423227028f261a1dea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/itavero/AMNL-GCDataTable/zipball/cb1a376cc5bf61dfdf3479c9fa92cc6f5d376f58",
-                "reference": "cb1a376cc5bf61dfdf3479c9fa92cc6f5d376f58",
+                "url": "https://api.github.com/repos/itavero/AMNL-GCDataTable/zipball/4b1f2632cac527061e5e8b423227028f261a1dea",
+                "reference": "4b1f2632cac527061e5e8b423227028f261a1dea",
                 "shasum": ""
             },
             "require": {
@@ -61,7 +61,7 @@
                 "google",
                 "json"
             ],
-            "time": "2013-09-11 09:51:33"
+            "time": "2013-06-07 19:12:48"
         },
         {
             "name": "symfony/config",
@@ -3192,11 +3192,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "amnl/gc-datatable": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
-    "prefer-lowest": false,
+    "prefer-lowest": true,
     "platform": {
         "php": ">=5.5.0"
     },
