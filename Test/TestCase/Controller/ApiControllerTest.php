@@ -283,4 +283,34 @@ class ApiControllerTest extends BaseTestCase
         $response = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertTrue(!isset($response["results"]["device"]['ios']['browser']), $this->debug($response));
     }
+
+    public function testBulkStatsWithDateRangeApi() {
+        $this->createData();
+        $post = json_encode(
+            array(
+                'queries' => array(
+                    array(
+                        "dimensions" => array("all", "device"),
+                        "metrics" => array("totalViews", "uniqueViews", "averageViews"),
+                        "filters" => array(),
+                        "dateRange" => array("period", "2ma", "date")
+                    ),
+                    array(
+                        "dimensions" => array("all", "device", "browser"),
+                        "metrics" => array("totalViews", "uniqueViews", "averageViews"),
+                        "filters" => array(),
+                        "dateRange" => array("period", "3ma", "date")
+                    )
+                ),
+                "flags" => array("nestedDimensions" => false),
+                "format" => "nested",
+            )
+        );
+        $this->client->request("POST", "/api/analytics/source/view/bulkstats", array(), array(), array(), $post);
+        $response = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertSame('6.0', $response['results'][0]['all']['totalViews'], $this->debug($response));
+        $this->assertSame('6.0', $response['results'][0]['device']['ios']['totalViews'], $this->debug($response));
+        $this->assertSame('5.0', $response['results'][1]['all']['totalViews'], $this->debug($response));
+        $this->assertSame('5.0', $response['results'][1]['browser']['opera']['totalViews'], $this->debug($response));
+    }
 }
