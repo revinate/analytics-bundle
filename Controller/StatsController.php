@@ -112,7 +112,6 @@ class StatsController extends Controller {
         $queriesPost = json_decode($this->get('request_stack')->getMasterRequest()->getContent(), true);
         $format = isset($queriesPost['format']) ? $queriesPost['format'] : ResultSet::TYPE_NESTED;
         $dimensionAggregate = isset($queriesPost["dimensionAggregate"]) ? $queriesPost["dimensionAggregate"] : null;
-        $dateRange = isset($post['dateRange']) ? $post['dateRange'] : null;
         if (!isset($config['sources'][$source])) {
             return new JsonResponse(array('ok' => false), Response::HTTP_NOT_FOUND);
         }
@@ -150,6 +149,7 @@ class StatsController extends Controller {
                     $queryBuilder->setGoals($goals);
                 }
                 $filters = isset($post['filters']) ? $post['filters'] : array();
+                $dateRange = isset($post['dateRange']) ? $post['dateRange'] : null;
                 if(! is_null($dateRange)) {
                     if (! isset($dateRange[2])) {
                         throw new InvalidResultFormatTypeException();
