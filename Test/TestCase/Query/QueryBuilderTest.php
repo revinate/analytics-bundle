@@ -670,7 +670,7 @@ class QueryBuilderTest extends BaseTestCase {
         $aggregateSet = $qb->getDimensionAggregateSet();
         $results = $aggregateSet->get(DimensionAggregateSet::TYPE_RANKED);
         $this->assertSame(1, $results["site"]["4"]["totalViews"], $this->debug($results));
-        $this->assertSame(2, $results["site"]["4"]["uniqueViews"], $this->debug($results));
+        $this->assertSame(4, $results["site"]["8"]["uniqueViews"], $this->debug($results));
     }
 
     public function testRankedAggregateMultipleDimensions() {
