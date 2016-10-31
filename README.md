@@ -308,7 +308,7 @@ POST /api/analytics/source/{sourcename}/stats
     },
     "format": "nested", # nested (default), raw, flattened, tabular, google_data_table, documents
     "dimensionAggregate": { # Optional. Calculates a single result as an aggregation of the dimension buckets
-      "type": "average",    #The type of calculation to perform. Only average is supported at this time
+      "type": "average",    #The type of calculation to perform. Supported: average, ranked, ranked_reversed
       "info": 100           #Extra information for the aggregate. In the case of average, it is the expected number of buckets to be returned
      }, 
     "goals": {"my_metric_1": 10, "my_metric_2": 100}, # Optional. Map of goals for your metrics,
@@ -384,7 +384,7 @@ POST /api/analytics/source/{sourcename}/bulkstats
         "nestedDimensions": false # flags are common for all queries
     },
     "format": "nested", # format is common for all queries
-    "dimensionAggregate": "average", # Optional. Only average is supported
+    "dimensionAggregate": "average", # Optional. Supported: average, ranked, ranked_reversed
     "comparator": "change" # Optional. null (default), change, percentage, index . Returns comparison between multiple queries,
     "goals": {"my_metric_1": 10, "my_metric_2": 100}, # this is optional map of goals for your metrics
     "context": { # any key-value pair list

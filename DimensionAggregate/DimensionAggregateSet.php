@@ -7,6 +7,8 @@ use Revinate\AnalyticsBundle\Result\ResultSet;
 class DimensionAggregateSet {
 
     const TYPE_AVERGAE = "average";
+    const TYPE_RANKED = "ranked";
+    const TYPE_RANKED_REVERSED = "ranked_reversed";
 
     /** @var ResultSet  */
     protected $resultSet;
@@ -23,11 +25,18 @@ class DimensionAggregateSet {
      * @return array
      */
     public function get($type, $info = null) {
+        $agg = null;
         switch ($type) {
             case self::TYPE_AVERGAE:
-                $avg = new AverageDimensionAggregate();
-                return $avg->getAggregate($this->resultSet->getNested(), $info);
+                $agg = new AverageDimensionAggregate();
+                break;
+            case self::TYPE_RANKED:
+                $agg = new RankedDimensionAggregate();
+                break;
+            case self::TYPE_RANKED_REVERSED:
+                $agg = new RankedReversedDimensionAggregate();
+                break;
         }
-        return array();
+        return $agg ? $agg->getAggregate($this->resultSet->getNested(), $info) : array();
     }
 }

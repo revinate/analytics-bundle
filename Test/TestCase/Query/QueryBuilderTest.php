@@ -659,4 +659,86 @@ class QueryBuilderTest extends BaseTestCase {
         $this->assertFalse(isset($resultSet["allSite"][2]["totalViews"]), $this->debug($results));
         $this->assertSame('6.50', $results["allSite"]["average"]["totalViews"], $this->debug($results));
     }
+
+    public function testRankedAggregateSingleDimension() {
+        $this->createData();
+        $viewAnalytics = new ViewAnalytics($this->getContainer());
+        $qb = new QueryBuilder($this->elasticaClient, $viewAnalytics);
+        $qb->addDimensions(array("site"))
+            ->addMetrics(array("totalViews", "uniqueViews"))
+        ;
+        $aggregateSet = $qb->getDimensionAggregateSet();
+        $results = $aggregateSet->get(DimensionAggregateSet::TYPE_RANKED);
+        $this->assertSame(1, $results["site"]["4"]["totalViews"], $this->debug($results));
+        $this->assertSame(2, $results["site"]["4"]["uniqueViews"], $this->debug($results));
+    }
+
+    public function testRankedAggregateMultipleDimensions() {
+        $this->createData();
+        $viewAnalytics = new ViewAnalytics($this->getContainer());
+        $qb = new QueryBuilder($this->elasticaClient, $viewAnalytics);
+        $qb->addDimensions(array("device", "site", "browser"))
+            ->addMetrics(array("totalViews", "uniqueViews"))
+        ;
+        $aggregateSet = $qb->getDimensionAggregateSet();
+        $results = $aggregateSet->get(DimensionAggregateSet::TYPE_RANKED);
+        $this->assertSame(1, $results["site"]["4"]["totalViews"], $this->debug($results));
+        $this->assertSame(1, $results["device"]["ios"]["totalViews"], $this->debug($results));
+        $this->assertSame(1, $results["browser"]["chrome"]["totalViews"], $this->debug($results));
+    }
+
+    public function testRankedAggregateNestedDimensions() {
+        $this->createData();
+        $viewAnalytics = new ViewAnalytics($this->getContainer());
+        $qb = new QueryBuilder($this->elasticaClient, $viewAnalytics);
+        $qb->addDimensions(array("browser", "site"))
+            ->addMetrics(array("totalViews", "uniqueViews"))
+            ->setIsNestedDimensions(true)
+        ;
+        $aggregateSet = $qb->getDimensionAggregateSet();
+        $results = $aggregateSet->get(DimensionAggregateSet::TYPE_RANKED);
+        $this->assertSame(1, $results["browser"]["opera"]["site"]["7"]["totalViews"], $this->debug($results));
+        $this->assertSame(1, $results["browser"]["chrome"]["site"]["4"]["totalViews"], $this->debug($results));
+    }
+
+    public function testRankedReversedAggregateSingleDimension() {
+        $this->createData();
+        $viewAnalytics = new ViewAnalytics($this->getContainer());
+        $qb = new QueryBuilder($this->elasticaClient, $viewAnalytics);
+        $qb->addDimensions(array("site"))
+            ->addMetrics(array("totalViews", "uniqueViews"))
+        ;
+        $aggregateSet = $qb->getDimensionAggregateSet();
+        $results = $aggregateSet->get(DimensionAggregateSet::TYPE_RANKED_REVERSED);
+        $this->assertSame(1, $results["site"]["8"]["totalViews"], $this->debug($results));
+        $this->assertSame(1, $results["site"]["8"]["uniqueViews"], $this->debug($results));
+    }
+
+    public function testRankedReversedAggregateMultipleDimensions() {
+        $this->createData();
+        $viewAnalytics = new ViewAnalytics($this->getContainer());
+        $qb = new QueryBuilder($this->elasticaClient, $viewAnalytics);
+        $qb->addDimensions(array("device", "site", "browser"))
+            ->addMetrics(array("totalViews", "uniqueViews"))
+        ;
+        $aggregateSet = $qb->getDimensionAggregateSet();
+        $results = $aggregateSet->get(DimensionAggregateSet::TYPE_RANKED_REVERSED);
+        $this->assertSame(1, $results["site"]["8"]["totalViews"], $this->debug($results));
+        $this->assertSame(1, $results["device"]["android"]["totalViews"], $this->debug($results));
+        $this->assertSame(1, $results["browser"]["opera"]["totalViews"], $this->debug($results));
+    }
+
+    public function testRankedReversedAggregateNestedDimensions() {
+        $this->createData();
+        $viewAnalytics = new ViewAnalytics($this->getContainer());
+        $qb = new QueryBuilder($this->elasticaClient, $viewAnalytics);
+        $qb->addDimensions(array("browser", "site"))
+            ->addMetrics(array("totalViews", "uniqueViews"))
+            ->setIsNestedDimensions(true)
+        ;
+        $aggregateSet = $qb->getDimensionAggregateSet();
+        $results = $aggregateSet->get(DimensionAggregateSet::TYPE_RANKED_REVERSED);
+        $this->assertSame(1, $results["browser"]["opera"]["site"]["8"]["totalViews"], $this->debug($results));
+        $this->assertSame(1, $results["browser"]["chrome"]["site"]["1"]["totalViews"], $this->debug($results));
+    }
 }
