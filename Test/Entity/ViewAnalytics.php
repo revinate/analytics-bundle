@@ -92,7 +92,7 @@ class ViewAnalytics extends Analytics {
     public function getFilterSources()
     {
         return array(
-            SiteFilterSource::create($this->container, "siteId")
+            SiteFilterSource::create($this->container, "siteId")->setField("siteId")
         );
     }
 

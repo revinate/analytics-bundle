@@ -28,6 +28,16 @@ interface FilterSourceInterface {
     public function getName();
 
     /**
+     * @param string $field
+     */
+    public function setField($field);
+
+    /**
+     * @return string
+     */
+    public function getField();
+
+    /**
      * @return array
      */
     public function toArray();

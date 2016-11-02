@@ -533,6 +533,26 @@ class QueryBuilderTest extends BaseTestCase {
         $this->assertSame(6, count($sites), $this->debug($site));
     }
 
+    public function testFilterSourceFieldname() {
+        $this->createData();
+        $viewAnalytics = new ViewAnalytics($this->getContainer());
+        $filterSource = $viewAnalytics->getFilterSource("siteId");
+        $this->assertSame("siteId", $filterSource->getField(), $this->debug($filterSource->toArray()));
+
+        $querybuilder = new QueryBuilder($this->elasticaClient, $viewAnalytics);
+        $querybuilder
+            ->addDimensions(array("all", "site"))
+            ->addMetrics(array("totalViews", "uniqueViews"))
+            ->setFilter(FilterHelper::getValueFilter($filterSource->getField(), 1))
+        ;
+        $resultSet = $querybuilder->execute();
+        $results = $resultSet->getNested();
+        $this->assertSame("8.0", $results["all"]["totalViews"], $this->debug($results));
+        $this->assertSame("2.0", $results["all"]["uniqueViews"], $this->debug($results));
+        $this->assertSame("8.0", $results["site"][1]["totalViews"], $this->debug($results));
+        $this->assertSame("2.0", $results["site"][1]["uniqueViews"], $this->debug($results));
+    }
+
     public function testDimensionsKeysWithValues() {
         $this->createData();
         $viewAnalytics = new ViewAnalytics($this->getContainer());

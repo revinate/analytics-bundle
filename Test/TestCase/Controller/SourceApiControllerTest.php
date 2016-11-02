@@ -102,6 +102,7 @@ class SourceApiControllerTest extends BaseTestCase {
         $this->assertArrayHasKey("name", $response[0], $this->debug($response));
         $this->assertArrayHasKey("field", $response[0], $this->debug($response));
         $this->assertArrayHasKey("type", $response[0], $this->debug($response));
+        $this->assertArrayHasKey("key", $response[0], $this->debug($response));
     }
 
     public function testListFilterSourceApiPagination() {
