@@ -95,6 +95,21 @@ class SourceApiControllerTest extends BaseTestCase {
         $this->assertTrue(count($response) == 4, $this->debug($response));
     }
 
+    public function testListMetricApiSearch() {
+        $this->client->request("GET", "/api/analytics/source/dynamic_view/metric?query=total");
+        $response = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertTrue(count($response) == 1, $this->debug($response));
+        $this->assertSame($response[0]["name"], "totalViews", $this->debug($response));
+    }
+
+    public function testListDimensionApiSearch() {
+        $this->client->request("GET", "/api/analytics/source/dynamic_view/dimension?query=site");
+        $response = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertTrue(count($response) == 1, $this->debug($response));
+        $this->assertSame($response[0]["name"], "site", $this->debug($response));
+    }
+
+
     public function testListFilterSourceApi() {
         $this->client->request("GET", "/api/analytics/source/view/filter_source");
         $response = json_decode($this->client->getResponse()->getContent(), true);

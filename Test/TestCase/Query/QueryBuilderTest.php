@@ -38,7 +38,7 @@ class QueryBuilderTest extends BaseTestCase {
     public function testConfig() {
         $this->createData();
         $viewAnalytics = new ViewAnalytics($this->getContainer());
-        $config = $viewAnalytics->getConfig(1, 100);
+        $config = $viewAnalytics->getConfig("", 1, 100);
         $this->assertTrue(count($config['dimensions']) > 0);
         $this->assertTrue(count($config['metrics']) > 0);
     }

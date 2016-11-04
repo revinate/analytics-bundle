@@ -39,32 +39,38 @@ class DynamicViewAnalytics extends BaseAnalytics {
 
 
     /**
+     * @param $query
      * @param $page
      * @param $size
      * @return array
      * @internal param $attributes
      */
-    public function getDimensionsArray($page, $size) {
+    public function getDimensionsArray($query, $page, $size) {
         // Use $this->getContext() to return dimensions
         $config = array();
         foreach (array($this->getDimension("all"), $this->getDimension("browser"), $this->getDimension("site")) as $dimension) {
             /** @var Dimension $dimension */
-            $config[] = $dimension->toArray();
+            if ($query == "" || strpos($dimension->getName(), $query) !== false) {
+                $config[] = $dimension->toArray();
+            }
         }
         return $config;
     }
 
     /**
+     * @param $query
      * @param $page
      * @param $size
      * @return array
      */
-    public function getMetricsArray($page, $size) {
+    public function getMetricsArray($query, $page, $size) {
         // Use $this->getContext() to return metrics
         $config = array();
         foreach (array($this->getMetric("totalViews"), $this->getMetric("uniqueViews")) as $metric) {
             /** @var Metric $metric */
-            $config[] = $metric->toArray();
+            if ($query == "" || strpos($metric->getName(), $query) !== false) {
+                $config[] = $metric->toArray();
+            }
         }
         return $config;
     }

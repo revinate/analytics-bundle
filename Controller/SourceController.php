@@ -53,7 +53,7 @@ class SourceController extends Controller {
         $analytics = new $sourceConfig['class']($this->get('service_container'));
         $this->setContextFromRequest($analytics);
         $data = array_merge(
-            $analytics->getConfig($request->get("page", 1), $request->get("size", 100)),
+            $analytics->getConfig($request->get("query", ""), $request->get("page", 1), $request->get("size", 100)),
             array('_links' => $this->getLinks($analytics, $source))
         );
         return new JsonResponse($data);
@@ -74,7 +74,7 @@ class SourceController extends Controller {
         /** @var BaseAnalytics $analytics */
         $analytics = new $sourceConfig['class']($this->get('service_container'));
         $this->setContextFromRequest($analytics);
-        return new JsonResponse($analytics->getDimensionsArray($request->get("page",1), $request->get("size", 100)));
+        return new JsonResponse($analytics->getDimensionsArray($request->get("query", ""), $request->get("page",1), $request->get("size", 100)));
     }
 
     /**
@@ -92,7 +92,7 @@ class SourceController extends Controller {
         /** @var BaseAnalytics $analytics */
         $analytics = new $sourceConfig['class']($this->get('service_container'));
         $this->setContextFromRequest($analytics);
-        return new JsonResponse($analytics->getMetricsArray($request->get("page",1), $request->get("size", 100)));
+        return new JsonResponse($analytics->getMetricsArray($request->get("query", ""), $request->get("page",1), $request->get("size", 100)));
     }
 
     /**

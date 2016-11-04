@@ -36,12 +36,13 @@ abstract class Analytics extends BaseAnalytics implements AnalyticsInterface {
     }
 
     /**
+     * @param $query
      * @param $page
      * @param $size
      * @return array
      * @internal param $attributes
      */
-    public function getDimensionsArray($page, $size) {
+    public function getDimensionsArray($query, $page, $size) {
         $config = array();
         foreach ($this->getDimensions() as $dimension) {
             $config[] = $dimension->toArray();
@@ -50,11 +51,12 @@ abstract class Analytics extends BaseAnalytics implements AnalyticsInterface {
     }
 
     /**
+     * @param $query
      * @param $page
      * @param $size
      * @return array
      */
-    public function getMetricsArray($page, $size) {
+    public function getMetricsArray($query, $page, $size) {
         $config = array();
         foreach ($this->getMetrics() as $metric) {
             $config[] = $metric->toArray();
