@@ -45,7 +45,9 @@ abstract class Analytics extends BaseAnalytics implements AnalyticsInterface {
     public function getDimensionsArray($query, $page, $size) {
         $config = array();
         foreach ($this->getDimensions() as $dimension) {
-            $config[] = $dimension->toArray();
+            if (empty($query) || stripos($dimension->getName(), $query) !== false) {
+                $config[] = $dimension->toArray();
+            }
         }
         return array_slice($config, ($page - 1) * $size, $size);
     }
@@ -59,7 +61,9 @@ abstract class Analytics extends BaseAnalytics implements AnalyticsInterface {
     public function getMetricsArray($query, $page, $size) {
         $config = array();
         foreach ($this->getMetrics() as $metric) {
-            $config[] = $metric->toArray();
+            if (empty($query) || stripos($metric->getName(), $query) !== false) {
+                $config[] = $metric->toArray();
+            }
         }
         return array_slice($config, ($page - 1) * $size, $size);
     }

@@ -50,7 +50,7 @@ class DynamicViewAnalytics extends BaseAnalytics {
         $config = array();
         foreach (array($this->getDimension("all"), $this->getDimension("browser"), $this->getDimension("site")) as $dimension) {
             /** @var Dimension $dimension */
-            if ($query == "" || strpos($dimension->getName(), $query) !== false) {
+            if (empty($query) || stripos($dimension->getName(), $query) !== false) {
                 $config[] = $dimension->toArray();
             }
         }
@@ -68,7 +68,7 @@ class DynamicViewAnalytics extends BaseAnalytics {
         $config = array();
         foreach (array($this->getMetric("totalViews"), $this->getMetric("uniqueViews")) as $metric) {
             /** @var Metric $metric */
-            if ($query == "" || strpos($metric->getName(), $query) !== false) {
+            if (empty($query) || stripos($metric->getName(), $query) !== false) {
                 $config[] = $metric->toArray();
             }
         }
