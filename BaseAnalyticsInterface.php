@@ -104,4 +104,13 @@ interface BaseAnalyticsInterface {
      */
     public function getContextValue($key);
 
+    /**
+     * @return array|null
+     */
+    public function getDateRange();
+
+    /**
+     * @param array|null $dateRange
+     */
+    public function setDateRange($dateRange);
 }

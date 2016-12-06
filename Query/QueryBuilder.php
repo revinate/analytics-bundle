@@ -497,10 +497,13 @@ class QueryBuilder {
     }
 
     /**
+     * @param \Elastica\Query $query
      * @return ResultSet
      */
-    public function execute() {
-        $query = $this->getQuery();
+    public function execute($query = null) {
+        if (!$query) {
+            $query = $this->getQuery();
+        }
 
         $search = new \Elastica\Search($this->elasticaClient);
         $search->addIndex($this->analytics->getIndex());

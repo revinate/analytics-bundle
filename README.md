@@ -525,4 +525,8 @@ docker-compose up -d
 phpunit
 ```
 
-
+### Run tests in Docker
+```
+docker-compose build
+docker-compose run analytics-bundle
+```

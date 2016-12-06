@@ -17,6 +17,8 @@ abstract class BaseAnalytics implements BaseAnalyticsInterface, AnalyticsViewInt
     protected $container;
     /** @var  array */
     protected $context = array();
+    /** @var array Date Range context for analytics */
+    protected $dateRange = array();
 
     /**
      * @param ContainerInterface $container
@@ -126,5 +128,19 @@ abstract class BaseAnalytics implements BaseAnalyticsInterface, AnalyticsViewInt
      */
     public function getContextValue($key) {
         return isset($this->context[$key]) ? $this->context[$key] : null;
+    }
+
+    /**
+     * @return array
+     */
+    public function getDateRange() {
+        return $this->dateRange;
+    }
+
+    /**
+     * @param array $dateRange
+     */
+    public function setDateRange($dateRange) {
+        $this->dateRange = $dateRange;
     }
 }

@@ -3,6 +3,8 @@
 namespace Revinate\AnalyticsBundle\Controller;
 
 use Revinate\AnalyticsBundle\BaseAnalyticsInterface;
+use Revinate\AnalyticsBundle\Exception\InvalidResultFormatTypeException;
+use Revinate\AnalyticsBundle\Filter\FilterHelper;
 use Revinate\AnalyticsBundle\Query\QueryBuilder;
 use Revinate\AnalyticsBundle\Service\ElasticaService;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -31,9 +33,11 @@ class DocumentsController extends Controller {
         $size = isset($post['size']) ? $post['size'] : 10;
         $offset = isset($post['offset']) ? $post['offset'] : 0;
         $sourceConfig = $config['sources'][$source];
+        $dateRange = isset($post['dateRange']) ? $post['dateRange'] : null;
         /** @var BaseAnalyticsInterface $analytics */
         $analytics = new $sourceConfig['class']($container);
         $analytics->setContext(isset($post['context']) ? $post['context'] : array());
+        $analytics->setDateRange($dateRange);
         /** @var ElasticaService $elasticaService */
         $elasticaService = $container->get('revinate_analytics.elastica');
         $queryBuilder = new QueryBuilder($elasticaService->getInstance($source), $analytics);
@@ -44,7 +48,6 @@ class DocumentsController extends Controller {
         }
         $filters = isset($post['filters']) ? $post['filters'] : null;
         //Set date filter
-        $dateRange = isset($post['dateRange']) ? $post['dateRange'] : null;
         if(! is_null($dateRange)) {
             if (! isset($dateRange[2])) {
                 throw new InvalidResultFormatTypeException();

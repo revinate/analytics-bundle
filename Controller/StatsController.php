@@ -43,6 +43,7 @@ class StatsController extends Controller {
             /** @var BaseAnalyticsInterface $analytics */
             $analytics = new $sourceConfig['class']($container);
             $analytics->setContext(isset($post['context']) ? $post['context'] : array());
+            $analytics->setDateRange($dateRange);
             $isNestedDimensions = isset($post['flags']['nestedDimensions']) ? $post['flags']['nestedDimensions'] : false;
             $isNestedDimensions = (is_bool($isNestedDimensions) && $isNestedDimensions) || $isNestedDimensions == "true";
             /** @var ElasticaService $elasticaService */
@@ -150,7 +151,13 @@ class StatsController extends Controller {
                 }
                 $filters = isset($post['filters']) ? $post['filters'] : array();
                 $dateRange = isset($post['dateRange']) ? $post['dateRange'] : null;
-                if(! is_null($dateRange)) {
+                /**
+                 * HACK: We are changing the analytics class date range for each of the queries.
+                 * This is because some metrics in analytics class can depend on this date range. like "*_pace metrics"
+                 * which depend on the period of the query.
+                 */
+                $analytics->setDateRange($dateRange);
+                if (! is_null($dateRange)) {
                     if (! isset($dateRange[2])) {
                         throw new InvalidResultFormatTypeException();
                     }

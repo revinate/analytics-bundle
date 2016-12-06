@@ -12,6 +12,8 @@ class BulkQueryBuilder {
 
     /** @var  QueryBuilder[] */
     protected $queryBuilders = array();
+    /** @var \Elastica\Query[] */
+    protected $queries = array();
     /** @var ResultSet[] */
     protected $resultSets = array();
     /** @var GoalSet[] */
@@ -25,6 +27,9 @@ class BulkQueryBuilder {
      */
     public function addQueryBuilder(QueryBuilder $queryBuilder) {
         $this->queryBuilders[] = $queryBuilder;
+        // Elastica queries are built upfront rather than doing them later for all query-builders at the same time.
+        // This helps build metrics, dimensions that are dependent on query filters or date ranges.
+        $this->queries[] = $queryBuilder->getQuery();
         return $this;
     }
 
@@ -32,8 +37,8 @@ class BulkQueryBuilder {
      * @return ResultSet[]
      */
     public function execute() {
-        foreach ($this->queryBuilders as $queryBuilder) {
-            $this->resultSets[] = $queryBuilder->execute();
+        foreach ($this->queryBuilders as $index => $queryBuilder) {
+            $this->resultSets[] = $queryBuilder->execute($this->queries[$index]);
         }
         return $this->resultSets;
     }
