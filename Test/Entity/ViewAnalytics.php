@@ -61,6 +61,9 @@ class ViewAnalytics extends Analytics {
             ProcessedMetric::create("viewDollarValue")->setCalculatedFromMetrics(array("totalViews"), function($totalViews) {
                 return $totalViews > 0 ? $totalViews * 0.01 : null;
             })->setPrefix('$')->setPrecision(2),
+            ProcessedMetric::create("uniqueViewDollarValue")->setCalculatedFromMetrics(array("uniqueViews"), function($uniqueViews) {
+                return $uniqueViews > 0 ? $uniqueViews * 10 * $uniqueViews : null;
+            })->setPrefix('$')->setPrecision(2),
             ProcessedMetric::create("viewRupeeValue")->setCalculatedFromMetrics(array("totalViews"), function($totalViews) use ($dollarToRupeeConversionRate) {
                 return $totalViews * 0.01 * $dollarToRupeeConversionRate;
             })->setPrefix('Rs ')->setPrecision(2),
@@ -79,6 +82,10 @@ class ViewAnalytics extends Analytics {
             Metric::create("averageViews", "views")->setResult(Result::AVG),
             Metric::create("averageWeightage", "tags.weightage")->setNestedPath("tags")->setResult(Result::AVG),
             Metric::create("averageWeightageForVip", "tags.weightage")->setNestedPath("tags")->setFilter(FilterHelper::getValueFilter("tags.name", "vip"))->setResult(Result::AVG),
+            ProcessedMetric::create("weightedViewDollarValue")
+                ->setWeightedParams("uniqueViewDollarValue", "uniqueViews")
+                ->setCalculatedFromMetrics(array("uniqueViewDollarValue", "uniqueViews"), function($uniqueViewDollarValue, $uniqueViews) { return $uniqueViewDollarValue/$uniqueViews; }),
+
             // Misc Random Result types
             Metric::create("maxViews", "views")->setResult(Result::MAX),
             Metric::create("minViews", "views")->setResult(Result::MIN),

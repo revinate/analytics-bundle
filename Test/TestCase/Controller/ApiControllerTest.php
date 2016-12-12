@@ -79,8 +79,8 @@ class ApiControllerTest extends BaseTestCase
         ));
         $this->client->request("POST", "/api/analytics/source/view/stats", array(), array(), array(), $post);
         $response = json_decode($this->client->getResponse()->getContent(), true);
-        $this->assertSame('11.50', $response[ "dimensionAggregate"]["device"]["average"]['totalViews'], $this->debug($response));
-        $this->assertSame('2.00', $response[ "dimensionAggregate"]["device"]["average"]['uniqueViews'], $this->debug($response));
+        $this->assertSame('11.5', $response[ "dimensionAggregate"]["device"]["average"]['totalViews'], $this->debug($response));
+        $this->assertSame('2.0', $response[ "dimensionAggregate"]["device"]["average"]['uniqueViews'], $this->debug($response));
     }
 
     public function testStatsSourceWithPeriodFilterApi() {
@@ -192,8 +192,8 @@ class ApiControllerTest extends BaseTestCase
         );
         $this->client->request("POST", "/api/analytics/source/view/bulkstats", array(), array(), array(), $post);
         $response = json_decode($this->client->getResponse()->getContent(), true);
-        $this->assertSame('11.50', $response['dimensionAggregate'][0]["device"]["average"]['totalViews'], $this->debug($response));
-        $this->assertSame('11.50', $response['dimensionAggregate'][1]["browser"]["average"]['totalViews'], $this->debug($response));
+        $this->assertSame('11.5', $response['dimensionAggregate'][0]["device"]["average"]['totalViews'], $this->debug($response));
+        $this->assertSame('11.5', $response['dimensionAggregate'][1]["browser"]["average"]['totalViews'], $this->debug($response));
     }
 
     public function testStatsSourceApiWithNamedConnection() {

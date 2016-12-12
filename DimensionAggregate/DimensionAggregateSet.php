@@ -28,7 +28,7 @@ class DimensionAggregateSet {
         $agg = null;
         switch ($type) {
             case self::TYPE_AVERGAE:
-                $agg = new AverageDimensionAggregate();
+                $agg = new AverageDimensionAggregate($this->queryBuilder->getAnalytics());
                 break;
             case self::TYPE_RANKED:
                 $agg = new RankedDimensionAggregate();
@@ -37,6 +37,6 @@ class DimensionAggregateSet {
                 $agg = new RankedReversedDimensionAggregate();
                 break;
         }
-        return $agg ? $agg->getAggregate($this->resultSet->getNested(), $info) : array();
+        return $agg ? $agg->getAggregate($this->resultSet->getNestedRaw(), $info) : array();
     }
 }

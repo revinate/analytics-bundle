@@ -65,6 +65,14 @@ class ResultSet {
     }
 
     /**
+     * @return array|mixed
+     */
+    public function getNestedRaw() {
+        $resultType = new Nested($this->queryBuilder, $this->elasticaResultSet);
+        return $resultType->getResultRaw();
+    }
+
+    /**
      * @return array
      */
     public function getRaw() {

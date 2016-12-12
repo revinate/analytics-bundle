@@ -14,7 +14,10 @@ abstract class AbstractResult implements ResultInterface {
     /** @var  array */
     protected $raw;
 
-    /** @var array */
+    /** @var array result output in default format without any formatting */
+    protected $nestedRaw;
+
+    /** @var array formatted result output in default format */
     protected $nested;
 
     /** @var  \Elastica\ResultSet */
@@ -37,7 +40,9 @@ abstract class AbstractResult implements ResultInterface {
         $this->elasticaResultSet = $elasticaResultSet;
         $this->raw = $elasticaResultSet->getAggregations();
         // Nested Data is required for building all other views
-        $this->nested = $this->calculateProcessedMetrics($this->buildNestedResult($this->raw));
+        $this->nested = $this->calculateProcessedMetrics($this->buildNestedResult($this->raw, array(), 1, true), true);
+        // This duplicate work to get unformatted results.
+        $this->nestedRaw = $this->calculateProcessedMetrics($this->buildNestedResult($this->raw, array(), 1, false), false);
     }
 
     /**
@@ -62,6 +67,13 @@ abstract class AbstractResult implements ResultInterface {
     }
 
     /**
+     * @return array
+     */
+    public function getNestedRaw() {
+        return $this->nestedRaw;
+    }
+
+    /**
      * @return \Elastica\ResultSet
      */
     public function getElasticaResultSet() {
@@ -72,10 +84,11 @@ abstract class AbstractResult implements ResultInterface {
      * @param $data
      * @param $result
      * @param int $depth
+     * @oaram boolean $shouldFormat
      * @throws \Exception
      * @return mixed
      */
-    protected function buildNestedResult($data, $result = array(), $depth = 1) {
+    protected function buildNestedResult($data, $result = array(), $depth = 1, $shouldFormat = false) {
         $isTopLevel = $depth == 1;
         foreach ($data as $dimension => $dimensionData) {
             // If Nested or ReverseNested, go one level down
@@ -107,7 +120,7 @@ abstract class AbstractResult implements ResultInterface {
                             $result[$dimension][$key]["_info"] = $filterSource->get($key);
                         }
                     }
-                    $result[$dimension][$key] = $this->buildNestedResult($subDimensionData, $result[$dimension][$key], $depth + 1);
+                    $result[$dimension][$key] = $this->buildNestedResult($subDimensionData, $result[$dimension][$key], $depth + 1, $shouldFormat);
                 }
                 if ($dimensionObject->isReturnEmpty()) { // Null fill missing keys
                     $result[$dimension] = $this->addMissingDimensions($filterSource, $result[$dimension]);
@@ -116,7 +129,7 @@ abstract class AbstractResult implements ResultInterface {
                 $metric = $this->analytics->getMetric($dimension);
                 $dimensionData = $this->unsetKeys($dimensionData);
                 if ($metric && array_key_exists($metric->getResultKey(), $dimensionData)) {
-                    $metricValue = $metric->getValue($dimensionData);
+                    $metricValue = $metric->getValue($dimensionData, $shouldFormat);
                     if ($isTopLevel) {
                         // If metric at top level, it must be for All Dimension
                         $result[AllAggregation::NAME][$dimension] = $metricValue;
@@ -155,14 +168,16 @@ abstract class AbstractResult implements ResultInterface {
 
     /**
      * Calculates Post Processed Metrics
-     * @param $result
+     * @param array $result Results
+     * @param boolean $shouldFormat Should apply formating to metrics
+     * @return array
      */
-    protected function calculateProcessedMetrics($result) {
+    protected function calculateProcessedMetrics($result, $shouldFormat) {
         foreach ($result as $key => $values) {
             if (in_array($key, self::$internalKeys)) {
                 continue;
             } else if (self::isArrayOfArray($values)) {
-                $result[$key] = $this->calculateProcessedMetrics($values);
+                $result[$key] = $this->calculateProcessedMetrics($values, $shouldFormat);
             } else if (! empty($values)) {
                 $processedMetricNames = $this->getProcessedMetricNames($this->queryBuilder->getMetrics());
                 $requestedMetricNames = $this->queryBuilder->getMetrics();
@@ -172,7 +187,11 @@ abstract class AbstractResult implements ResultInterface {
                     $metric = $this->analytics->getMetric($metricName);
                     // Note: $result doesn't have raw value but formatted value which can have prefix and postfixes.
                     $metricValue = $metric ? call_user_func_array($metric->getPostProcessCallback(), $this->pickKeyValues($result[$key], $metric->getCalculatedFromMetrics())) : null;
-                    $result[$key][$metric->getName()] = ! is_null($metricValue) ? sprintf("%s%." . $metric->getPrecision() .  "f%s", $metric->getPrefix(), $metricValue, $metric->getPostfix()) : null;
+                    if ($shouldFormat) {
+                        $result[$key][$metric->getName()] = !is_null($metricValue) ? sprintf("%s%." . $metric->getPrecision() . "f%s", $metric->getPrefix(), $metricValue, $metric->getPostfix()) : null;
+                    } else {
+                        $result[$key][$metric->getName()] = !is_null($metricValue) ? $metricValue : null;
+                    }
                 }
             }
         }

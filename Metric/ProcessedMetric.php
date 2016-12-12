@@ -10,6 +10,10 @@ class ProcessedMetric extends Metric {
     protected $postProcessCallback;
     /** @var  string[] */
     protected $calculatedFromMetrics = array();
+    /** @var string metric value which is used to calculated weighted average */
+    protected $weightedValueMetric = null;
+    /** @var string metric which is used as a weight to calculate weighted average */
+    protected $weightedWeightMetric = null;
 
     /**
      * @param string $name
@@ -82,5 +86,24 @@ class ProcessedMetric extends Metric {
             }
         }
         return $processedMetrics;
+    }
+
+    /**
+     * Set the metric weight parameters
+     * @param string $valueMetric
+     * @param string $weightMetric
+     * @return $this
+     */
+    public function setWeightedParams($valueMetric, $weightMetric) {
+        $this->weightedValueMetric = $valueMetric;
+        $this->weightedWeightMetric = $weightMetric;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getWeightedParams() {
+        return array($this->weightedValueMetric, $this->weightedWeightMetric);
     }
 }

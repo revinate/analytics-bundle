@@ -432,8 +432,20 @@ class QueryBuilderTest extends BaseTestCase {
         ;
         $aggregateSet = $qb->getDimensionAggregateSet();
         $results = $aggregateSet->get(DimensionAggregateSet::TYPE_AVERGAE);
-        $this->assertSame("11.50", $results["browser"]["average"]["totalViews"], $this->debug($results));
-        $this->assertSame("2.00", $results["browser"]["average"]["uniqueViews"], $this->debug($results));
+        $this->assertSame("11.5", $results["browser"]["average"]["totalViews"], $this->debug($results));
+        $this->assertSame("2.0", $results["browser"]["average"]["uniqueViews"], $this->debug($results));
+    }
+
+    public function testAverageSetSingleDimensionForWeightedMetric() {
+        $this->createData();
+        $viewAnalytics = new ViewAnalytics($this->getContainer());
+        $qb = new QueryBuilder($this->elasticaClient, $viewAnalytics);
+        $qb->addDimensions(array("browser"))
+            ->addMetrics(array("weightedViewDollarValue"))
+        ;
+        $aggregateSet = $qb->getDimensionAggregateSet();
+        $results = $aggregateSet->get(DimensionAggregateSet::TYPE_AVERGAE);
+        $this->assertSame("20.0", $results["browser"]["average"]["weightedViewDollarValue"], $this->debug($results));
     }
 
     public function testAverageSetMultipleDimensions() {
@@ -445,9 +457,9 @@ class QueryBuilderTest extends BaseTestCase {
         ;
         $aggregateSet = $qb->getDimensionAggregateSet();
         $results = $aggregateSet->get(DimensionAggregateSet::TYPE_AVERGAE);
-        $this->assertSame("7.67", $results["site"]["average"]["totalViews"], $this->debug($results));
-        $this->assertSame("11.50", $results["device"]["average"]["totalViews"], $this->debug($results));
-        $this->assertSame("11.50", $results["browser"]["average"]["totalViews"], $this->debug($results));
+        $this->assertSame("7.7", $results["site"]["average"]["totalViews"], $this->debug($results));
+        $this->assertSame("11.5", $results["device"]["average"]["totalViews"], $this->debug($results));
+        $this->assertSame("11.5", $results["browser"]["average"]["totalViews"], $this->debug($results));
     }
 
     public function testAverageSetNested() {
@@ -460,8 +472,8 @@ class QueryBuilderTest extends BaseTestCase {
         ;
         $aggregateSet = $qb->getDimensionAggregateSet();
         $results = $aggregateSet->get(DimensionAggregateSet::TYPE_AVERGAE);
-        $this->assertSame("10.00", $results["browser"]["chrome"]["device"]["android"]["site"]["average"]["totalViews"], $this->debug($results));
-        $this->assertSame("3.50", $results["browser"]["opera"]["device"]["ios"]["site"]["average"]["totalViews"], $this->debug($results));
+        $this->assertSame("10.0", $results["browser"]["chrome"]["device"]["android"]["site"]["average"]["totalViews"], $this->debug($results));
+        $this->assertSame("3.5", $results["browser"]["opera"]["device"]["ios"]["site"]["average"]["totalViews"], $this->debug($results));
     }
 
     public function testNestedAndReverseNestedDimensionAndMetrics() {
@@ -677,7 +689,7 @@ class QueryBuilderTest extends BaseTestCase {
         $results = $aggregateSet->get(DimensionAggregateSet::TYPE_AVERGAE);
         $this->assertSame("ask.com", $resultSet["allSite"][8]["_info"]["_name"], $this->debug($results));
         $this->assertFalse(isset($resultSet["allSite"][2]["totalViews"]), $this->debug($results));
-        $this->assertSame('6.50', $results["allSite"]["average"]["totalViews"], $this->debug($results));
+        $this->assertSame('6.5', $results["allSite"]["average"]["totalViews"], $this->debug($results));
     }
 
     public function testRankedAggregateSingleDimension() {

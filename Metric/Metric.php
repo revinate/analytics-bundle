@@ -100,11 +100,16 @@ class Metric implements MetricInterface {
     }
 
     /**
-     * @param $data
+     * Return formatted value
+     * @param array $data Key value bag containing metric as "key" => "metric value"
+     * @param boolean $shouldFormat if metric value should be formatted with prefix-postfix strings
      * @return mixed
      */
-    public function getValue($data) {
+    public function getValue($data, $shouldFormat = true) {
         $value = isset($data[$this->getResultKey()]) ? $data[$this->getResultKey()] : $this->getDefault();
+        if (! $shouldFormat) {
+            return round($value, $this->getPrecision());
+        }
         return ! is_null($value) ? sprintf("%s%." . $this->getPrecision() . "f%s", $this->getPrefix(), $value, $this->getPostfix()) : null;
     }
 

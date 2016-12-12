@@ -7,6 +7,8 @@ use Elastica\Aggregation\AbstractAggregation;
 use Elastica\Filter\AbstractFilter;
 use Revinate\AnalyticsBundle\Aggregation\AllAggregation;
 use Revinate\AnalyticsBundle\Aggregation\Nested;
+use Revinate\AnalyticsBundle\Analytics;
+use Revinate\AnalyticsBundle\AnalyticsInterface;
 use Revinate\AnalyticsBundle\BaseAnalyticsInterface;
 use Revinate\AnalyticsBundle\DimensionAggregate\DimensionAggregateSet;
 use Revinate\AnalyticsBundle\Dimension\AllDimension;
