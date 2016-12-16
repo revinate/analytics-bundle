@@ -84,6 +84,17 @@ abstract class AbstractFilterSource implements FilterSourceInterface {
     }
 
     /**
+     * @param $dataArray
+     * @return mixed
+     */
+    public function normalizeAll($dataArray) {
+        foreach ($dataArray as $index => $data) {
+            $dataArray[$index] = $this->normalize($data);
+        }
+        return $dataArray;
+    }
+
+    /**
      * @param $data
      * NOTE: We might be overwriting
      */

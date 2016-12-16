@@ -16,7 +16,7 @@ abstract class AbstractMySQLFilterSource extends AbstractFilterSource implements
         $qb->select('entity')->where("entity.id = :id")->setParameter("id", $id);
         $query = $qb->getQuery();
         $entity = $query->getSingleResult(Query::HYDRATE_ARRAY);
-        return $entity;
+        return $this->normalize($entity);
     }
 
     /**
@@ -31,7 +31,7 @@ abstract class AbstractMySQLFilterSource extends AbstractFilterSource implements
             ->setParameter("ids", $ids)
         ;
         $query = $qb->getQuery();
-        return $query->execute(null, Query::HYDRATE_ARRAY);
+        return $this->normalizeAll($query->execute(null, Query::HYDRATE_ARRAY));
     }
 
     /**
@@ -52,7 +52,7 @@ abstract class AbstractMySQLFilterSource extends AbstractFilterSource implements
             $qb->setMaxResults($pageSize);
         }
         $query = $qb->getQuery();
-        return $query->execute(null, Query::HYDRATE_ARRAY);
+        return $this->normalizeAll($query->execute(null, Query::HYDRATE_ARRAY));
     }
 
     /**
@@ -63,7 +63,7 @@ abstract class AbstractMySQLFilterSource extends AbstractFilterSource implements
         $qb = $repository->createQueryBuilder("entity");
         $qb->select('entity');
         $query = $qb->getQuery();
-        return $query->execute(null, Query::HYDRATE_ARRAY);
+        return $this->normalizeAll($query->execute(null, Query::HYDRATE_ARRAY));
     }
 
     /**
