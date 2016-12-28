@@ -304,7 +304,8 @@ POST /api/analytics/source/{sourcename}/stats
     "dateRange" : ["period"|"range", "period name", "field"] # Optional. Adds a date filter and sets extended bounds for dateHistogram dimensions. "field" specifies which field holds the date information, defaults to date.
     "sort": {"field": "direction"}, # ElasticSearch sort option compatibility. direction is either "asc" or "desc"
     "flags": {
-        "nestedDimensions": false # true/false
+        "nestedDimensions": false # true/false. Defaults to false
+        "enableInfo": true # true/false. Defaults to true. Override to disable or enable "_info" key for each bucket
     },
     "format": "nested", # nested (default), raw, flattened, tabular, google_data_table, documents
     "dimensionAggregate": { # Optional. Calculates a single result as an aggregation of the dimension buckets

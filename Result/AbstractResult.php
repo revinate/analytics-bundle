@@ -111,16 +111,23 @@ abstract class AbstractResult implements ResultInterface {
                 $dimensionObject = $this->analytics->getDimension($dimension);
                 $filterSource = $dimensionObject->getFilterSource();
                 $result[$dimension] = array();
+                $bucketKeys = array();
                 foreach ($dimensionData['buckets'] as $bucketIndex => $subDimensionData) {
                     $key = $this->getBucketKey($subDimensionData, $bucketIndex);
                     $subDimensionData = $this->unsetKeys($subDimensionData);
+                    $bucketKeys[] = $key;
                     if (!isset($result[$dimension][$key])) {
                         $result[$dimension][$key] = array();
-                        if ($filterSource) {
-                            $result[$dimension][$key]["_info"] = $filterSource->get($key);
-                        }
                     }
                     $result[$dimension][$key] = $this->buildNestedResult($subDimensionData, $result[$dimension][$key], $depth + 1, $shouldFormat);
+                }
+                // Add _info
+                if ($filterSource && $this->queryBuilder->isEnableInfo()) {
+                    $filterSourceValues = $this->convertToMap($filterSource->mget(array_unique($bucketKeys)), $filterSource->getIdColumn());
+                    foreach ($dimensionData['buckets'] as $bucketIndex => $subDimensionData) {
+                        $key = $this->getBucketKey($subDimensionData, $bucketIndex);
+                        $result[$dimension][$key]["_info"] = isset($filterSourceValues[$key]) ? $filterSourceValues[$key] : array();
+                    }
                 }
                 if ($dimensionObject->isReturnEmpty()) { // Null fill missing keys
                     $result[$dimension] = $this->addMissingDimensions($filterSource, $result[$dimension]);
@@ -159,9 +166,11 @@ abstract class AbstractResult implements ResultInterface {
             if (isset($data[$row['id']])) {
                 continue;
             }
-            $data[$row['id']] = array(
-                "_info" => $row
-            );
+            if ($this->queryBuilder->isEnableInfo()) {
+                $data[$row['id']] = array("_info" => $row);
+            } else {
+                $data[$row['id']] = array();
+            }
         }
         return $data;
     }
@@ -366,5 +375,20 @@ abstract class AbstractResult implements ResultInterface {
             }
         }
         return $names;
+    }
+
+    /**
+     * @param array $data
+     * @param $newKey
+     * @return array
+     */
+    protected function convertToMap($data, $newKey) {
+        $rekeyedData = array();
+        foreach ($data as $value) {
+            if (isset($value[$newKey])) {
+                $rekeyedData[$value[$newKey]] = $value;
+            }
+        }
+        return $rekeyedData;
     }
 }

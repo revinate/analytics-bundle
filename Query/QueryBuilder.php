@@ -60,6 +60,8 @@ class QueryBuilder {
     protected $debug = false;
     /** @var null|array  */
     protected $bounds = null;
+    /** @var bool If _info should be returned if available */
+    protected $enableInfo = true;
 
     /**
      * @param \Elastica\Client $elasticaClient
@@ -568,5 +570,21 @@ class QueryBuilder {
      */
     protected function isAggregationCall() {
         return count($this->getMetrics()) > 0 && count($this->getDimensions()) > 0;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isEnableInfo() {
+        return $this->enableInfo;
+    }
+
+    /**
+     * @param boolean $enableInfo
+     * @return $this
+     */
+    public function setEnableInfo($enableInfo) {
+        $this->enableInfo = $enableInfo;
+        return $this;
     }
 }
