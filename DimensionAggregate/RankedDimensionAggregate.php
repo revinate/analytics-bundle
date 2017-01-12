@@ -2,9 +2,21 @@
 
 namespace Revinate\AnalyticsBundle\DimensionAggregate;
 
+use Revinate\AnalyticsBundle\Query\QueryBuilder;
 use Revinate\AnalyticsBundle\Result\AbstractResult;
 
 class RankedDimensionAggregate implements DimensionAggregateInterface {
+
+    /** @var QueryBuilder */
+    protected $qb;
+
+    /**
+     * AverageDimensionAggregate constructor.
+     * @param QueryBuilder $qb
+     */
+    public function __construct(QueryBuilder $qb) {
+        $this->qb = $qb;
+    }
 
     public function getAggregate($result, $info = null) {
         $agg = array();
@@ -17,11 +29,15 @@ class RankedDimensionAggregate implements DimensionAggregateInterface {
      * @param $agg
      */
     public function calculate($result, &$agg, $info = null) {
+        $requestedMetrics = $this->qb->getMetrics();
         foreach ($result as $bucketKey => $buckets) {
             if (AbstractResult::isArrayOfArrayOfScalars($buckets)) {
                 $agg[$bucketKey] = array();
                 $keys = $this->getKeys($buckets);
                 foreach ($keys as $key) {
+                    if (!in_array($key, $requestedMetrics)) {
+                        continue;
+                    }
                     uksort($buckets, $this->getCompareFunction($buckets, $key));
                     $rank = 1;
                     foreach ($buckets as $bucketKey2 => $bucket) {

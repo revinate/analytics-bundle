@@ -712,12 +712,13 @@ class QueryBuilderTest extends BaseTestCase {
         $viewAnalytics = new ViewAnalytics($this->getContainer());
         $qb = new QueryBuilder($this->elasticaClient, $viewAnalytics);
         $qb->addDimensions(array("site"))
-            ->addMetrics(array("totalViews", "uniqueViews"))
+            ->addMetrics(array("totalViews", "uniqueViews", "chromeViewsPct"))
         ;
         $aggregateSet = $qb->getDimensionAggregateSet();
         $results = $aggregateSet->get(DimensionAggregateSet::TYPE_RANKED);
         $this->assertSame(1, $results["site"]["4"]["totalViews"], $this->debug($results));
         $this->assertSame(4, $results["site"]["8"]["uniqueViews"], $this->debug($results));
+        $this->assertNotTrue(isset($results["site"]["8"]["chromeTotalViews"]), $this->debug($results));
     }
 
     public function testRankedAggregateMultipleDimensions() {
