@@ -41,8 +41,6 @@ abstract class AbstractResult implements ResultInterface {
         $this->raw = $elasticaResultSet->getAggregations();
         // Nested Data is required for building all other views
         $this->nested = $this->calculateProcessedMetrics($this->buildNestedResult($this->raw, array(), 1, true), true);
-        // This duplicate work to get unformatted results.
-        $this->nestedRaw = $this->calculateProcessedMetrics($this->buildNestedResult($this->raw, array(), 1, false), false);
     }
 
     /**
@@ -70,6 +68,10 @@ abstract class AbstractResult implements ResultInterface {
      * @return array
      */
     public function getNestedRaw() {
+        if ($this->nestedRaw) {
+            return $this->nestedRaw;
+        }
+        $this->nestedRaw = $this->calculateProcessedMetrics($this->buildNestedResult($this->raw, array(), 1, false), false);
         return $this->nestedRaw;
     }
 

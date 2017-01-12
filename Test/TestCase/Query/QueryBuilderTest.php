@@ -713,6 +713,7 @@ class QueryBuilderTest extends BaseTestCase {
         $qb = new QueryBuilder($this->elasticaClient, $viewAnalytics);
         $qb->addDimensions(array("site"))
             ->addMetrics(array("totalViews", "uniqueViews", "chromeViewsPct"))
+            ->setEnableInfo(false)
         ;
         $aggregateSet = $qb->getDimensionAggregateSet();
         $results = $aggregateSet->get(DimensionAggregateSet::TYPE_RANKED);
