@@ -15,6 +15,7 @@ class ResultSet {
     const TYPE_GOOGLE_DATA_TABLE = 'google_data_table';
     const TYPE_CHART_JS = 'chartjs';
     const TYPE_DOCUMENTS = 'documents';
+    const TYPE_CSV = 'csv';
 
     /** @var array */
     protected $data;
@@ -105,6 +106,14 @@ class ResultSet {
     }
 
     /**
+     * @return mixed
+     */
+    public function getCSV() {
+        $resultType = new CSV($this->queryBuilder, $this->elasticaResultSet);
+        return $resultType->getResult();
+    }
+
+    /**
      * @param $format
      * @return array|mixed
      * @throws InvalidResultFormatTypeException
@@ -123,6 +132,8 @@ class ResultSet {
                 return $this->getGoogleDataTable();
             case self::TYPE_CHART_JS:
                 return $this->getChartJs();
+            case self::TYPE_CSV:
+                return $this->getCSV();
             case self::TYPE_DOCUMENTS:
                 return $this->getDocuments();
             default:

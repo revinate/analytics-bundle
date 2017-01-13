@@ -329,4 +329,18 @@ class ApiControllerTest extends BaseTestCase
         $this->assertSame('5.0', $response['results'][1]['all']['totalViews'], $this->debug($response));
         $this->assertSame('5.0', $response['results'][1]['browser']['opera']['totalViews'], $this->debug($response));
     }
+
+    public function testStatsSourceApiCSVFormat() {
+        $this->createData();
+        $post = json_encode(array(
+            "dimensions" => array("all", "device"),
+            "metrics" => array("totalViews", "uniqueViews", "averageViews"),
+            "filters" => array(),
+            "flags" => array("nestedDimensions" => false),
+            "format" => "csv"
+        ));
+        $this->client->request("POST", "/api/analytics/source/view/stats", array(), array(), array(), $post);
+        $response = $this->client->getResponse()->getContent();
+        $this->assertNotEmpty($response, $this->debug($response));
+    }
 }

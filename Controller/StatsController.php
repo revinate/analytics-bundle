@@ -21,7 +21,7 @@ class StatsController extends Controller {
     /**
      * Stats Controller
      * @param $source
-     * @return JsonResponse
+     * @return Response
      * @throws \Exception
      */
     public function searchStatsAction($source) {
@@ -88,6 +88,10 @@ class StatsController extends Controller {
                 $queryBuilder->setSort($post['sort']);
             }
             $response['results'] = $queryBuilder->execute()->getResult($format);
+            // CSV Support
+            if ($format == ResultSet::TYPE_CSV) {
+                return new Response($response['results']);
+            }
             if (isset($post['goals'])) {
                 $response['goalResults'] = $queryBuilder->getGoalSet()->get($format);
             }
