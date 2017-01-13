@@ -37,6 +37,11 @@ class DimensionAggregateSet {
                 $agg = new RankedReversedDimensionAggregate($this->queryBuilder);
                 break;
         }
-        return $agg ? $agg->getAggregate($this->resultSet->getNestedRaw(), $info) : array();
+        $start = microtime(true);
+        $res = $agg ? $agg->getAggregate($this->resultSet->getNestedRaw(), $info) : array();
+        if ($this->queryBuilder->isDebug()) {
+            echo "Aggregate calculation Time: " . round(microtime(true)-$start, 3) . " secs";
+        }
+        return $res;
     }
 }

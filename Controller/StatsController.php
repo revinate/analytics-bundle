@@ -13,6 +13,7 @@ use Revinate\AnalyticsBundle\Filter\FilterHelper;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class StatsController extends Controller {
@@ -26,7 +27,14 @@ class StatsController extends Controller {
     public function searchStatsAction($source) {
         $container = $this->get('service_container');
         $config = $container->getParameter('revinate_analytics.config');
-        $post = json_decode($this->get('request_stack')->getMasterRequest()->getContent(), true);
+        /** @var Request $request */
+        $request = $this->get('request_stack')->getMasterRequest();
+        $queryString = json_decode(urldecode($request->query->get("query")), true);
+        if ($queryString) {
+            $post = $queryString;
+        } else {
+            $post = json_decode($request->getContent(), true);
+        }
         $format = isset($post['format']) ? $post['format'] : ResultSet::TYPE_NESTED;
         $dimensionAggregate = isset($post["dimensionAggregate"]) ? $post["dimensionAggregate"] : null;
         $dateRange = isset($post['dateRange']) ? $post['dateRange'] : null;
@@ -46,6 +54,7 @@ class StatsController extends Controller {
             $analytics->setDateRange($dateRange);
             $isNestedDimensions = $this->getBoolRequestFlag($post, 'nestedDimensions', false);
             $isInfoEnabled = $this->getBoolRequestFlag($post, 'enableInfo', true);
+            $isDebug = $this->getBoolRequestFlag($post, 'debug', false);
             /** @var ElasticaService $elasticaService */
             $elasticaService = $container->get('revinate_analytics.elastica');
             $queryBuilder = new QueryBuilder($elasticaService->getInstance($source), $analytics);
@@ -54,6 +63,7 @@ class StatsController extends Controller {
                 ->addDimensions($post['dimensions'])
                 ->addMetrics($post['metrics'])
                 ->setEnableInfo($isInfoEnabled)
+                ->setDebug($isDebug)
             ;
             if (isset($post['goals'])) {
                 $goals = array();
@@ -131,6 +141,7 @@ class StatsController extends Controller {
             $bulkQueryBuilder = new BulkQueryBuilder();
             $isNestedDimensions = $this->getBoolRequestFlag($queriesPost, 'nestedDimensions', false);
             $isInfoEnabled = $this->getBoolRequestFlag($queriesPost, 'enableInfo', true);
+            $isDebug = $this->getBoolRequestFlag($queriesPost, 'debug', false);
             foreach ($queriesPost['queries'] as $post) {
                 if (empty($post) || empty($post['dimensions']) || empty($post['metrics'])) {
                     return new JsonResponse(array('ok' => false, '_help' => $this->getHelp()), Response::HTTP_BAD_REQUEST);
@@ -143,6 +154,7 @@ class StatsController extends Controller {
                     ->addDimensions($post['dimensions'])
                     ->addMetrics($post['metrics'])
                     ->setEnableInfo($isInfoEnabled)
+                    ->setDebug($isDebug)
                 ;
                 if (isset($queriesPost['goals'])) {
                     $goals = array();

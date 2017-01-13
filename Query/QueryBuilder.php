@@ -514,7 +514,11 @@ class QueryBuilder {
         $search->addType($this->analytics->getType());
         $search->setQuery($query);
 
+        $start = microtime(true);
         $this->resultSet = new ResultSet($this, $search->search());
+        if ($this->isDebug()) {
+            echo "Query Time: " . round(microtime(true)-$start, 3) . " secs";
+        }
         return $this->resultSet;
     }
 

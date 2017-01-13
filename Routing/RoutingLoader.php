@@ -62,7 +62,7 @@ class RoutingLoader extends Loader {
         // Route for Stats
         $route = new Route($basePath . '/source/{source}/stats',
             array('_controller' => 'RevinateAnalyticsBundle:Stats:searchStats'),
-            array(), array(), '', array(), array('POST'));
+            array(), array(), '', array(), array('POST', 'GET'));
         $routes->add("revinate_analytics_stats_search", $route);
 
         // Route for Bulk Stats

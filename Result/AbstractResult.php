@@ -38,9 +38,13 @@ abstract class AbstractResult implements ResultInterface {
         $this->queryBuilder = $queryBuilder;
         $this->analytics = $this->queryBuilder->getAnalytics();
         $this->elasticaResultSet = $elasticaResultSet;
+        $start = microtime(true);
         $this->raw = $elasticaResultSet->getAggregations();
         // Nested Data is required for building all other views
         $this->nested = $this->calculateProcessedMetrics($this->buildNestedResult($this->raw, array(), 1, true), true);
+        if ($this->queryBuilder->isDebug()) {
+            echo "Result calculation Time: " . round(microtime(true)-$start, 3) . " secs";
+        }
     }
 
     /**

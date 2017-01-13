@@ -47,6 +47,22 @@ class ApiControllerTest extends BaseTestCase
         $this->assertSame('5.8', $response["results"]["all"]['averageViews'], $this->debug($response));
     }
 
+    public function testStatsSourceApiWithSearchQueryParam() {
+        $this->createData();
+        $query = urlencode(json_encode(array(
+            "dimensions" => array("all", "device"),
+            "metrics" => array("totalViews", "uniqueViews", "averageViews"),
+            "filters" => array(),
+            "flags" => array("nestedDimensions" => false),
+            "format" => "nested"
+        )));
+        $this->client->request("GET", "/api/analytics/source/view/stats", array("query" => $query), array(), array());
+        $response = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertSame('23.0', $response["results"]["all"]['totalViews'], $this->debug($response));
+        $this->assertSame('4.0', $response["results"]["all"]['uniqueViews'], $this->debug($response));
+        $this->assertSame('5.8', $response["results"]["all"]['averageViews'], $this->debug($response));
+    }
+
     public function testStatsSourceApiWithGoals() {
         $this->createData();
         $post = json_encode(array(
