@@ -38,13 +38,16 @@ class RankedDimensionAggregate implements DimensionAggregateInterface {
                     if (!in_array($key, $requestedMetrics)) {
                         continue;
                     }
-                    uksort($buckets, $this->getCompareFunction($buckets, $key));
-                    $rank = 1;
+                    $sortData = array();
                     foreach ($buckets as $bucketKey2 => $bucket) {
+                        // array_multisort: Associative (string) keys will be maintained, but numeric keys will be re-indexed.
+                        $sortData["_".$bucketKey2][$key] = $bucket[$key];
+                    }
+                    $sortData = $this->array_orderby($sortData, $key, $this->getOrder());
+                    $rank = 1;
+                    foreach ($sortData as $bucketKey2 => $bucket) {
+                        $bucketKey2 = substr($bucketKey2, 1);
                         $agg[$bucketKey][$bucketKey2][$key] = $rank++;
-                        if (isset($bucket["_info"])) {
-                            $agg[$bucketKey][$bucketKey2]["_info"] = $bucket["_info"];
-                        }
                     }
                 }
             } else if(AbstractResult::isArrayOfArray($buckets)) {
@@ -72,21 +75,30 @@ class RankedDimensionAggregate implements DimensionAggregateInterface {
     }
 
     /**
-     * @param array $buckets
-     * @param string $key
-     * @return \Closure
+     * @return int
      */
-    protected function getCompareFunction($buckets, $key) {
-        return function($a, $b) use($buckets, $key) {
-            $val1 = isset($buckets[$b][$key]) ? $buckets[$b][$key] : 0;
-            $val2 = isset($buckets[$a][$key]) ? $buckets[$a][$key] : 0;
-            if ($val1 > $val2) {
-                return 1;
-            } else if ($val1 < $val2) {
-                return -1;
-            } else {
-                return 0;
+    protected function getOrder() {
+        return SORT_DESC;
+    }
+
+    /**
+     * Code taken from http://php.net/manual/en/function.array-multisort.php#100534
+     * @return mixed
+     */
+    function array_orderby() {
+        $args = func_get_args();
+        $data = array_shift($args);
+        foreach ($args as $n => $field) {
+            if (is_string($field)) {
+                $tmp = array();
+                foreach ($data as $key => $row) {
+                    $tmp[$key] = isset($row[$field]) ? $row[$field] : 0;
+                }
+                $args[$n] = $tmp;
             }
-        };
+        }
+        $args[] = &$data;
+        call_user_func_array('array_multisort', $args);
+        return array_pop($args);
     }
 }
