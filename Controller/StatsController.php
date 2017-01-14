@@ -90,7 +90,9 @@ class StatsController extends Controller {
             $response['results'] = $queryBuilder->execute()->getResult($format);
             // CSV Support
             if ($format == ResultSet::TYPE_CSV) {
-                return new Response($response['results']);
+                $resp = new Response($response['results']);
+                $resp->headers->set('Content-Type', 'text/csv');
+                return $resp;
             }
             if (isset($post['goals'])) {
                 $response['goalResults'] = $queryBuilder->getGoalSet()->get($format);
