@@ -1,9 +1,9 @@
 services:
     revinate_analytics.routing_loader:
         class: Revinate\AnalyticsBundle\Routing\RoutingLoader
-        arguments: [@service_container]
+        arguments: ['@service_container']
         tags:
             - { name: routing.loader }
     revinate_analytics.elastica:
         class: Revinate\AnalyticsBundle\Service\ElasticaService
-        arguments: [@service_container]
+        arguments: ['@service_container']
