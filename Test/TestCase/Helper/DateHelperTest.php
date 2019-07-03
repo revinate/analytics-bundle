@@ -121,8 +121,8 @@ class DateHelperTest extends \PHPUnit_Framework_TestCase {
 
         // Custom Date Range
         $customExpectedResults = array(
-            'period' => array('2014-01-01', 'custom', '2014-12-15'),
-            'description' => 'Custom Date Range',
+            'period' => array('01/01/2014', 'custom', '12/15/2014'),
+            'description' => 'Custom Date Range 01/01/14 - 12/15/14',
             'short_description' => 'Custom Date Range'
         );
 
