@@ -118,5 +118,14 @@ class DateHelperTest extends \PHPUnit_Framework_TestCase {
         );
 
         $this->assertEquals($ytdpyExpectedResults, DateHelper::getPeriodInfo('ytdpy', strtotime('December 15 2015')));
+
+        // Custom Date Range
+        $customExpectedResults = array(
+            'period' => array('2014-01-01', 'custom', '2014-12-15'),
+            'description' => 'Custom Date Range',
+            'short_description' => 'Custom Date Range'
+        );
+
+        $this->assertEquals($customExpectedResults, DateHelper::getPeriodInfo('01/01/2014-12/15/2014'));
     }
 }
