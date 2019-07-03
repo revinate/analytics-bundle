@@ -332,10 +332,11 @@ class DateHelper {
             $return = array('period' => $period, 'description' => 'Quarter To Date: ' . date('n/j/y', strtotime($period[0])) . '-' . date('n/j/y'), 'short_description' => 'Quarter To Date');
         } elseif (strpos($periodName, '-') !== false) {
             $pieces = explode("-", $periodName);
-            $period[0] = ($pieces[0]);
-            $period[1] = ($pieces[1]);
+            $period[0] = date('Y-m-d', strtotime($pieces[0]));
+            $period[1] = 'custom';
+            $period[2] = date('Y-m-d', strtotime($pieces[1]));
             $return = array('period' => $period, "description" => "Custom Date Range " . date('m/d/y', strtotime($period[0]))
-                . " - " . date('m/d/y', strtotime($period[1])), 'short_description' => 'Custom Date Range');
+                . " - " . date('m/d/y', strtotime($period[2])), 'short_description' => 'Custom Date Range');
         } elseif (preg_match('/l([\d]+)d/', $periodName, $matches)) {
             $howLong = $matches[1] - 1;
             $days = $matches[1];
