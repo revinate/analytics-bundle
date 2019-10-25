@@ -129,7 +129,7 @@ class DateHelperTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals($customExpectedResults, DateHelper::getPeriodInfo('01/01/2014-12/15/2014'));
 
         $period = array('01/01/2014', '12/15/2014');
-        $customExpectedResults = array('2014-01-01T00:00:00+00:00', '2014-12-31T23:59:59+00:00');
+        $customExpectedResults = array('2014-01-01T00:00:00+00:00', '2014-12-15T23:59:59+00:00');
         $this->assertEquals($customExpectedResults, DateHelper::extractStartAndEndDates($period));
     }
 }
