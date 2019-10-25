@@ -535,4 +535,60 @@ class DateHelper {
         }
         return $timestamps;
     }
+
+    /**
+     * Extracts start and end date for ES date filters
+     *
+     * @param array $period     Supports a range in this format: array(0 => StartDate, 1 => EndDate)
+     * @throws \Exception if no valid start and dates are given
+     * @return array(start date, end date)
+     */
+    public static function extractStartAndEndDates($period) {
+        $origTz = date_default_timezone_get();
+        date_default_timezone_set("UTC");
+        $isStartDateInvalid = !isset($period[0]) || strtotime($period[0]) === false;
+        $isEndDateInvalid = !isset($period[1]) || strtotime($period[1]) === false;
+        if ($isStartDateInvalid || $isEndDateInvalid) {
+            throw new \Exception("Missing start date or end date in passed period: " . json_encode($period));
+        }
+        $startDate = date('c', strtotime(date('Y-m-d 00:00:00', strtotime($period[0]))));
+        $endDate = date('c', strtotime(date('Y-m-d 23:59:59', strtotime($period[1]))));
+        date_default_timezone_set($origTz);
+        return array($startDate, $endDate);
+    }
+
+    /**
+     * Returns Date in UTC (or whatever other timezone is provided)
+     *
+     * @static
+     * @param   string  $dateFormat     Format of the date as supported by date()
+     * @param   int     $timestamp      Timestamp
+     * @param   string  $timeZone       Timezone
+     *
+     * @return string                   Formatted date/time string
+     */
+    public static function getUTCDate($dateFormat, $timestamp, $timeZone = 'UTC') {
+        $origTz = date_default_timezone_get();
+        date_default_timezone_set($timeZone);
+        $date = date($dateFormat, $timestamp);
+        date_default_timezone_set($origTz);
+        return $date;
+    }
+
+    /**
+     * Returns timestamp in UTC (or whatever other timezone is provided)
+     *
+     * @static
+     * @param   string  $date   date in string format
+     * @param   string $timeZone the timezone, defaults to utc
+     * @param   string $now the reference timestamp to base the calculation off, defaults to null (i.e. now)
+     * @return int
+     */
+    public static function getUTCTimestamp($date, $timeZone = 'UTC', $now = null) {
+        $origTz = date_default_timezone_get();
+        date_default_timezone_set($timeZone);
+        $ts = is_null($now) ? strtotime($date) : strtotime($date, $now);
+        date_default_timezone_set($origTz);
+        return $ts;
+    }
 }
