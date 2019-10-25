@@ -509,8 +509,13 @@ class QueryBuilder {
             $query = $this->getQuery();
         }
 
+        // Ensure we set an array of indices, always.
+        $indices = $this->analytics->getIndex();
+        if (! is_array($indices)) {
+            $indices = array($indices);
+        }
         $search = new \Elastica\Search($this->elasticaClient);
-        $search->addIndex($this->analytics->getIndex());
+        $search->addIndices($indices);
         $search->addType($this->analytics->getType());
         $search->setQuery($query);
 
